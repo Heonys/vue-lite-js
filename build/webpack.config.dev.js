@@ -7,7 +7,7 @@ const { resolve } = require("./utils");
 module.exports = merge(baseConfig, {
   mode: "development",
   entry: {
-    sample: resolve("sample/index.ts"),
+    sample: resolve("dev/index.ts"),
   },
   devtool: "source-map",
   devServer: {
@@ -18,7 +18,7 @@ module.exports = merge(baseConfig, {
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       filename: "index.html",
-      template: "sample/index.html",
+      template: "dev/index.html",
       inject: true,
     }),
   ],
