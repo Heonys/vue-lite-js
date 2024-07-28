@@ -1,4 +1,4 @@
-import type ViewModel from "./viewmodel";
+import type { ViewModel } from "./viewmodel";
 
 export abstract class Processor {
   constructor(public category: string) {
@@ -9,5 +9,5 @@ export abstract class Processor {
   process(vm: ViewModel, el: HTMLElement, key: string, value: any) {
     this._process(vm, el, key, value);
   }
-  abstract _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void;
+  abstract _process(vm: ViewModel, el: HTMLElement, key: string, value: any): any;
 }

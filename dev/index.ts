@@ -1,5 +1,5 @@
 import { Scanner } from "../src/core/scanner";
-import ViewModel from "../src/core/viewmodel";
+import { ViewModel } from "../src/core/viewmodel";
 import { Processor } from "../src/core/processor";
 
 const viewmodel = ViewModel.get({
@@ -8,6 +8,11 @@ const viewmodel = ViewModel.get({
       width: "50%",
       background: "#ffa",
       cursor: "pointer",
+    },
+    events: {
+      click(e: Event, vm: ViewModel) {
+        console.log("click", vm.parent);
+      },
     },
   }),
   title: ViewModel.get({
@@ -54,4 +59,5 @@ binder
       }
     })("events"),
   );
-binder.render(viewmodel);
+
+binder.watch(viewmodel);

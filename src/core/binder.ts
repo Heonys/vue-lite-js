@@ -1,13 +1,12 @@
 import type { Processor } from "./processor";
-import ViewModel from "./viewmodel";
+import { ViewModel, ViewModelListener, ViewModelInfo } from "./viewmodel";
 
-type Processors = {
-  [K: string]: Processor;
-};
+type Processors = { [K: string]: Processor };
 
-export class Binder {
+export class Binder extends ViewModelListener {
   private items = new Set<BinderItem>();
   private processors: Processors = {};
+  root: ViewModel;
 
   add(item: BinderItem) {
     this.items.add(item);
@@ -30,12 +29,37 @@ export class Binder {
       });
     });
   }
+
+  watch(vm: ViewModel) {
+    vm.addListener(this);
+    this.render(vm);
+    this.root = vm;
+  }
+  unwatch(vm: ViewModel) {
+    vm.removeListener(this);
+    this.root = null;
+  }
+
+  viewmodelUpdated(updated: Set<ViewModelInfo>) {
+    const items: { [K: string]: [ViewModel, HTMLElement] } = {};
+    this.items.forEach((item) => {
+      items[item.viewmodelKey] = [this.root[item.viewmodelKey], item.el];
+    });
+
+    updated.forEach((info) => {
+      if (!items[info.subkey]) return;
+      const [vm, el] = items[info.subkey];
+      const processor = this.processors[info.category];
+      if (!el || !processor) return;
+      processor.process(vm, el, info.key, info.value);
+    });
+  }
 }
 
 export class BinderItem {
   constructor(
     public el: HTMLElement,
-    public viewmodelKey: string, // lazy binding
+    public viewmodelKey: string,
   ) {
     this.el = el;
     this.viewmodelKey = viewmodelKey;
