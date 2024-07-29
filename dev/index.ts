@@ -1,6 +1,4 @@
-import { Scanner } from "../src/core/scanner";
-import { ViewModel } from "../src/core/viewmodel";
-import { Processor } from "../src/core/processor";
+import { Scanner, ViewModel, Processor } from "../src/core";
 
 const viewmodel = ViewModel.get({
   wrapper: ViewModel.get({

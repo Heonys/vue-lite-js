@@ -3,10 +3,6 @@ interface Attribute {}
 interface Properties {}
 interface Events {}
 
-export abstract class ViewModelListener {
-  abstract viewmodelUpdated(updated: Set<ViewModelInfo>): void;
-}
-
 export class ViewModelInfo {
   constructor(
     public subkey: string,
@@ -22,9 +18,66 @@ export class ViewModelInfo {
   }
 }
 
-export class ViewModel extends ViewModelListener {
-  static subjects = new Set<ViewModel>();
+export abstract class ViewModelListener {
+  abstract viewmodelUpdated(updated: Set<ViewModelInfo>): void;
+}
+
+class ViewModelSubject extends ViewModelListener {
+  static subjects = new Set<ViewModelSubject>();
   static inited = false;
+  private info = new Set<ViewModelInfo>();
+  private listeners = new Set<ViewModelListener>();
+
+  private static watch(vm: ViewModelSubject) {
+    this.subjects.add(vm);
+    if (!this.inited) {
+      this.inited = true;
+      this.notify();
+    }
+  }
+  private static unwatch(vm: ViewModelSubject) {
+    this.subjects.delete(vm);
+    if (!this.subjects.size) this.inited = false;
+  }
+
+  private static notify() {
+    const frame = () => {
+      this.subjects.forEach((subject) => {
+        if (subject.info.size) {
+          subject.notify();
+          subject.clearInfo();
+        }
+        if (this.inited) requestAnimationFrame(frame);
+      });
+      requestAnimationFrame(frame);
+    };
+  }
+
+  addInfo(v: ViewModelInfo) {
+    this.info.add(v);
+  }
+  clearInfo() {
+    this.info.clear();
+  }
+
+  addListener(v: ViewModelListener) {
+    this.listeners.add(v);
+    ViewModelSubject.watch(this);
+  }
+  removeListener(v: ViewModelListener) {
+    this.listeners.delete(v);
+    if (!this.listeners.size) ViewModelSubject.unwatch(this);
+  }
+  notify() {
+    this.listeners.forEach((v) => v.viewmodelUpdated(this.info));
+  }
+
+  viewmodelUpdated(updated: Set<ViewModelInfo>) {
+    updated.forEach((v) => this.addInfo(v));
+  }
+}
+
+export class ViewModel extends ViewModelSubject {
   private static checker = Symbol();
 
   styles: Styles = {};
@@ -32,38 +85,25 @@ export class ViewModel extends ViewModelListener {
   properties: Properties = {};
   events: Events = {};
   [CustomKey: string]: any;
-  private isUpdated = new Set<ViewModelInfo>();
-  private listeners = new Set<ViewModelListener>();
-  subkey: string = "";
-  parent: ViewModel | null = null;
+  private subkey: string = "";
+  private _parent: ViewModel | null = null;
 
   static get(data: object) {
     return new this(this.checker, data);
   }
-  static notify(viewmodel: ViewModel) {
-    this.subjects.add(viewmodel);
-    if (this.inited) return;
-    this.inited = true;
-    const frame = () => {
-      this.subjects.forEach((vm) => {
-        if (vm.isUpdated.size) {
-          vm.notify();
-          vm.isUpdated.clear();
-        }
-        requestAnimationFrame(frame);
-      });
-      requestAnimationFrame(frame);
-    };
+
+  get parent() {
+    return this._parent;
   }
 
-  addListener(v: ViewModelListener) {
-    this.listeners.add(v);
+  set parent(parent: ViewModel) {
+    this._parent = parent;
   }
-  removeListener(v: ViewModelListener) {
-    this.listeners.delete(v);
-  }
-  notify() {
-    this.listeners.forEach((v) => v.viewmodelUpdated(this.isUpdated));
+
+  private defineRelation(parent: ViewModel, subkey: string) {
+    this.parent = parent;
+    this.subkey = subkey;
+    this.addListener(parent);
   }
 
   constructor(checker: symbol, data: object) {
@@ -80,7 +120,7 @@ export class ViewModel extends ViewModelListener {
               get: () => value,
               set: (newValue) => {
                 value = newValue;
-                this.isUpdated.add(new ViewModelInfo(this.subkey, cat, key, value));
+                this.addInfo(new ViewModelInfo(this.subkey, cat, key, value));
               },
             };
             return acc;
@@ -92,21 +132,14 @@ export class ViewModel extends ViewModelListener {
           get: () => catValue,
           set: (newValue) => {
             catValue = newValue;
-            this.isUpdated.add(new ViewModelInfo(this.subkey, "", cat, catValue));
+            this.addInfo(new ViewModelInfo(this.subkey, "", cat, catValue));
           },
         });
         if (catValue instanceof ViewModel) {
-          catValue.parent = this;
-          catValue.subkey = cat;
-          catValue.addListener(this);
+          catValue.defineRelation(this, cat);
         }
       }
     });
-    ViewModel.notify(this);
     Object.seal(this);
-  }
-
-  viewmodelUpdated(updated: Set<ViewModelInfo>) {
-    updated.forEach((v) => this.isUpdated.add(v));
   }
 }
