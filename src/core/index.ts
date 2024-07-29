@@ -1,3 +1,4 @@
 export { ViewModel } from "./viewmodel";
-export { Scanner } from "./scanner";
+export { DomScanner } from "./scanner";
 export { Processor } from "./processor";
+export { DomVisitor } from "./visitor";

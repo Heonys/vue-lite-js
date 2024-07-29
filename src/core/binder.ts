@@ -6,7 +6,6 @@ type Processors = { [K: string]: Processor };
 export class Binder extends ViewModelListener {
   private items = new Set<BinderItem>();
   private processors: Processors = {};
-  root: ViewModel;
 
   add(item: BinderItem) {
     this.items.add(item);
@@ -33,17 +32,16 @@ export class Binder extends ViewModelListener {
   watch(vm: ViewModel) {
     vm.addListener(this);
     this.render(vm);
-    this.root = vm;
   }
   unwatch(vm: ViewModel) {
     vm.removeListener(this);
-    this.root = null;
   }
 
-  viewmodelUpdated(updated: Set<ViewModelInfo>) {
+  viewmodelUpdated(viewmodel: ViewModel, updated: Set<ViewModelInfo>) {
     const items: { [K: string]: [ViewModel, HTMLElement] } = {};
+
     this.items.forEach((item) => {
-      items[item.viewmodelKey] = [this.root[item.viewmodelKey], item.el];
+      items[item.viewmodelKey] = [viewmodel[item.viewmodelKey], item.el];
     });
 
     updated.forEach((info) => {

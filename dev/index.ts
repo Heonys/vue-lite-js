@@ -1,6 +1,10 @@
-import { Scanner, ViewModel, Processor } from "../src/core";
+import { DomScanner, ViewModel, Processor, DomVisitor } from "../src/core";
 
 const viewmodel = ViewModel.get({
+  isStop: false,
+  changeContents() {
+    this.contents.properties.innerHTML = Math.random().toString(16).replace(".", "");
+  },
   wrapper: ViewModel.get({
     styles: {
       width: "50%",
@@ -9,7 +13,7 @@ const viewmodel = ViewModel.get({
     },
     events: {
       click(e: Event, vm: ViewModel) {
-        console.log("click", vm.parent);
+        vm.parent.isStop = true;
       },
     },
   }),
@@ -25,7 +29,7 @@ const viewmodel = ViewModel.get({
   }),
 });
 
-const scanner = new Scanner();
+const scanner = new DomScanner(new DomVisitor());
 const binder = scanner.scan(document.querySelector("#target")!);
 
 binder
@@ -59,3 +63,9 @@ binder
   );
 
 binder.watch(viewmodel);
+
+const f = () => {
+  viewmodel.changeContents();
+  if (!viewmodel.isStop) requestAnimationFrame(f);
+};
+requestAnimationFrame(f);

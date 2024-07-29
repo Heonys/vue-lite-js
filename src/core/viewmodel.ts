@@ -19,7 +19,7 @@ export class ViewModelInfo {
 }
 
 export abstract class ViewModelListener {
-  abstract viewmodelUpdated(updated: Set<ViewModelInfo>): void;
+  abstract viewmodelUpdated(viewmodel: ViewModel, updated: Set<ViewModelInfo>): void;
 }
 
 class ViewModelSubject extends ViewModelListener {
@@ -47,10 +47,10 @@ class ViewModelSubject extends ViewModelListener {
           subject.notify();
           subject.clearInfo();
         }
-        if (this.inited) requestAnimationFrame(frame);
       });
-      requestAnimationFrame(frame);
+      if (this.inited) requestAnimationFrame(frame);
     };
+    requestAnimationFrame(frame);
   }
 
   addInfo(v: ViewModelInfo) {
@@ -69,10 +69,16 @@ class ViewModelSubject extends ViewModelListener {
     if (!this.listeners.size) ViewModelSubject.unwatch(this);
   }
   notify() {
-    this.listeners.forEach((v) => v.viewmodelUpdated(this.info));
+    this.listeners.forEach((v) => {
+      v.viewmodelUpdated(this.notifyTarget, this.info);
+    });
   }
 
-  viewmodelUpdated(updated: Set<ViewModelInfo>) {
+  get notifyTarget(): ViewModel {
+    throw "use override";
+  }
+
+  viewmodelUpdated(viewmodel: ViewModel, updated: Set<ViewModelInfo>) {
     updated.forEach((v) => this.addInfo(v));
   }
 }
@@ -98,6 +104,10 @@ export class ViewModel extends ViewModelSubject {
 
   set parent(parent: ViewModel) {
     this._parent = parent;
+  }
+
+  get notifyTarget() {
+    return this;
   }
 
   private defineRelation(parent: ViewModel, subkey: string) {
