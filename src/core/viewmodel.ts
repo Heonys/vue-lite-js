@@ -1,8 +1,3 @@
-interface Styles {}
-interface Attribute {}
-interface Properties {}
-interface Events {}
-
 export class ViewModelInfo {
   constructor(
     public subkey: string,
@@ -85,12 +80,9 @@ class ViewModelSubject extends ViewModelListener {
 
 export class ViewModel extends ViewModelSubject {
   private static checker = Symbol();
+  static PATH = Symbol();
 
-  styles: Styles = {};
-  attribute: Attribute = {};
-  properties: Properties = {};
-  events: Events = {};
-  [CustomKey: string]: any;
+  [CustomKey: PropertyKey]: any;
   private subkey: string = "";
   private _parent: ViewModel | null = null;
 
@@ -110,46 +102,53 @@ export class ViewModel extends ViewModelSubject {
     return this;
   }
 
-  private defineRelation(parent: ViewModel, subkey: string) {
+  private defineParent(parent: ViewModel, subkey: string) {
     this.parent = parent;
     this.subkey = subkey;
     this.addListener(parent);
+  }
+  define(target: ViewModel | Record<PropertyKey, any>, key: string, value: any) {
+    if (value && typeof value === "object" && !(value instanceof ViewModel)) {
+      if (Array.isArray(value)) {
+        target[key] = [];
+        target[key][ViewModel.PATH] = target[ViewModel.PATH] + "." + key;
+        value.forEach((v, i) => this.define(target[key], `${i}`, v));
+      } else {
+        target[key] = {
+          [ViewModel.PATH]: target[ViewModel.PATH] + "." + key,
+        };
+        Object.entries(value).forEach(([k, v]) => {
+          this.define(target[key], k, v);
+        });
+      }
+
+      /* 
+        일반 속성이지만 굳이 defineProperty를 사용해서 subkey를 정의하는 이유는
+        클로저 공간을 만들어서 getter가 정의되는 시점의 target 즉, 자기 자신의 부모 키를 기억하기 위함
+        target[key]["subkey"] = target.subkey; 이건왜? 
+      */
+      Object.defineProperty(target[key], "subkey", {
+        get: () => target.subkey,
+      });
+    } else {
+      // 결국 재귀적으로 돌면서 배열또는 객체가 아닐떄까지 풀어지고 일로 들어옴
+      if (value instanceof ViewModel) value.defineParent(this, key);
+      Object.defineProperty(target, key, {
+        enumerable: true,
+        get: () => value,
+        set: (newValue) => {
+          value = newValue;
+          this.addInfo(new ViewModelInfo(target.subkey, target[ViewModel.PATH], key, value));
+        },
+      });
+    }
   }
 
   constructor(checker: symbol, data: object) {
     super();
     if (checker !== ViewModel.checker) throw "use ViewModel.get()";
-
-    Object.entries(data).forEach(([cat, catValue]) => {
-      if (["styles", "attribute", "properties", "events"].includes(cat)) {
-        this[cat] = Object.defineProperties(
-          catValue,
-          Object.entries(catValue).reduce((acc, [key, value]) => {
-            acc[key] = {
-              enumerable: true,
-              get: () => value,
-              set: (newValue) => {
-                value = newValue;
-                this.addInfo(new ViewModelInfo(this.subkey, cat, key, value));
-              },
-            };
-            return acc;
-          }, {} as PropertyDescriptorMap),
-        );
-      } else {
-        Object.defineProperty(this, cat, {
-          enumerable: true,
-          get: () => catValue,
-          set: (newValue) => {
-            catValue = newValue;
-            this.addInfo(new ViewModelInfo(this.subkey, "", cat, catValue));
-          },
-        });
-        if (catValue instanceof ViewModel) {
-          catValue.defineRelation(this, cat);
-        }
-      }
-    });
+    this[ViewModel.PATH] = "root";
+    Object.entries(data).forEach(([k, v]) => this.define(this, k, v));
     Object.seal(this);
   }
 }

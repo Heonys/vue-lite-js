@@ -24,7 +24,9 @@ export class Binder extends ViewModelListener {
       const el = item.el;
 
       processorEnties.forEach(([category, processor]) => {
-        Object.entries(vm[category]).forEach(([k, v]) => processor.process(vm, el, k, v));
+        if (vm[category]) {
+          Object.entries(vm[category]).forEach(([k, v]) => processor.process(vm, el, k, v));
+        }
       });
     });
   }
@@ -47,7 +49,7 @@ export class Binder extends ViewModelListener {
     updated.forEach((info) => {
       if (!items[info.subkey]) return;
       const [vm, el] = items[info.subkey];
-      const processor = this.processors[info.category];
+      const processor = this.processors[info.category.split(".").pop()];
       if (!el || !processor) return;
       processor.process(vm, el, info.key, info.value);
     });
