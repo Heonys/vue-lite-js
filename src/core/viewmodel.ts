@@ -83,6 +83,8 @@ export class ViewModel extends ViewModelSubject {
   static PATH = Symbol();
 
   [CustomKey: PropertyKey]: any;
+  el: HTMLElement;
+  template: { name: string; data: ViewModel[] };
   private subkey: string = "";
   private _parent: ViewModel | null = null;
 
@@ -107,7 +109,7 @@ export class ViewModel extends ViewModelSubject {
     this.subkey = subkey;
     this.addListener(parent);
   }
-  define(target: ViewModel | Record<PropertyKey, any>, key: string, value: any) {
+  define(target: ViewModel, key: string, value: any) {
     if (value && typeof value === "object" && !(value instanceof ViewModel)) {
       if (Array.isArray(value)) {
         target[key] = [];
@@ -123,9 +125,7 @@ export class ViewModel extends ViewModelSubject {
       }
 
       Object.defineProperty(target[key], "subkey", {
-        get: () => {
-          return target.subkey;
-        },
+        get: () => target.subkey,
       });
     } else {
       if (value instanceof ViewModel) value.defineParent(this, key);

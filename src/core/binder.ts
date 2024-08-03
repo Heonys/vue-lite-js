@@ -13,11 +13,12 @@ export class Binder extends ViewModelListener {
 
   addProcessor(v: Processor) {
     this.processors[v.category] = v;
-    return this;
   }
 
+  // 초기상태 설정
   render(viewmodel: ViewModel) {
     const processorEnties = Object.entries(this.processors);
+
     this.items.forEach((item) => {
       const vm = viewmodel[item.viewmodelKey];
       if (!(vm instanceof ViewModel)) return;

@@ -30,6 +30,7 @@ export class DomScanner extends Scanner {
       if (template) {
         el.removeAttribute("data-template");
         DomScanner.templates.set(template, el);
+        // Map { listItem -> <li data-viewmodel="item"></li> }
         el.remove(); // template은 진짜 요소가 아닌 element를 묶기위한 용도이니까 부모에서 제거
       } else {
         const vm = el.getAttribute("data-viewmodel");
@@ -46,6 +47,7 @@ export class DomScanner extends Scanner {
   }
 }
 
+// TODO: data-viewmodel 속성 v-model 또는 v:key 이런식으로 바인딩 하도록 바꾸기
 class VueScanner extends Scanner {
   // vue 문법으로 작성된 템플릿을 파싱하는 코드가 필요
   // + 해당 스캐너에 전달받는 Vue Visitor또한 필요
