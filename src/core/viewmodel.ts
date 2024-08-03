@@ -122,16 +122,12 @@ export class ViewModel extends ViewModelSubject {
         });
       }
 
-      /* 
-        일반 속성이지만 굳이 defineProperty를 사용해서 subkey를 정의하는 이유는
-        클로저 공간을 만들어서 getter가 정의되는 시점의 target 즉, 자기 자신의 부모 키를 기억하기 위함
-        target[key]["subkey"] = target.subkey; 이건왜? 
-      */
       Object.defineProperty(target[key], "subkey", {
-        get: () => target.subkey,
+        get: () => {
+          return target.subkey;
+        },
       });
     } else {
-      // 결국 재귀적으로 돌면서 배열또는 객체가 아닐떄까지 풀어지고 일로 들어옴
       if (value instanceof ViewModel) value.defineParent(this, key);
       Object.defineProperty(target, key, {
         enumerable: true,

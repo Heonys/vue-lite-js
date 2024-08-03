@@ -1,6 +1,8 @@
-import { DomScanner, ViewModel, Processor, DomVisitor } from "../src/core";
+import Vuelite from "../src/core/render";
+import { ViewModel } from "../src/core/viewmodel";
 
-const viewmodel = ViewModel.get({
+const vm = ViewModel.get({
+  // el: document.querySelector("#target")!,
   isStop: false,
   changeContents() {
     this.contents.properties.innerHTML = Math.random().toString(16).replace(".", "");
@@ -29,43 +31,5 @@ const viewmodel = ViewModel.get({
   }),
 });
 
-const scanner = new DomScanner(new DomVisitor());
-const binder = scanner.scan(document.querySelector("#target")!);
-
-binder
-  .addProcessor(
-    new (class extends Processor {
-      _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
-        el.style[key] = value;
-      }
-    })("styles"),
-  )
-  .addProcessor(
-    new (class extends Processor {
-      _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
-        el.setAttribute(key, value);
-      }
-    })("attribute"),
-  )
-  .addProcessor(
-    new (class extends Processor {
-      _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
-        el[key] = value;
-      }
-    })("properties"),
-  )
-  .addProcessor(
-    new (class extends Processor {
-      _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
-        el["on" + key] = (e: Event) => value.call(el, e, vm);
-      }
-    })("events"),
-  );
-
-binder.watch(viewmodel);
-
-const f = () => {
-  viewmodel.changeContents();
-  if (!viewmodel.isStop) requestAnimationFrame(f);
-};
-requestAnimationFrame(f);
+// TODO: el을 vm안에 넣기
+new Vuelite(document.querySelector("#target")!, vm);
