@@ -1,10 +1,81 @@
 import { DomScanner, DomVisitor, Binder, ViewModel, Processor } from "./core/index";
 import { WritableKeys } from "./types/index";
 
+interface Option {
+  el: string;
+  data?: {
+    [K: string]: any;
+  };
+  mothod?: {
+    [K: string]: (...params: any[]) => any;
+  };
+  computed?: {};
+  watch?: {};
+  styles?: {
+    [K: string]: any;
+  };
+  events?: {};
+}
+
+// const optionParser = (option: Option) => {
+//   const entries = Object.entries(option);
+
+// return ViewModel.get({...});
+// };
+
+export class Vuelite {
+  constructor(option: Option) {
+    new VueliteModel(
+      document.querySelector(option.el),
+      ViewModel.get({
+        wrapper: ViewModel.get({
+          styles: {
+            width: "50%",
+            background: "#ffa",
+            cursor: "pointer",
+          },
+          events: {
+            click(e: Event, vm: ViewModel) {},
+          },
+        }),
+        title: ViewModel.get({
+          properties: {
+            innerHTML: "Title",
+          },
+        }),
+        contents: ViewModel.get({
+          properties: {
+            innerHTML: "Contents",
+          },
+        }),
+        list: ViewModel.get({
+          template: {
+            name: "listItem",
+            data: [
+              ViewModel.get({
+                item: ViewModel.get({
+                  styles: { background: "#fff" },
+                  properties: { innerHTML: "item1" },
+                }),
+              }),
+              ViewModel.get({
+                item: ViewModel.get({
+                  styles: { background: "#fff" },
+                  properties: { innerHTML: "item2" },
+                }),
+              }),
+            ],
+          },
+        }),
+      }),
+    );
+  }
+}
+
 const visitor = new DomVisitor();
 const scanner = new DomScanner(visitor);
 
-export default class Vuelite {
+export default class VueliteModel {
   private binder: Binder;
 
   constructor(
@@ -57,14 +128,6 @@ export default class Vuelite {
           if (!Array.isArray(data)) throw "invalid data";
           Object.freeze(this);
 
-          // 기존에 그려진게 있는지 확인하고 지우는 절차
-          // visitor.visit((el) => {
-          //   if (el.binder) {
-          //     const [binder, vm] = el.binder;
-          //     binder.unwatch(vm);
-          //     delete el.binder;
-          //   }
-          // }, el);
           el.innerHTML = "";
           data.forEach((vm, i) => {
             if (!(vm instanceof ViewModel)) throw "invalid viewmodel";
@@ -80,11 +143,5 @@ export default class Vuelite {
 
     setBaseProcessor(this.binder);
     this.binder.watch(this.vm);
-
-    const frame = () => {
-      this.vm.changeContents();
-      if (!this.vm.isStop) requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
   }
 }

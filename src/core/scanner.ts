@@ -26,16 +26,16 @@ export class DomScanner extends Scanner {
     const binder = new Binder();
 
     const action = (el: HTMLElement) => {
-      const template = el.getAttribute("data-template");
+      const template = el.getAttribute("v-template");
       if (template) {
-        el.removeAttribute("data-template");
+        el.removeAttribute("v-template");
         DomScanner.templates.set(template, el);
         // Map { listItem -> <li data-viewmodel="item"></li> }
         el.remove(); // template은 진짜 요소가 아닌 element를 묶기위한 용도이니까 부모에서 제거
       } else {
-        const vm = el.getAttribute("data-viewmodel");
+        const vm = el.getAttribute("v-model");
         if (vm) {
-          el.removeAttribute("data-viewmodel");
+          el.removeAttribute("v-model");
           binder.add(new BinderItem(el, vm));
         }
       }

@@ -1,81 +1,30 @@
-import Vuelite from "../src/render";
-import { ViewModel } from "../src/core";
+import { Vuelite } from "../src/render";
 
-// TODO: vuelite에 객체를 전달하고 내부적으로 따로 파싱하기
-
-new Vuelite(
-  document.querySelector("#target")!,
-  ViewModel.get({
-    isStop: false,
-    changeContents() {
-      // this.wrapper.styles.background = `rgb(${Math.random() * 150 + 100},${Math.random() * 150 + 100},${Math.random() * 150 + 100})`;
-      // this.contents.properties.innerHTML = Math.random().toString(16).replace(".", "");
-      this.list.template.data.forEach(({ item: { styles, properties } }) => {
-        properties.innerHTML = Math.random().toString(16).replace(".", "");
-        // styles.background = `rgb(${Math.random() * 150 + 100},${Math.random() * 150 + 100},${Math.random() * 150 + 100})`;
-      });
+new Vuelite({
+  el: "#target",
+  data: {
+    title: "제목",
+    contents: "내용없음",
+  },
+  computed: {},
+  mothod: {
+    increase() {},
+    decrease() {},
+  },
+  styles: {
+    wrapper: {
+      width: "50%",
+      background: "#ffa",
+      cursor: "pointer",
     },
-    wrapper: ViewModel.get({
-      styles: {
-        width: "50%",
-        background: "#ffa",
-        cursor: "pointer",
-      },
-      events: {
-        click(e: Event, vm: ViewModel) {
-          vm.parent.isStop = true;
-        },
-      },
-    }),
-    title: ViewModel.get({
-      properties: {
-        innerHTML: "Title",
-      },
-    }),
-    contents: ViewModel.get({
-      properties: {
-        innerHTML: "Contents",
-      },
-    }),
-    list: ViewModel.get({
-      template: {
-        name: "listItem",
-        data: [
-          ViewModel.get({
-            key: "data1",
-            item: ViewModel.get({
-              // styles: { background: "#fff" },
-              properties: { innerHTML: "item1" },
-            }),
-          }),
-          ViewModel.get({
-            key: "data2",
-            item: ViewModel.get({
-              // styles: { background: "#fff" },
-              properties: { innerHTML: "item2" },
-            }),
-          }),
-        ],
-      },
-    }),
-  }),
-);
-
-/*
-
-Vuelite({
-  data(){
-    name: "jiheon"
   },
-  mothod(){
-    run() {}
-  },
-  style(){
-     # 이게최선? 
-  }
+});
 
-})
+/* 
+data, method, computed는 그냥 뷰모델에 값을 할당하면 되지 않을까?
 
-
--> 스캐너가 item을 만들면 순서대로 videmodel을 바인딩해야 하나?
- */
+v-model은 양방향 바인딩 -> 따라서 양방향 바인딩 구조 만들 필요가 있음
+v-template은 사실상 v-for에서 배열을 순회하는것과 유사
+이벤트 디렉티브 추가,
+디렉티브 축약표현 추가 
+*/
