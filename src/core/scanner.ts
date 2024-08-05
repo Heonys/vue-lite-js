@@ -1,4 +1,3 @@
-import { isElementNode, isTextNode } from "../utils/index";
 import { Binder, BinderItem } from "./binder";
 import { DomVisitor, Visitor } from "./visitor";
 
@@ -15,7 +14,7 @@ export class Scanner {
 }
 
 export class VueScanner extends Scanner {
-  static vBind = new Map<HTMLElement, string>();
+  static vBind = new Map<string, HTMLElement>();
   static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
 
   static extractReg(text: string) {
@@ -32,12 +31,12 @@ export class VueScanner extends Scanner {
     const binder = new Binder();
     const action = (el: HTMLElement) => {
       if (el.childNodes.length === 1 && VueScanner.templatePtn.test(el.textContent)) {
-        VueScanner.vBind.set(el, VueScanner.extractReg(el.textContent));
+        VueScanner.vBind.set(VueScanner.extractReg(el.textContent), el);
       }
-      const vm = el.getAttribute("v-model");
-      if (vm) {
+      const vmKey = el.getAttribute("v-model");
+      if (vmKey) {
         el.removeAttribute("v-model");
-        binder.add(new BinderItem(el, vm));
+        binder.add(new BinderItem(el, vmKey));
       }
     };
 

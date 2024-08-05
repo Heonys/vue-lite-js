@@ -7,11 +7,25 @@
   </head>
   <body>
     <div id="app">
-      <section id="target" v-model="wrapper">
-        <h2 v-model="title"></h2>
-        <h2>{{ title2 }}</h2>
-        <section v-model="contents"></section>
+      <section v-model="wrapper">
+        <h2 v-model="title">{{ title }}</h2>
+        <section v-model="contents">{{ contents }}</section>
+        <input type="text" v-model="text">
+        <div v-style="style" ></div>
+        <button @click="increase">클릭</button>
       </section>
     </div>
   </body>
 </html>
+
+<!-- 
+
+최상위 요소는 항상 Viewmodel 이여야만 하는데? -> wrapper를 없애고 #app 얘를 최상위로 
+스타일은 v-style으로 추가하고 그 해당하는 키는 viewmodel의 stlyes에서 정의하도록 
+
+input은 양방향 바인딩할때 value라는 프로퍼티를 사용하는데 이걸 속성을 받아야되나? 
+v-value="text"
+v-checked="isChecked"
+아무래도 이렇게 해야할듯 안그러면 input의 타입마다 바인딩하는 값을 분기해야함 
+
+-->

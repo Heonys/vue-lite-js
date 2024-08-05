@@ -27,7 +27,10 @@ class OptionParser {
           cursor: "pointer",
         },
         events: {
-          click(e: Event, vm: ViewModel) {},
+          click(e: Event, vm: ViewModel) {
+            const prev = vm.parent.text.properties.value;
+            vm.parent.text.properties.value = prev + "0";
+          },
         },
       }),
       title: ViewModel.get({
@@ -38,6 +41,20 @@ class OptionParser {
       contents: ViewModel.get({
         properties: {
           innerHTML: "Contents",
+        },
+      }),
+      text: ViewModel.get({
+        properties: {
+          value: "hello",
+        },
+
+        // TODO: 이거 데이터들을 전부 한곳에 모아두고 거기서 바꾸는 걸로 해야할듯 (경로 문제)
+        // 실제 DOM이 변경되었을때 VM도 갱신해주는 부분
+        events: {
+          input(e: InputEvent, vm: ViewModel) {
+            const target = e.target as HTMLInputElement;
+            vm.parent.text.properties.value = target.value;
+          },
         },
       }),
     });

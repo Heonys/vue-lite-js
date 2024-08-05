@@ -1,7 +1,7 @@
 import { Vuelite } from "../src/render";
 
 new Vuelite({
-  el: "#target",
+  el: "#app",
   data: {
     title: "제목",
     contents: "내용없음",
@@ -27,4 +27,7 @@ v-model은 양방향 바인딩 -> 따라서 양방향 바인딩 구조 만들 �
 v-template은 사실상 v-for에서 배열을 순회하는것과 유사
 이벤트 디렉티브 추가,
 디렉티브 축약표현 추가 
+
+this로 데이터나 메소드 접근하기 ex) this.title, this.increase()
+
 */
