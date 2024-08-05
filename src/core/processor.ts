@@ -1,3 +1,4 @@
+import { WritableKeys } from "../types/index";
 import type { ViewModel } from "./viewmodel";
 
 export abstract class Processor {
@@ -12,5 +13,33 @@ export abstract class Processor {
   abstract _process(vm: ViewModel, el: HTMLElement, key: string, value: any): any;
 }
 
-// vue 혹은 react 프로세서를 추가해서 파싱한다?
-// -> index에서 바로 사용하게 코드 분리
+// 프로세서란 ->
+// 프로세서를 만들때 전달한 [카테고리]를 키로 갖는 process 함수를 전달하고
+// addProcessor를 통해서 바인더에서 processors라는 컬렉션에 등록됨
+// 이후에 notify가 되어 updated된 알림이 왔을때 바인더에서
+// processor를 순회하면서 알림으로 온 카데고리를 업데이트 -> 즉, 그타이밍에 _process 함수 실행되어 업데이트
+
+// 쉽게말해 해당 vm안에 styles라는 속성이 존재하면 styles 프로세서의 process가 실행되는 것
+
+export const baseProcessor = [
+  new (class extends Processor {
+    _process(vm: ViewModel, el: HTMLElement, key: any, value: any): void {
+      el.style[key] = value;
+    }
+  })("styles"),
+  new (class extends Processor {
+    _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
+      el.setAttribute(key, value);
+    }
+  })("attribute"),
+  new (class extends Processor {
+    _process(vm: ViewModel, el: HTMLElement, key: WritableKeys<HTMLElement>, value: any): void {
+      (el[key] as any) = value;
+    }
+  })("properties"),
+  new (class extends Processor {
+    _process(vm: ViewModel, el: HTMLElement, key: string, value: any): void {
+      (el[("on" + key) as WritableKeys<HTMLElement>] as any) = (e: Event) => value.call(el, e, vm);
+    }
+  })("events"),
+];

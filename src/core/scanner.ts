@@ -1,3 +1,4 @@
+import { isElementNode, isTextNode } from "../utils/index";
 import { Binder, BinderItem } from "./binder";
 import { DomVisitor, Visitor } from "./visitor";
 
@@ -13,31 +14,30 @@ export class Scanner {
   }
 }
 
-export class DomScanner extends Scanner {
-  static templates = new Map<string, HTMLElement>();
-  static get(key: string) {
-    return this.templates.get(key);
+export class VueScanner extends Scanner {
+  static vBind = new Map<HTMLElement, string>();
+  static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
+
+  static extractReg(text: string) {
+    const pattern = this.templatePtn;
+    const match = pattern.exec(text);
+    return match ? match[1] : null;
   }
+
   constructor(visitor: DomVisitor) {
     super(visitor);
   }
 
   scan(el: HTMLElement) {
     const binder = new Binder();
-
     const action = (el: HTMLElement) => {
-      const template = el.getAttribute("v-template");
-      if (template) {
-        el.removeAttribute("v-template");
-        DomScanner.templates.set(template, el);
-        // Map { listItem -> <li data-viewmodel="item"></li> }
-        el.remove(); // template은 진짜 요소가 아닌 element를 묶기위한 용도이니까 부모에서 제거
-      } else {
-        const vm = el.getAttribute("v-model");
-        if (vm) {
-          el.removeAttribute("v-model");
-          binder.add(new BinderItem(el, vm));
-        }
+      if (el.childNodes.length === 1 && VueScanner.templatePtn.test(el.textContent)) {
+        VueScanner.vBind.set(el, VueScanner.extractReg(el.textContent));
+      }
+      const vm = el.getAttribute("v-model");
+      if (vm) {
+        el.removeAttribute("v-model");
+        binder.add(new BinderItem(el, vm));
       }
     };
 
@@ -45,10 +45,4 @@ export class DomScanner extends Scanner {
     this.visit(action, el);
     return binder;
   }
-}
-
-// TODO: data-viewmodel 속성 v-model 또는 v:key 이런식으로 바인딩 하도록 바꾸기
-class VueScanner extends Scanner {
-  // vue 문법으로 작성된 템플릿을 파싱하는 코드가 필요
-  // + 해당 스캐너에 전달받는 Vue Visitor또한 필요
 }
