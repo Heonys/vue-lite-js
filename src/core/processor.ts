@@ -1,5 +1,6 @@
 import { WritableKeys } from "../types/index";
 import type { ViewModel } from "./viewmodel";
+import { OptionParser } from "../render";
 
 export abstract class Processor {
   constructor(public category: string) {
@@ -43,3 +44,17 @@ export const baseProcessor = [
     }
   })("events"),
 ];
+
+/* 
+v-model, v-bind, v-on의 경우 디렉티브키와 식별자 값이 필요
+
+반면 v-styles, v-text의 경우는 value만 필요 
+
+
+
+
+v-style) ->  
+v-text) -> properties의 innerHTML으로 변경해주면됨 
+
+
+*/

@@ -17,6 +17,9 @@ new Vuelite({
       background: "#ffa",
       cursor: "pointer",
     },
+    textStyle: {
+      color: "#FF0000",
+    },
   },
 });
 

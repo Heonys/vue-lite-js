@@ -17,8 +17,9 @@ export class Scanner {
 }
 
 export class VueScanner extends Scanner {
-  static vBind = new Map<string, HTMLElement>();
+  static templateBind = new Map<string, HTMLElement>();
   static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
+  // static
 
   constructor(visitor: DomVisitor) {
     super(visitor);
@@ -34,7 +35,7 @@ export class VueScanner extends Scanner {
       // {{ data }} 형태의 단방향 데이터 바인딩을 찾아냄
       if (el.childNodes.length === 1 && patten.test(el.textContent)) {
         ViewModel.UID++;
-        VueScanner.vBind.set(extractReg(patten, el.textContent), el);
+        VueScanner.templateBind.set(extractReg(patten, el.textContent), el);
         isTemplate = true;
         el.uid = ViewModel.UID;
         ViewModel.UIDToViewModel[el.uid] = el;

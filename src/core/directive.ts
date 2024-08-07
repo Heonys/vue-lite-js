@@ -54,7 +54,7 @@ export class Directive {
   static text() {
     // 사실상 {{ }}을 사용한 템플릿 구문과 동일
   }
-  static styles() {
+  static style() {
     // 로더를 따로 사용해서 vue 확장자를 지원하지 않기때문에 styles을 뷰모델에서 관리
   }
   static eventHandler() {
