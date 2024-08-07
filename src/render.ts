@@ -40,7 +40,7 @@ class OptionParser {
       }),
       contents: ViewModel.get({
         properties: {
-          innerHTML: "Contents",
+          innerHTML: "Contents01",
         },
       }),
       text: ViewModel.get({
@@ -77,6 +77,11 @@ export class Vuelite {
 export default class VueliteBinder {
   private binder: Binder;
 
+  static setBaseProcessor(binder: Binder) {
+    baseProcessor.forEach((process) => binder.addProcessor(process));
+    return binder;
+  }
+
   constructor(
     private el: HTMLElement,
     private vm: ViewModel,
@@ -84,13 +89,7 @@ export default class VueliteBinder {
     const visitor = new DomVisitor();
     const scanner = new VueScanner(visitor);
     this.binder = scanner.scan(this.el);
-
-    const setBaseProcessor = (binder: Binder) => {
-      baseProcessor.forEach((process) => binder.addProcessor(process));
-      return binder;
-    };
-
-    setBaseProcessor(this.binder);
+    VueliteBinder.setBaseProcessor(this.binder);
     this.binder.watch(this.vm);
   }
 }

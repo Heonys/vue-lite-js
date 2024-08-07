@@ -60,10 +60,10 @@ export class Binder extends ViewModelListener {
 export class BinderItem {
   constructor(
     public el: HTMLElement,
+    public directive: string,
+    public modifier: string,
     public viewmodelKey: string,
   ) {
-    this.el = el;
-    this.viewmodelKey = viewmodelKey;
     Object.freeze(this);
   }
 }
