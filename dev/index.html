@@ -10,8 +10,9 @@
       <section v-model="wrapper">
         <h2 v-model="title">{{ title }}</h2>
         <section v-model="contents">{{ contents }}</section>
-        <input type="text" v-model="text">
+        <input type="text" v-model="text" v-style="textStyle" v-on:input="hanldeInput">
         <div v-style="style" ></div>
+        <input type="text">
         <button v-style="btn" v-on:click="increase">클릭</button>
       </section>
     </div>

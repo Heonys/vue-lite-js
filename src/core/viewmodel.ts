@@ -79,6 +79,8 @@ class ViewModelSubject extends ViewModelListener {
 }
 
 export class ViewModel extends ViewModelSubject {
+  static UID: number = 0;
+  static UIDToViewModel: Record<number, HTMLElement> = {};
   private static checker = Symbol();
   static PATH = Symbol();
 
@@ -87,6 +89,7 @@ export class ViewModel extends ViewModelSubject {
   template: { name: string; data: ViewModel[] };
   private subkey: string = "";
   private _parent: ViewModel | null = null;
+  uid: number = 0;
 
   static get(data: object) {
     return new this(this.checker, data);

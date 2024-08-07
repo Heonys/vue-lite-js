@@ -19,31 +19,39 @@ class OptionParser {
   static parse(options: Options): ViewModel {
     const baseModel = {};
 
+    /* 
+    스캐너에서 읽은 모든 디렉티브 value값은 새로운 뷰모델을 만들어야함
+    단, 하나의 elemnet가 여러개의 디렉티브를 가지면 하나의 뷰모델 내부에서 속성이 추가되면됨 
+
+    uuid를 준다? 
+
+    <input type="text" v-model="text" v-style="textStyle" v-on:input="hanldeInput">
+    예외적으로 v-style은 스타일 속성에 따로 정의
+    
+
+    */
     return ViewModel.get({
-      wrapper: ViewModel.get({
+      "1": ViewModel.get({
         styles: {
           width: "50%",
           background: "#ffa",
           cursor: "pointer",
         },
         events: {
-          click(e: Event, vm: ViewModel) {
-            const prev = vm.parent.text.properties.value;
-            vm.parent.text.properties.value = prev + "0";
-          },
+          click(e: Event, vm: ViewModel) {},
         },
       }),
-      title: ViewModel.get({
+      "2": ViewModel.get({
         properties: {
           innerHTML: "Title",
         },
       }),
-      contents: ViewModel.get({
+      "3": ViewModel.get({
         properties: {
           innerHTML: "Contents01",
         },
       }),
-      text: ViewModel.get({
+      "4": ViewModel.get({
         properties: {
           value: "hello",
         },
@@ -53,7 +61,7 @@ class OptionParser {
         events: {
           input(e: InputEvent, vm: ViewModel) {
             const target = e.target as HTMLInputElement;
-            vm.parent.text.properties.value = target.value;
+            vm.parent["4"].properties.value = target.value;
           },
         },
       }),

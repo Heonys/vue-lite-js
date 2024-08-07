@@ -20,9 +20,10 @@ export class Binder extends ViewModelListener {
     const processorEnties = Object.entries(this.processors);
 
     this.items.forEach((item) => {
-      const vm = viewmodel[item.viewmodelKey];
+      const vm = viewmodel[item.el.uid];
       if (!(vm instanceof ViewModel)) return;
       const el = item.el;
+      vm.uid = el.uid;
 
       processorEnties.forEach(([category, processor]) => {
         if (vm[category]) {
