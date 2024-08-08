@@ -1,17 +1,17 @@
 import type { Processor } from "./processor";
-import { ViewModel, ViewModelListener, ViewModelInfo } from "./viewmodel";
+import { ViewModel, Listener, ViewModelInfo } from "./viewmodel";
 
 type Processors = { [K: string]: Processor };
 
-export class Binder extends ViewModelListener {
-  private items = new Set<BinderItem>();
+export class Binder extends Listener {
+  private items = new Set<ViewItem>();
   private processors: Processors = {};
 
   get binderItems() {
     return this.items;
   }
 
-  add(item: BinderItem) {
+  add(item: ViewItem) {
     this.items.add(item);
   }
 
@@ -28,28 +28,6 @@ export class Binder extends ViewModelListener {
       if (!(vm instanceof ViewModel)) return;
       const el = item.el;
       vm.uid = el.uid;
-
-      /* 
-      사실 프로세서를 통한 처리는 전부 v-model에 대한 처리를 하고있음 
-      
-      템플릿 문법과 v-text는 innterHTML으로 삽입해주고
-      v-style의 경우는 사실 여기서 처리할 문제는 아니고
-      optionParser에 의해서 추가되어야할 문제
-      
-      따라서 디렉티브의 modifer를 사용하는 bind, model, on의 경우는 특별하게 처리되어야함
-      
-      아닌가? 이또한 parser에서 바꿔줘야하나?
-
-      v-on:click="handleClick" 이라는 디렉티브를 사용했을때
-
-      [uid]: {
-        events:{
-          click: this.handleClick // 이런식으로 변환되어야함 
-        }
-      }
-
-       
-      */
 
       processorEnties.forEach(([category, processor]) => {
         if (vm[category]) {
@@ -71,7 +49,7 @@ export class Binder extends ViewModelListener {
     const items: { [K: string]: [ViewModel, HTMLElement] } = {};
 
     this.items.forEach((item) => {
-      items[item.directiveValue] = [viewmodel[item.directiveValue], item.el];
+      items[item.property.directiveValue] = [viewmodel[item.property.directiveValue], item.el];
     });
 
     updated.forEach((info) => {
@@ -84,13 +62,21 @@ export class Binder extends ViewModelListener {
   }
 }
 
-export class BinderItem {
+// ViewModel로 바꿔야하나
+export class ViewItem {
+  public children: ViewItem[] = [];
+  public parent: ViewItem | null = null;
+
   constructor(
     public el: HTMLElement,
-    public directive: string,
-    public modifier: string,
-    public directiveValue: string,
+    public type: "root" | "static" | "reactive",
+    public property?: {
+      directive: string;
+      modifier: string;
+      directiveValue: string;
+      template?: string;
+    },
   ) {
-    Object.freeze(this);
+    Object.seal(this);
   }
 }

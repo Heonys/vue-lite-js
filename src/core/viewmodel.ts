@@ -1,3 +1,4 @@
+// Notification
 export class ViewModelInfo {
   constructor(
     public subkey: string,
@@ -13,24 +14,26 @@ export class ViewModelInfo {
   }
 }
 
-export abstract class ViewModelListener {
+export abstract class Listener {
   abstract viewmodelUpdated(viewmodel: ViewModel, updated: Set<ViewModelInfo>): void;
 }
 
-class ViewModelSubject extends ViewModelListener {
-  static subjects = new Set<ViewModelSubject>();
+// viewmodel과 observe 파일 나누기
+
+class Observable extends Listener {
+  static subjects = new Set<Observable>();
   static inited = false;
   private info = new Set<ViewModelInfo>();
-  private listeners = new Set<ViewModelListener>();
+  private listeners = new Set<Listener>();
 
-  private static watch(vm: ViewModelSubject) {
+  private static watch(vm: Observable) {
     this.subjects.add(vm);
     if (!this.inited) {
       this.inited = true;
       this.notify();
     }
   }
-  private static unwatch(vm: ViewModelSubject) {
+  private static unwatch(vm: Observable) {
     this.subjects.delete(vm);
     if (!this.subjects.size) this.inited = false;
   }
@@ -55,13 +58,13 @@ class ViewModelSubject extends ViewModelListener {
     this.info.clear();
   }
 
-  addListener(v: ViewModelListener) {
+  addListener(v: Listener) {
     this.listeners.add(v);
-    ViewModelSubject.watch(this);
+    Observable.watch(this);
   }
-  removeListener(v: ViewModelListener) {
+  removeListener(v: Listener) {
     this.listeners.delete(v);
-    if (!this.listeners.size) ViewModelSubject.unwatch(this);
+    if (!this.listeners.size) Observable.unwatch(this);
   }
   notify() {
     this.listeners.forEach((v) => {
@@ -78,15 +81,13 @@ class ViewModelSubject extends ViewModelListener {
   }
 }
 
-export class ViewModel extends ViewModelSubject {
+export class ViewModel extends Observable {
   static UID: number = 0;
-  static UIDToViewModel: Record<number, HTMLElement> = {};
   private static checker = Symbol();
   static PATH = Symbol();
 
   [CustomKey: PropertyKey]: any;
   el: HTMLElement;
-  template: { name: string; data: ViewModel[] };
   private subkey: string = "";
   private _parent: ViewModel | null = null;
   uid: number = 0;

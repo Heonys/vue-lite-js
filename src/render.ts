@@ -1,3 +1,4 @@
+import { ViewItem } from "./core/binder";
 import { VueScanner, DomVisitor, Binder, ViewModel } from "./core/index";
 import { baseProcessor } from "./core/processor";
 
@@ -7,7 +8,7 @@ interface Options {
   mothod?: {
     [K: string]: (...args: any[]) => void;
   };
-  computed?: {}; // 대기
+  computed?: {};
   watch?: {};
   styles?: {
     [K: string]: any;
@@ -16,7 +17,15 @@ interface Options {
 }
 
 export class OptionParser {
-  static parse(options: Options): ViewModel {
+  static parse(options: Options, binderItems: ViewItem[]): ViewModel {
+    console.log(binderItems);
+
+    /* 
+
+    우선 items에 있는 모든 reactive한 값들은 전부 
+    
+    */
+
     return ViewModel.get({
       "1": ViewModel.get({
         styles: {
@@ -72,20 +81,23 @@ export class Vuelite {
     const binder = scanner.scan(this.el);
 
     /* 
-    여기서 결국 스캐너를 통해 만든 바인더가 갖고있는 items에는 각가의 element에 해당하는 디렉티브정보를 갖는다
-    따라서 이 item을 순회하면서 viewmodel을 만들어야하는데 
+    ⭐⭐⭐
+    아냐 일단, option객체를 파싱해서 변수로 잡아놓아야함 this._proxy로 했던 것 처럼 
+    걔네들은 전부 프록시로 반응성을 주입해야함 (MVVM 코드 참조)
+
+
+
+    -> 이 시점에 dom에 대한 viewItem 전부 생성
     
-    근데 뷰모델은 기본적으로 중첩구조를 갖고, 부모자식 관계를 만드는데 
-    items가 이전의 뷰모델의 성격을 갖는다? 이상한데
+    이후에 프록시로 상태에 대한 변화를 감지하고 Observable, Listener를 통해 binder에서 처리 
 
-    viemodel의 설계를 처음부터 다시해야하나 (items를 받아서 뷰모델을 생성하는 느낌으로)
-    그러면 솔직히 optionPaser이런것도 필요없음 그자체가 viewmodel이기 떄문 
+    이후에 option객체를 파싱해서 viewmodel에 적용하여 최종적인 viewmodel을 생성 
 
-    viewmodel은 items 목록을 받아서 중첩구조의 viewmoel로 만든다? 
+    -> 그러면 최종 뷰모델을 만든상태에서 proxy가 됬건 반응성을 주입해야하는건가? 
 
     */
 
-    const viewmodel = OptionParser.parse(options);
+    const viewmodel = OptionParser.parse(options, [...binder.binderItems]);
     new VueliteBinder(binder, viewmodel);
   }
 }

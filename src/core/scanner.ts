@@ -1,5 +1,5 @@
 import { extractReg } from "../utils/index";
-import { Binder, BinderItem } from "./binder";
+import { Binder, ViewItem } from "./binder";
 import { Directive } from "./directive";
 import { ViewModel } from "./viewmodel";
 import { DomVisitor, Visitor } from "./visitor";
@@ -17,9 +17,8 @@ export class Scanner {
 }
 
 export class VueScanner extends Scanner {
-  static templateBind = new Map<string, HTMLElement>();
   static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
-  // static
+  static binderItemMap = new Map<HTMLElement, ViewItem>();
 
   constructor(visitor: DomVisitor) {
     super(visitor);
@@ -32,34 +31,74 @@ export class VueScanner extends Scanner {
     const action = (el: HTMLElement) => {
       let isTemplate = false;
 
-      // {{ data }} 형태의 단방향 데이터 바인딩을 찾아냄
+      // 템플릿 item 생성
       if (el.childNodes.length === 1 && patten.test(el.textContent)) {
         ViewModel.UID++;
-        VueScanner.templateBind.set(extractReg(patten, el.textContent), el);
-        isTemplate = true;
         el.uid = ViewModel.UID;
-        ViewModel.UIDToViewModel[el.uid] = el;
-      }
+        isTemplate = true;
 
-      // 일단 디렉티브 축약형태 지우고 -> 디렉티브 키 가져오기 v-bind:text="text"
-      // v-model할때 예시 보기 -> input text면 value고, input checkbox이면 checked인데
+        const templateKey = extractReg(patten, el.textContent);
+        const property = {
+          directive: "",
+          modifier: "",
+          directiveValue: "",
+          template: templateKey,
+        };
+        const binderItem = new ViewItem(el, "reactive", property);
+        binder.add(binderItem);
+        VueScanner.binderItemMap.set(el, binderItem);
+      }
 
       const directiveMap = Directive.getDirectiveMap(el);
 
+      // 디렉티브 item 생성
       if (directiveMap) {
         if (!isTemplate) ViewModel.UID++;
         Object.entries(directiveMap).forEach(([key, value]) => {
-          // 지우는걸 어느시점에 해야되나
           el.removeAttribute(`v-${key}`);
           el.uid = ViewModel.UID;
-          binder.add(new BinderItem(el, value.key, value.modifier, value.value));
-          ViewModel.UIDToViewModel[el.uid] = el;
+
+          const property = {
+            directive: value.key,
+            modifier: value.modifier,
+            directiveValue: value.value,
+          };
+
+          const binderItem = new ViewItem(el, "reactive", property);
+          binder.add(binderItem);
+          VueScanner.binderItemMap.set(el, binderItem);
         });
+      }
+
+      // 템플릿 문법도 없고 디렉티브도 없는 정말 정적인 엘리먼트역시 item 생성
+      if (!VueScanner.binderItemMap.has(el)) {
+        ViewModel.UID++;
+        el.uid = ViewModel.UID;
+
+        const binderItem = new ViewItem(el, "static");
+        binder.add(binderItem);
+        VueScanner.binderItemMap.set(el, binderItem);
       }
     };
 
-    action(el);
+    const binderItem = new ViewItem(el, "root");
+    binder.add(binderItem);
+    VueScanner.binderItemMap.set(el, binderItem);
     this.visit(action, el);
+
+    // binderItem의 부모자식 관계 설정
+    VueScanner.binderItemMap.forEach((binderItem, element) => {
+      let parent = element.parentElement;
+      while (parent) {
+        if (VueScanner.binderItemMap.has(parent)) {
+          binderItem.parent = VueScanner.binderItemMap.get(parent);
+          binderItem.parent.children.push(binderItem);
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    });
+
     return binder;
   }
 }

@@ -9,10 +9,14 @@
     <div id="app">
       <section v-model="wrapper">
         <h2 v-model="title">{{ title }}</h2>
-        <section v-model="contents">{{ contents }}</section>
+        <section v-model:textContent="contents"></section>
         <input type="text" v-model="text" v-on:input="hanldeInput">
-        <div v-style="textStyle">안녕</div>
-        <input type="text">
+        <div v-style="textStyle">
+          <h3>{{ hello }}</h3>
+        </div>
+        <div>
+          <div>2중첩 static</div>
+        </div>
         <button v-style="btn" v-on:click="increase">클릭</button>
       </section>
     </div>
