@@ -13,3 +13,18 @@ export class DomVisitor implements Visitor<HTMLElement> {
     }
   }
 }
+
+export class NodeVisitor implements Visitor {
+  visit(action: (param: Node) => void, target: HTMLElement): void {
+    let current: Node;
+    const stack: Node[] = [target.firstChild];
+
+    while ((current = stack.pop())) {
+      if (current) {
+        action(current);
+        if (current.firstChild) stack.push(current.firstChild);
+        if (current.nextSibling) stack.push(current.nextSibling);
+      }
+    }
+  }
+}

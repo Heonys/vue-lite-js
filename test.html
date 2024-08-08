@@ -1,49 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
 <body>
-    <div id="app" v-bind="message" @click="hello"></div>
+
+  <div id="container">
+    <p>Hello</p>
+    <div>
+      <span>World</span>
+      <span>!</span>
+    </div>
+  </div>
+
+  <script>
+const el = document.getElementById("container");
+console.log(el.textContent);
+  </script>
+  
 </body>
-
-<script>
-
-function extractKeys(property) {
-  const regex = /^v-(\w+)(:(\w+))?$/;
-  const match = property.match(regex);
-
-  if (match) {
-    return {
-      key1: match[1],
-      key2: match[3] || null // key2가 없으면 null 반환
-    };
-  } else {
-    return null; // 정규 표현식과 일치하지 않으면 null 반환
-  }
-}
-
-
-
-    console.log(extractKeys("v-on:click"));
-    
-    console.log(extractKeys("v-style"));
-    console.log(extractKeys("v-model:src"));
-    console.log(extractKeys("v-text"));
-    
-
-//     Array.from(el.attributes).forEach((attr) => {
-//     const property = attr.name;
-//     if (/^v-(\w+)/.test(property)) {
-//       directive[property]();
-//       el.removeAttribute(property);
-//     } else if (/^@(\w+)/.test(property)) {
-//       directive.eventHandler();
-//       el.removeAttribute(property);
-//     }
-//   });
-    
-</script>
 </html>

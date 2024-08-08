@@ -1,6 +1,9 @@
 import { ViewItem } from "./core/binder";
+import { Directive } from "./core/directive";
 import { VueScanner, DomVisitor, Binder, ViewModel } from "./core/index";
 import { baseProcessor } from "./core/processor";
+import { VueScanner2 } from "./core/scanner";
+import { NodeVisitor } from "./core/visitor";
 
 interface Options {
   el: string;
@@ -77,9 +80,13 @@ export class Vuelite {
     this.el = document.querySelector(options.el);
     this.options = options;
 
-    const scanner = new VueScanner(new DomVisitor());
-    const binder = scanner.scan(this.el);
+    // const scanner = new VueScanner(new DomVisitor());
+    // const binder = scanner.scan(this.el);
 
+    const scanner2 = new VueScanner2(new NodeVisitor());
+    const binder2 = scanner2.scan(this.el);
+
+    // const a = Directive.getDirectiveMap();
     /* 
     ⭐⭐⭐
     아냐 일단, option객체를 파싱해서 변수로 잡아놓아야함 this._proxy로 했던 것 처럼 
@@ -97,8 +104,8 @@ export class Vuelite {
 
     */
 
-    const viewmodel = OptionParser.parse(options, [...binder.binderItems]);
-    new VueliteBinder(binder, viewmodel);
+    // const viewmodel = OptionParser.parse(options, [...binder.binderItems]);
+    // new VueliteBinder(binder, viewmodel);
   }
 }
 
