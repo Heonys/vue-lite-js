@@ -55,8 +55,6 @@ export class VueScanner2 extends Scanner {
       }
     };
 
-    // 아이템 추가는?
-
     this.node2Fragment(el);
     action(this.fragment);
     this.visit(action, this.fragment);

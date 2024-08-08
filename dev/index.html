@@ -23,34 +23,9 @@
   </body>
 </html>
 
-<!-- 
 
-최상위 요소는 항상 Viewmodel 이여야만 하는데? -> wrapper를 없애고 #app 얘를 최상위로 
-스타일은 v-style으로 추가하고 그 해당하는 키는 viewmodel의 stlyes에서 정의하도록 
-
-input은 양방향 바인딩할때 value라는 프로퍼티를 사용하는데 이걸 속성을 받아야되나? 
-v-value="text"
-v-checked="isChecked"
-아무래도 이렇게 해야할듯 안그러면 input의 타입마다 바인딩하는 값을 분기해야함 
-
-v-bind:class 
-v-model:value
-v-model:checked 
-이런식으로 커스텀하기 
-
-v-bind는 단방향바인딩으로 vue인스턴스의 변화가 HTML속성에 반영되지만
-반대로 HTML 속성의 변화는 vue 인스턴스 데이터의 영향을 주지않는다 
-
--->
-
-<!-- 현재 템플릿 문법은 vBind 라는 스캐너의 정적 변수로 따로관리중 -->
 
 <!-- 
-
-우선 현재 제공하는 디렉티브는 5가지
-v-bind, v-model, v-text, v-style, v-on
-이중에서 text, style을 제외하면 나머지는 콜론을 통해서 키값을 전달
-(v-style은 원래 vuejs에는 없지만, style 태그를 쓰지않기 때문에 자체적인 기능 추가)
 
 이후에 v-for, v-if 디렉티브  추가하기 
 

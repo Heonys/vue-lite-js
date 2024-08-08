@@ -1,10 +1,9 @@
-import { ViewModel } from "./viewmodel";
-
 const DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"] as const;
+type DirectiveKey = (typeof DirectiveNames)[number];
 
 type DirectiveMethodType = {
-  [K in (typeof DirectiveNames)[number]]: {
-    (node: Node, vm: ViewModel): void;
+  [K in DirectiveKey]: {
+    (node: Node, vm: any, modifier: string, exp: string): void;
   };
 };
 
@@ -19,35 +18,24 @@ class DirectiveMethod implements DirectiveMethodType {
 }
 
 export class Directive {
+  static methods = new DirectiveMethod();
+
   static directiveBind(el: Element) {
     Array.from(el.attributes).forEach(({ name, value }) => {
       if (this.isDirective(name)) {
-        const dirKey = this.extractDirective("directive", name);
-        const dirValue = value;
-        const dirModifier = this.extractDirective("modifier", name);
+        const { key, modifier } = this.extractDirective(name);
 
-        /* 
-        
-        디렉티브 처리
-        ex) v-model:value = "contents"
-        디렉티브 이름 :  model
-        디렉티브 식별자 : value
-        디렉티브 값 : contents
-
-        템플릿  처리 
-        {{ title }} -> v-text = "title" 으로 변환 
-        디렉티브 이름 :  text
-        디렉티브 식별자 : null
-        디렉티브 값 : title
-
-
-        */
+        if (this.isEventDirective(name)) {
+          this.methods["eventHandler"]();
+        } else {
+          this.methods[key]();
+        }
       }
     });
   }
   static templateBind(el: Node) {
-    const templateKey = this.extractTemplate(el.textContent);
-    //  text 디렉티브로 처리
+    const exp = this.extractTemplate(el.textContent);
+    this.methods["text"]();
   }
 
   static isDirective(attr: string) {
@@ -55,7 +43,7 @@ export class Directive {
   }
 
   static isEventDirective(dir: string) {
-    return dir.indexOf("on") === 0;
+    return dir.indexOf("v-on") === 0;
   }
 
   static isElementNode(node: Node): node is HTMLElement {
@@ -66,11 +54,10 @@ export class Directive {
     return node.nodeType === 3;
   }
 
-  static extractDirective(type: "directive" | "modifier", attr: string) {
+  static extractDirective(attr: string) {
     const regExp = /^v-(\w+)(:(\w+))?$/;
     const match = attr.match(regExp);
-    if (type === "directive") return match[1];
-    else return match[3] || null;
+    return { key: match[1] as DirectiveKey, modifier: match[3] || null };
   }
 
   static extractTemplate(text: string) {

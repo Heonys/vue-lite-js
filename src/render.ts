@@ -21,8 +21,6 @@ interface Options {
 
 export class OptionParser {
   static parse(options: Options, binderItems: ViewItem[]): ViewModel {
-    console.log(binderItems);
-
     /* 
 
     우선 items에 있는 모든 reactive한 값들은 전부 
@@ -86,23 +84,11 @@ export class Vuelite {
     const scanner2 = new VueScanner2(new NodeVisitor());
     const binder2 = scanner2.scan(this.el);
 
-    // const a = Directive.getDirectiveMap();
-    /* 
-    ⭐⭐⭐
-    아냐 일단, option객체를 파싱해서 변수로 잡아놓아야함 this._proxy로 했던 것 처럼 
-    걔네들은 전부 프록시로 반응성을 주입해야함 (MVVM 코드 참조)
-
-
-
-    -> 이 시점에 dom에 대한 viewItem 전부 생성
-    
-    이후에 프록시로 상태에 대한 변화를 감지하고 Observable, Listener를 통해 binder에서 처리 
-
-    이후에 option객체를 파싱해서 viewmodel에 적용하여 최종적인 viewmodel을 생성 
-
-    -> 그러면 최종 뷰모델을 만든상태에서 proxy가 됬건 반응성을 주입해야하는건가? 
-
-    */
+    //  ⭐⭐⭐
+    // 1. 일단 옵션 데이터 정제하기
+    // 2. 프록시 설정
+    // 3. 뷰모델 생성
+    // 4. binder에 뷰모델 바인딩
 
     // const viewmodel = OptionParser.parse(options, [...binder.binderItems]);
     // new VueliteBinder(binder, viewmodel);
