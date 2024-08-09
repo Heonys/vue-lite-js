@@ -2,12 +2,14 @@ import { Vuelite } from "../src/render";
 
 new Vuelite({
   el: "#app",
-  data: {
-    title: "제목",
-    contents: "내용없음",
+  data() {
+    return {
+      title: "제목",
+      contents: "내용없음",
+    };
   },
   computed: {},
-  mothod: {
+  methods: {
     increase() {},
     decrease() {},
   },
