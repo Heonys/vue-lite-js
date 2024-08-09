@@ -1,17 +1,29 @@
 import { Vuelite } from "../src/render";
 
-new Vuelite({
+// 💡 this로 반응형 데이터 타입 자동으로 추론되게
+const vm = new Vuelite({
   el: "#app",
   data() {
     return {
       title: "제목",
       contents: "내용없음",
+      firstName: "John",
+      lastName: "Doe",
+      count: 0,
     };
   },
-  computed: {},
+  computed: {
+    fullName() {
+      return this.firstName + " " + this.lastName;
+    },
+  },
   methods: {
-    increase() {},
-    decrease() {},
+    increase() {
+      this.count++;
+    },
+    decrease() {
+      this.count--;
+    },
   },
   styles: {
     wrapper: {
@@ -24,6 +36,8 @@ new Vuelite({
     },
   },
 });
+
+console.log(vm);
 
 /* 
 

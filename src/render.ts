@@ -21,7 +21,9 @@ export class Vuelite {
 
     const scanner2 = new VueScanner2(new NodeVisitor());
     const binder2 = scanner2.scan(this.el);
-    injectReactive(options, this);
+
+    // 이거 자체가 observe이니까 그냥 Reactivity로 나눌게 아니라 그냥 이게 옵저버인가?
+    injectReactive(this);
 
     //  ⭐⭐⭐
     // 1. 일단 옵션 데이터 정제하기
@@ -48,3 +50,10 @@ export default class VueliteBinder {
     this.binder.watch(this.vm);
   }
 }
+
+/* 
+⭐Dep의 역할 
+1. 구독자 관리
+2. 의존성 변경
+3. 변경 알림 
+*/
