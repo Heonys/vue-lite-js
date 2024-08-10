@@ -1,5 +1,6 @@
 import { Vuelite } from "../render";
 import { isObject } from "../utils/index";
+import { Dep } from "./observer";
 import { isAccessor } from "./option";
 
 type Target = { [k: string]: any };
@@ -14,22 +15,28 @@ class Reactivity {
   define(data: object) {
     const me = this;
     const caches = new Map<string, Target>();
+    const deps = new Map<string, Dep>();
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
-        if (Object.hasOwn(target, key)) {
-          const child = target[key];
-          if (isObject(child)) {
-            if (!caches.has(key)) caches.set(key, me.define(child));
-            return caches.get(key);
-          }
+        if (!deps.has(key)) deps.set(key, new Dep());
+        deps.get(key).depend();
+
+        const child = target[key];
+        if (isObject(child)) {
+          if (!caches.has(key)) caches.set(key, me.define(child));
+          return caches.get(key);
         }
+
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
         if (isObject(value)) caches.set(key, me.define(value));
         else caches.delete(key);
 
+        if (deps.has(key)) {
+          deps.get(key).notify();
+        }
         return Reflect.set(target, key, value, receiver);
       },
     };

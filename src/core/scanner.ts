@@ -1,12 +1,10 @@
+import { Vuelite } from "../render";
 import { Binder, ViewItem } from "./binder";
 import { Directive } from "./directive";
-import { ViewModel } from "./viewmodel";
 import { Visitor } from "./visitor";
 
 export class Scanner {
-  constructor(private visitor: Visitor) {
-    this.visitor = visitor;
-  }
+  constructor(private visitor: Visitor) {}
   visit(action: Function, target: any) {
     this.visitor.visit(action, target);
   }
@@ -29,20 +27,10 @@ Scanner의 역할 ->
 */
 
 export class VueScanner2 extends Scanner {
-  fragment: DocumentFragment;
+  static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
+  private fragment: DocumentFragment;
 
-  constructor(visitor: Visitor) {
-    super(visitor);
-  }
-
-  node2Fragment(el: HTMLElement) {
-    const fragment = document.createDocumentFragment();
-    let child: Node;
-    while ((child = el.firstChild)) fragment.appendChild(child);
-    return (this.fragment = fragment);
-  }
-
-  scan(el: HTMLElement) {
+  scan(vm: Vuelite) {
     const binder = new Binder();
     const { isElementNode, isTextNode } = Directive;
 
@@ -50,15 +38,24 @@ export class VueScanner2 extends Scanner {
       const text = node.textContent;
       if (isElementNode(node)) {
         Directive.directiveBind(node);
-      } else if (isTextNode(node) && VueScanner.templatePtn.test(text)) {
+      } else if (isTextNode(node) && VueScanner2.templatePtn.test(text)) {
         Directive.templateBind(node);
       }
     };
 
-    this.node2Fragment(el);
+    this.node2Fragment(vm.el);
     action(this.fragment);
     this.visit(action, this.fragment);
-    el.appendChild(this.fragment);
+    vm.el.appendChild(this.fragment);
+
+    return binder;
+  }
+
+  private node2Fragment(el: HTMLElement) {
+    const fragment = document.createDocumentFragment();
+    let child: Node;
+    while ((child = el.firstChild)) fragment.appendChild(child);
+    return (this.fragment = fragment);
   }
 }
 

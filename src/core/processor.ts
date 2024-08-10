@@ -1,6 +1,5 @@
 import { WritableKeys } from "../types/index";
 import type { ViewModel } from "./viewmodel";
-import { OptionParser } from "../render";
 
 export abstract class Processor {
   constructor(public category: string) {

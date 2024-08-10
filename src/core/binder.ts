@@ -4,6 +4,8 @@ import { ViewModel, Listener, ViewModelInfo } from "./viewmodel";
 type Processors = { [K: string]: Processor };
 
 export class Binder extends Listener {
+  // private deps
+
   private items = new Set<ViewItem>();
   private processors: Processors = {};
 
