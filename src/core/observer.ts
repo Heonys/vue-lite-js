@@ -7,6 +7,7 @@ export class Dep {
   static activated: Observer = null;
   private listener = new Set<Observer>();
 
+  // addListener 변경?
   subscribe(observer: Observer) {
     this.listener.add(observer);
   }
@@ -59,7 +60,6 @@ class Observer {
   }
 
   update() {
-    // 값이 변경되었는지 이전값과 비교하고 값이 변경된 경우에만 View를 업데이트
     const value = this.value;
     const newValue = this.getterTrigger();
 

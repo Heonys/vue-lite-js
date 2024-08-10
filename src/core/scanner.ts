@@ -1,4 +1,5 @@
 import { Vuelite } from "../render";
+import { isElementNode, isTextNode } from "../utils/index";
 import { Binder, ViewItem } from "./binder";
 import { Directive } from "./directive";
 import { Visitor } from "./visitor";
@@ -32,14 +33,14 @@ export class VueScanner2 extends Scanner {
 
   scan(vm: Vuelite) {
     const binder = new Binder();
-    const { isElementNode, isTextNode } = Directive;
+    const dir = new Directive(vm);
 
     const action = (node: Node) => {
       const text = node.textContent;
       if (isElementNode(node)) {
-        Directive.directiveBind(node);
+        dir.directiveBind(node);
       } else if (isTextNode(node) && VueScanner2.templatePtn.test(text)) {
-        Directive.templateBind(node);
+        dir.templateBind(node);
       }
     };
 
