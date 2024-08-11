@@ -10,6 +10,9 @@ const vm = new Vuelite({
       firstName: "John",
       lastName: "Doe",
       count: 0,
+      textStyle: {
+        color: "#FF0000",
+      },
     };
   },
   computed: {
@@ -26,13 +29,11 @@ const vm = new Vuelite({
     },
   },
   styles: {
-    wrapper: {
+    // 여기서는 css처럼 Selector를 전달해서 스타일 적용하기 (css 속성들은 camelCase이고 v-style과는 독립적)
+    "#wrapper": {
       width: "50%",
       background: "#ffa",
       cursor: "pointer",
-    },
-    textStyle: {
-      color: "#FF0000",
     },
   },
 });

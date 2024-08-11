@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="app">
-      <section v-model="wrapper">
+      <section id="wrapper" v-model="wrapper">
         <h2 v-model="title">{{ title }}</h2>
         <section v-model:textContent="contents"></section>
         <input type="text" v-model="text" v-on:input="hanldeInput">
@@ -27,10 +27,12 @@
 
 <!-- 
 
-이후에 v-for, v-if 디렉티브  추가하기 
+이후에 v-for, v-if 디렉티브 추가하기 
 
-일단 현재는 디렉티브 축약형 (:, @)등 생각하지않고 나중에 고려하기
+일단 현재는 디렉티브 축약형 (:, @)등 생각하지않고 나중에 고려하기 -> v-style, v-class 이런애들 그러면 수정해야함 
 
 v-slot이나  컴포넌트 분리 또한 생각하지 않기 
+
+테스트 코드 추가하기 
 
 -->

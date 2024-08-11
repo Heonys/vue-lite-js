@@ -23,8 +23,6 @@ Scanner의 역할 ->
 .🚩수정할 것  
 1. Scanner의 역할 분리 
 2. 최적화를 위해 fragment 활용 
-
-
 */
 
 export class VueScanner2 extends Scanner {
