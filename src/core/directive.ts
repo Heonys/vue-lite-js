@@ -20,9 +20,9 @@ export class Directive {
       }
     });
   }
-  templateBind(el: Node) {
-    const exp = this.extractTemplate(el.textContent);
-    processors["text"](el, this.vm, exp);
+  templateBind(node: Node) {
+    const exp = this.extractTemplate(node.textContent);
+    processors["text"](node, this.vm, exp);
   }
 
   isDirective(attr: string) {

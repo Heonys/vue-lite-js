@@ -1,4 +1,5 @@
 import { Vuelite } from "../render";
+import { isJsonFormat, normalizeToJson } from "../utils/index";
 import { DirectiveKey } from "./directive";
 
 export interface Processor {
@@ -6,19 +7,20 @@ export interface Processor {
 }
 
 export const processors: { [Directive in DirectiveKey]: Processor } = {
-  text: (node, vm, exp, modifier): void => {
+  text: (node, vm, exp): void => {
     /* 
     텍스트 바인딩으로 템플릿 바인딩과 기본적으로 동일함 
     v-text="title", {{ title }}
+    만약 하나의 엘리먼트가 v-text와 템플릿 바인딩 2가지를 다 갖고있다면 v-text가 우선권을 가짐 
     */
-    node.textContent = exp;
+    node.textContent = vm[exp];
   },
   bind: (node, vm, exp, modifier) => {
     /* 
       단방향 바인딩 
        */
   },
-  model: (node, vm, exp, modifier) => {
+  model: (node, vm, exp) => {
     /* 
       양방향 바인딩 
 
@@ -28,7 +30,7 @@ export const processors: { [Directive in DirectiveKey]: Processor } = {
       */
   },
 
-  class: (el: HTMLElement, vm, exp, modifier) => {
+  class: (el: HTMLElement, vm, exp) => {
     /* 
       v-class="{ active: isActive }" 이런식으로 사용
       isActive의 boolean 값에 따라서 active 클래스의 존재 여부가 결정됨 
@@ -41,17 +43,34 @@ export const processors: { [Directive in DirectiveKey]: Processor } = {
       근데 이것도 우선은 디렉티브 축약표현이 나오면 큰 메리트가 없어지긴함 
       :style, :class 이런식으로 사용할테니까 일단 보류 
       */
+
+    if (isJsonFormat(exp)) {
+      // json 포맷이라면 파싱해서 json으로 바꾸고 바인딩
+      const obj = JSON.parse(normalizeToJson(exp));
+    } else {
+      // json 포맷이 아니라면 vm에서 값 가져와서 바인딩
+    }
   },
 
-  style: (el: HTMLElement, vm, exp, modifier) => {
+  style: (el: HTMLElement, vm, exp) => {
     /* 
       v-class와 마찬가지로 인라인 스타일 바인딩과 데이터 바인딩 이렇게 2가지를 제공함 
       v-style={ color: activeColor } 
       v-style={styleData} // 여기서 말하는 styleData는 반응형 데이터 한정
       */
+    /* 
+    1. 반응형 데이터를 활용한 바인딩 
+    2. 객체 형태로 표현식이 들어온 인라인 스타일 바인딩 
+    */
+    if (isJsonFormat(exp)) {
+      // json 포맷이라면 파싱해서 json으로 바꾸고 바인딩
+      const obj = JSON.parse(normalizeToJson(exp));
+    } else {
+      // json 포맷이 아니라면 vm에서 값 가져와서 바인딩
+    }
   },
 
-  html: (el: HTMLElement, vm, exp, modifier) => {
+  html: (el: HTMLElement, vm, exp) => {
     /* 
       v-html="template"
       innerHTML 속성으로 해당 html을 삽입 (text삽입 또는 HTMLelemnet 삽입가능)

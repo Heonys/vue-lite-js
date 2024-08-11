@@ -6,9 +6,10 @@ const vm = new Vuelite({
   data() {
     return {
       title: "제목",
+      hello: "헬로우",
       contents: "내용없음",
-      firstName: "John",
-      lastName: "Doe",
+      firstName: "퍼스트네임",
+      lastName: "라스트네임",
       count: 0,
       textStyle: {
         color: "#FF0000",
@@ -38,7 +39,7 @@ const vm = new Vuelite({
   },
 });
 
-console.log(vm);
+// console.log(vm);
 
 /* 
 

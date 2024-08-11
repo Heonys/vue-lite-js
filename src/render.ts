@@ -1,6 +1,5 @@
 import { Binder, ViewModel } from "./core/index";
 import { Options } from "./core/option";
-import { baseProcessor } from "./core/processor";
 import { injectReactive } from "./core/reactive";
 import { VueScanner2 } from "./core/scanner";
 import { NodeVisitor } from "./core/visitor";
@@ -11,6 +10,7 @@ import { NodeVisitor } from "./core/visitor";
 export class Vuelite {
   el: HTMLElement;
   options: Options;
+  [customKey: string]: any;
 
   constructor(options: Options) {
     this.el = document.querySelector(options.el);
@@ -43,20 +43,20 @@ export class Vuelite {
   }
 }
 
-export default class VueliteBinder {
-  static setBaseProcessor(binder: Binder) {
-    baseProcessor.forEach((process) => binder.addProcessor(process));
-    return binder;
-  }
+// export default class VueliteBinder {
+//   static setBaseProcessor(binder: Binder) {
+//     baseProcessor.forEach((process) => binder.addProcessor(process));
+//     return binder;
+//   }
 
-  constructor(
-    private binder: Binder,
-    private vm: ViewModel,
-  ) {
-    VueliteBinder.setBaseProcessor(this.binder);
-    this.binder.watch(this.vm);
-  }
-}
+//   constructor(
+//     private binder: Binder,
+//     private vm: ViewModel,
+//   ) {
+//     VueliteBinder.setBaseProcessor(this.binder);
+//     this.binder.watch(this.vm);
+//   }
+// }
 
 /* 
 ⭐Dep의 역할 

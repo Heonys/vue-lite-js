@@ -18,7 +18,7 @@ export class Binder extends Listener {
   }
 
   addProcessor(v: Processor) {
-    this.processors[v.category] = v;
+    // this.processors[v.category] = v;
   }
 
   // 초기상태 설정
@@ -33,7 +33,7 @@ export class Binder extends Listener {
 
       processorEnties.forEach(([category, processor]) => {
         if (vm[category]) {
-          Object.entries(vm[category]).forEach(([k, v]) => processor.process(vm, el, k, v));
+          // Object.entries(vm[category]).forEach(([k, v]) => processor.process(vm, el, k, v));
         }
       });
     });
@@ -59,7 +59,7 @@ export class Binder extends Listener {
       const [vm, el] = items[info.subkey];
       const processor = this.processors[info.category.split(".").pop()];
       if (!el || !processor) return;
-      processor.process(vm, el, info.key, info.value);
+      // processor.process(vm, el, info.key, info.value);
     });
   }
 }

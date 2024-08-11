@@ -1,5 +1,5 @@
 import { Vuelite } from "../render";
-import { isElementNode, isTextNode } from "../utils/index";
+import { isElementNode, isIncludeText, isTextNode } from "../utils/index";
 import { Binder, ViewItem } from "./binder";
 import { Directive } from "./directive";
 import { Visitor } from "./visitor";
@@ -26,10 +26,10 @@ Scanner의 역할 ->
 */
 
 export class VueScanner2 extends Scanner {
-  static templatePtn: RegExp = /{{\s*(.*?)\s*}}/;
   private fragment: DocumentFragment;
 
   scan(vm: Vuelite) {
+    const patten: RegExp = /{{\s*(.*?)\s*}}/;
     const binder = new Binder();
     const dir = new Directive(vm);
 
@@ -37,7 +37,7 @@ export class VueScanner2 extends Scanner {
       const text = node.textContent;
       if (isElementNode(node)) {
         dir.directiveBind(node);
-      } else if (isTextNode(node) && VueScanner2.templatePtn.test(text)) {
+      } else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
         dir.templateBind(node);
       }
     };
