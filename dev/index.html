@@ -7,10 +7,27 @@
   </head>
   <body>
     <div id="app">
-      <section id="wrapper" v-model="wrapper">
+      <section id="wrapper">
         <h2 v-text="hello">{{ title }}</h2>
         <section v-bind:value="contents"></section>
-        <input type="text" v-model="text" v-on:input="hanldeInput">
+        <input type="text" v-model="inputData" v-on:input="hanldeInput">
+        <div>
+          <label>
+            male <input type="radio" value="male" v-model="selected" />
+          </label>
+          <label>
+            female <input type="radio" value="female" v-model="selected" />
+          </label>
+          <label>
+            other <input type="radio" value="other" v-model="selected" />
+          </label>
+      </div>
+      <div>{{ selected }}</div>
+      <select v-model="selectedOption">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
         <div>
           <div v-class="{ inline: true, active: isActive }">{{ hello }}</div>
           <div v-class="classData.recur">{{ hello }}</div>
@@ -18,7 +35,6 @@
           <div v-style="{ color: textStyle.color, backgroundColor: '#ddd' }" >{{ hello }}</div>
           <div v-style="textStyle" >{{ hello }}</div>
         </div>
-        
         <button v-style="btn" v-on:click="increase">클릭</button>
       </section>
     </div>

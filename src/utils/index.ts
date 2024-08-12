@@ -1,3 +1,5 @@
+// 유틸함수 분리?
+
 export const isElementNode = (node: Node): node is HTMLElement => {
   return node.nodeType === 1;
 };
@@ -6,14 +8,26 @@ export const isTextNode = (node: Node) => {
   return node.nodeType === 3;
 };
 
-export function extractValue(obj: Record<PropertyKey, any>, path: string) {
+export function extractPath(obj: Record<PropertyKey, any>, path: string) {
   path = path.trim();
-  if (Object.hasOwn(obj, path)) return obj[path];
 
   return path.split(".").reduce((target, key) => {
     if (target && Object.hasOwn(target, key)) return target[key];
     return null;
   }, obj);
+}
+
+export function assignPath(obj: Record<PropertyKey, any>, path: string, value: any) {
+  path = path.trim();
+
+  let target = obj;
+  path.split(".").forEach((key, index, arr) => {
+    if (index === arr.length - 1) target[key] = value;
+    else {
+      if (!Object.hasOwn(target, key)) return;
+      target = target[key];
+    }
+  });
 }
 
 /* 

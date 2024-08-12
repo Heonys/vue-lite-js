@@ -1,17 +1,13 @@
-// const expression = "a > 10?5 ";
-const expression = "a > 10 ? 'high' : 'low'";
+function assignPath(obj, path, value) {
+  path = path.trim();
 
-function evaluateCondition(str) {
-  const ptn = /(.*?)\s*\?\s*(.*?)\s*:\s*(.*)/;
-
-  const match = str.match(ptn);
-  return (
-    match && {
-      condition: match[1],
-      truthy: match[2],
-      falsy: match[3],
+  let target = obj;
+  path.split(".").forEach((key, index, arr) => {
+    if (index === arr.length - 1) {
+      target[key] = value;
+    } else {
+      if (!Object.hasOwn(target, key)) return;
+      target = target[key];
     }
-  );
+  });
 }
-
-console.log(evaluateCondition(expression));

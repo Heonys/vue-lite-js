@@ -3,7 +3,8 @@ import {
   isObjectFormat,
   normalizeToJson,
   isObject,
-  extractValue,
+  extractPath,
+  assignPath,
   isInlineStyle,
   isHtmlFormat,
 } from "../utils/index";
@@ -15,7 +16,7 @@ export interface Processor {
 
 export const processors: { [Method in DirectiveKey]: Processor } = {
   text(node, vm, exp) {
-    const proxy = extractValue(vm, exp);
+    const proxy = extractPath(vm, exp);
     node.textContent = proxy;
   },
   bind(el: HTMLElement, vm, exp, modifier) {
@@ -23,38 +24,81 @@ export const processors: { [Method in DirectiveKey]: Processor } = {
       this[modifier](el, vm, exp);
     } else {
       if (el.hasAttribute(modifier)) {
-        el.setAttribute(modifier, extractValue(vm, exp));
+        el.setAttribute(modifier, extractPath(vm, exp));
       }
     }
   },
 
   /* 
     양방향 바인딩 
-
     input, textarea, select 지원
-    input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게 해주는 헬퍼 함수 추가해서 일관되게 가져오기 
-    결국 v-model은 그러면 식별자를 입력하지 않아도됨 현재 element에 상태에 따라서 자동 바인딩
-  */
-  model(el: HTMLElement, vm, exp, modifier?: string) {
-    // 만약에 식별자를 넘기면 해당 속성을 검사하고 양방향 바인딩
+    input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게해서 일관되게 바인딩하기 
 
+    date, month, time, week 등 날짜나 시간관련된 속성 및 레거시 속성들을 제외  
+    file의 경우는 논외로 v-model이 아닌 change 이벤트를 통해 수동으로 파일관리를 해야함 
+    지원되는 타입 (text, number, url, tel, search, ragnge, radio, password, email, color, checkbox)
+  */
+
+  model(el: HTMLElement, vm, exp) {
     switch (el.tagName) {
       case "INPUT": {
-        // 타입확인후 해당 타입마다 종류별로 바인딩
+        const input = el as HTMLInputElement;
 
-        /* 
-        type=radio의 경우는 checked 값도 존재하지만 checked 바인딩이 아닌 value 바인딩 해야하며, 
-        같은 v-model값을 사용하는 애들끼리 같은 라디오 그룹을 유지해야함 
-        즉, vm의 상태값이 해당 radio 그룹내의 value값이 같은 라디오 버튼이 체크 되야함 
-        */
+        if (input.type === "checkbox") {
+          input.checked = extractPath(vm, exp);
+          input.addEventListener("change", (event) => {
+            const value = (event.target as HTMLInputElement).checked;
+            assignPath(vm, exp, value);
+          });
+        } else if (input.type === "radio") {
+          input.name = exp;
+          input.checked = extractPath(vm, exp) === input.value;
+          input.addEventListener("change", (event) => {
+            const value = (event.target as HTMLInputElement).value;
+            assignPath(vm, exp, value);
+          });
+        } else {
+          input.value = extractPath(vm, exp);
+          input.addEventListener("input", (event) => {
+            const value = (event.target as HTMLInputElement).value;
+            assignPath(vm, exp, value);
+          });
+        }
         break;
       }
       case "TEXTAREA": {
-        // value에 바인딩
+        const textarea = el as HTMLTextAreaElement;
+        textarea.value = extractPath(vm, exp);
+        textarea.addEventListener("input", (event) => {
+          const value = (event.target as HTMLTextAreaElement).value;
+          assignPath(vm, exp, value);
+        });
         break;
       }
       case "SELECT": {
-        // -> 옵션들 중에서 선택된 값에 바인딩 (다중선택 고려)
+        const select = el as HTMLSelectElement;
+
+        if (select.multiple) {
+          const options = Array.from(select.options);
+          const proxy = extractPath(vm, exp);
+          if (!Array.isArray(proxy)) return;
+
+          options.forEach((option) => {
+            option.selected = proxy.includes(option.value);
+          });
+
+          select.addEventListener("change", (event) => {
+            const target = event.target as HTMLSelectElement;
+            const selectedValues = Array.from(target.selectedOptions).map((option) => option.value);
+            assignPath(vm, exp, selectedValues);
+          });
+        } else {
+          select.value = extractPath(vm, exp);
+          select.addEventListener("change", (event) => {
+            const value = (event.target as HTMLSelectElement).value;
+            assignPath(vm, exp, value);
+          });
+        }
         break;
       }
       default: {
@@ -70,12 +114,12 @@ export const processors: { [Method in DirectiveKey]: Processor } = {
       Object.entries(json).forEach(([key, value]) => {
         if (value === "true") el.classList.add(key);
         else {
-          const proxy = extractValue(vm, value);
+          const proxy = extractPath(vm, value);
           if (proxy === true) el.classList.add(key);
         }
       });
     } else {
-      const proxy = extractValue(vm, exp);
+      const proxy = extractPath(vm, exp);
       if (isObject(proxy)) {
         Object.entries(proxy).forEach(([key, value]) => {
           if (value) el.classList.add(key);
@@ -92,12 +136,12 @@ export const processors: { [Method in DirectiveKey]: Processor } = {
         if (isInlineStyle(value)) {
           (el.style as any)[key] = value.slice(1);
         } else {
-          const styleValue = extractValue(vm, value as string);
+          const styleValue = extractPath(vm, value as string);
           (el.style as any)[key] = styleValue;
         }
       }
     } else {
-      const styles = extractValue(vm, exp);
+      const styles = extractPath(vm, exp);
       if (isObject(styles)) {
         for (const [key, value] of Object.entries(styles)) {
           (el.style as any)[key] = value;
@@ -109,13 +153,13 @@ export const processors: { [Method in DirectiveKey]: Processor } = {
   html(el: HTMLElement, vm, exp) {
     if (isHtmlFormat(exp)) el.innerHTML = exp;
     else {
-      const proxy = extractValue(vm, exp);
+      const proxy = extractPath(vm, exp);
       if (typeof proxy === "string") el.innerHTML = proxy;
     }
   },
 
   eventHandler(el: HTMLElement, vm, exp, modifier) {
-    const fn = extractValue(vm, exp);
+    const fn = extractPath(vm, exp);
     if (typeof fn === "function") el.addEventListener(modifier, fn);
   },
 };

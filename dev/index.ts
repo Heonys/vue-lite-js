@@ -15,7 +15,10 @@ const vm = new Vuelite({
       textStyle: {
         color: "#FF0000",
       },
+      selectedOption: "option2",
+      selected: "male",
       isActive: true,
+      inputData: "",
       classData: {
         recur: {
           isActive: true,
@@ -36,7 +39,7 @@ const vm = new Vuelite({
       this.count--;
     },
     hanldeInput() {
-      console.log("input handler");
+      console.log(this.selected);
     },
   },
   styles: {

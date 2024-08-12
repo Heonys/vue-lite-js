@@ -1,5 +1,5 @@
 import { Vuelite } from "../render";
-import { extractValue } from "../utils/index";
+import { extractPath } from "../utils/index";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
 export class Dep {
@@ -54,7 +54,7 @@ class Observer {
     즉, Dep와 Observer와의 관계를 이어주기 위한 트리거로 사용됨 
     */
     Dep.activated = this;
-    const value = extractValue(this.vm, this.exp);
+    const value = extractPath(this.vm, this.exp);
     Dep.activated = null;
     return value;
   }
