@@ -9,7 +9,7 @@
     <div id="app">
       <section id="wrapper" v-model="wrapper">
         <h2 v-text="hello">{{ title }}</h2>
-        <section v-model:textContent="contents"></section>
+        <section v-bind:value="contents"></section>
         <input type="text" v-model="text" v-on:input="hanldeInput">
         <div>
           <div v-class="{ inline: true, active: isActive }">{{ hello }}</div>

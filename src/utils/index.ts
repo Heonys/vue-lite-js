@@ -56,12 +56,24 @@ export const isObject = (data: any): data is object => {
   return typeOf(data) === "object";
 };
 
-type styleDeclaration = Exclude<keyof Omit<CSSStyleDeclaration, "length" | "parentRule">, number>;
-
-export const isStyleProperty = (key: string): key is styleDeclaration => {
-  return key in document.body.style;
-};
-
 export const isInlineStyle = (value: any): value is string => {
   return typeOf(value) === "string" && value.indexOf("_") === 0;
 };
+
+export function isHtmlFormat(str: string) {
+  const htmlTagPattern = /<\/?[a-z][\s\S]*>/i;
+  return htmlTagPattern.test(str);
+}
+
+// 삼항 연산자 확인
+export function isTernary(str: string) {
+  const ptn = /(.*?)\s*\?\s*(.*?)\s*:\s*(.*)/;
+  const match = str.match(ptn);
+  return (
+    match && {
+      condition: match[1],
+      truthy: match[2],
+      falsy: match[3],
+    }
+  );
+}

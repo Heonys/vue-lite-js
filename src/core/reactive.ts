@@ -52,7 +52,7 @@ export function injectReactive(vm: Vuelite) {
 
   for (const key in returned) {
     Object.defineProperty(vm, key, {
-      enumerable: true,
+      // enumerable: true,
       configurable: false,
       get: () => proxy[key],
       set: (value) => {
