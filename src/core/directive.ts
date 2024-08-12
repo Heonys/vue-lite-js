@@ -17,6 +17,7 @@ export class Directive {
         } else {
           processors[key](el, this.vm, value, modifier);
         }
+        el.removeAttribute(name);
       }
     });
   }

@@ -11,12 +11,14 @@
         <h2 v-text="hello">{{ title }}</h2>
         <section v-model:textContent="contents"></section>
         <input type="text" v-model="text" v-on:input="hanldeInput">
-        <div v-style="textStyle">
-          <h3 v-style="firstName">{{ lastName }}</h3>
-        </div>
         <div>
-          <div class="hello">{{ hello }}</div>
+          <div v-class="{ inline: true, active: isActive }">{{ hello }}</div>
+          <div v-class="classData.recur">{{ hello }}</div>
+
+          <div v-style="{ color: textStyle.color, backgroundColor: '#ddd' }" >{{ hello }}</div>
+          <div v-style="textStyle" >{{ hello }}</div>
         </div>
+        
         <button v-style="btn" v-on:click="increase">클릭</button>
       </section>
     </div>
@@ -34,5 +36,7 @@
 v-slot이나  컴포넌트 분리 또한 생각하지 않기 
 
 테스트 코드 추가하기 
+
+<vue-[compoenent name] /> 이런식으로 커스텀 엘리먼트를 사용하여 컴포넌트 분리할 수 있게하기 
 
 -->

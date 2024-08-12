@@ -1,12 +1,19 @@
 import { Vuelite } from "../render";
-import { isJsonFormat, normalizeToJson } from "../utils/index";
+import {
+  isObjectFormat,
+  normalizeToJson,
+  isObject,
+  isStyleProperty,
+  extractValue,
+  isInlineStyle,
+} from "../utils/index";
 import { DirectiveKey } from "./directive";
 
 export interface Processor {
   (node: Node, vm: Vuelite, exp: string, modifier?: string): void;
 }
 
-export const processors: { [Directive in DirectiveKey]: Processor } = {
+export const processors: { [Method in DirectiveKey]: Processor } = {
   text: (node, vm, exp): void => {
     /* 
     텍스트 바인딩으로 템플릿 바인딩과 기본적으로 동일함 
@@ -44,11 +51,24 @@ export const processors: { [Directive in DirectiveKey]: Processor } = {
       :style, :class 이런식으로 사용할테니까 일단 보류 
       */
 
-    if (isJsonFormat(exp)) {
-      // json 포맷이라면 파싱해서 json으로 바꾸고 바인딩
-      const obj = JSON.parse(normalizeToJson(exp));
+    if (isObjectFormat(exp)) {
+      const json: object = JSON.parse(normalizeToJson(exp));
+
+      Object.entries(json).forEach(([key, value]) => {
+        if (value === "true") el.classList.add(key);
+        else {
+          const proxy = extractValue(vm, value);
+          if (proxy === true) el.classList.add(key);
+        }
+      });
     } else {
-      // json 포맷이 아니라면 vm에서 값 가져와서 바인딩
+      const proxy = extractValue(vm, exp);
+
+      if (isObject(proxy)) {
+        Object.entries(proxy).forEach(([key, value]) => {
+          if (value) el.classList.add(key);
+        });
+      }
     }
   },
 
@@ -62,11 +82,25 @@ export const processors: { [Directive in DirectiveKey]: Processor } = {
     1. 반응형 데이터를 활용한 바인딩 
     2. 객체 형태로 표현식이 들어온 인라인 스타일 바인딩 
     */
-    if (isJsonFormat(exp)) {
-      // json 포맷이라면 파싱해서 json으로 바꾸고 바인딩
-      const obj = JSON.parse(normalizeToJson(exp));
+
+    if (isObjectFormat(exp)) {
+      const json = JSON.parse(normalizeToJson(exp));
+
+      for (const [key, value] of Object.entries(json)) {
+        if (isInlineStyle(value)) {
+          (el.style as any)[key] = value.slice(1);
+        } else {
+          const styleValue = extractValue(vm, value as string);
+          (el.style as any)[key] = styleValue;
+        }
+      }
     } else {
-      // json 포맷이 아니라면 vm에서 값 가져와서 바인딩
+      const styles = extractValue(vm, exp);
+      if (isObject(styles)) {
+        for (const [key, value] of Object.entries(styles)) {
+          if (isStyleProperty(key)) el.style[key] = value;
+        }
+      }
     }
   },
 
