@@ -1,4 +1,5 @@
-import { Vuelite } from "../render";
+import { DirectiveMethod } from "./directive";
+import { Vuelite } from "../index";
 import { extractPath } from "../utils/index";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
@@ -26,7 +27,7 @@ export class Dep {
 }
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
-class Observer {
+export class Observer {
   private value: any;
   private deps = new Set<Dep>();
   /* 
@@ -35,11 +36,14 @@ class Observer {
   */
 
   constructor(
+    private el: Node,
     private vm: Vuelite,
     private exp: string,
-    private onUpdate: (value: any, newValue: any) => void,
+    private onUpdate: DirectiveMethod,
   ) {
     this.value = this.getterTrigger();
+
+    console.log(this.exp, this.deps);
   }
 
   addDep(dep: Dep) {
@@ -65,7 +69,7 @@ class Observer {
 
     if (value !== newValue) {
       this.value = newValue;
-      this.onUpdate.call(this.vm, value, newValue);
+      this.onUpdate.call(this.vm, this.el, this.vm, newValue);
     }
   }
 }

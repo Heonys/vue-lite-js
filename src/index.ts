@@ -1,10 +1,7 @@
-import { Binder, ViewModel } from "./core/index";
 import { Options } from "./core/option";
 import { injectReactive } from "./core/reactive";
-import { VueScanner2 } from "./core/scanner";
+import { VueScanner } from "./core/scanner";
 import { NodeVisitor } from "./core/visitor";
-
-// render 파일 이름 바꿔야할 듯
 
 // 이게 결국 Viewmodel이 됨
 export class Vuelite {
@@ -16,12 +13,9 @@ export class Vuelite {
     this.el = document.querySelector(options.el);
     this.options = options;
 
-    // const scanner = new VueScanner(new DomVisitor());
-    // const binder = scanner.scan(this.el);
-
     injectReactive(this); // 반응성 주입
-    const scanner2 = new VueScanner2(new NodeVisitor());
-    const binder2 = scanner2.scan(this);
+    const scanner = new VueScanner(new NodeVisitor());
+    const binder = scanner.scan(this);
 
     /* 
 
@@ -42,25 +36,3 @@ export class Vuelite {
     // new VueliteBinder(binder, viewmodel);
   }
 }
-
-// export default class VueliteBinder {
-//   static setBaseProcessor(binder: Binder) {
-//     baseProcessor.forEach((process) => binder.addProcessor(process));
-//     return binder;
-//   }
-
-//   constructor(
-//     private binder: Binder,
-//     private vm: ViewModel,
-//   ) {
-//     VueliteBinder.setBaseProcessor(this.binder);
-//     this.binder.watch(this.vm);
-//   }
-// }
-
-/* 
-⭐Dep의 역할 
-1. 구독자 관리
-2. 의존성 변경
-3. 변경 알림 
-*/

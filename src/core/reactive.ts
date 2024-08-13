@@ -1,4 +1,4 @@
-import { Vuelite } from "../render";
+import { Vuelite } from "../index";
 import { isObject } from "../utils/index";
 import { Dep } from "./observer";
 import { isAccessor } from "./option";

@@ -1,84 +1,53 @@
-import type { Processor } from "./processor";
-import { ViewModel, Listener, ViewModelInfo } from "./viewmodel";
+import { Vuelite } from "../index";
+import { directives } from "./directive";
+import { Observer } from "./observer";
 
-type Processors = { [K: string]: Processor };
+type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
+export type DirectiveKey = DirectiveNames[number];
 
-export class Binder extends Listener {
-  // private deps
+export class Binder {
+  constructor(private vm: Vuelite) {}
 
-  private items = new Set<ViewItem>();
-  private processors: Processors = {};
+  directiveBind(el: Element) {
+    Array.from(el.attributes).forEach(({ name, value }) => {
+      if (this.isDirective(name)) {
+        const { key, modifier } = this.extractDirective(name);
 
-  get binderItems() {
-    return this.items;
-  }
-
-  add(item: ViewItem) {
-    this.items.add(item);
-  }
-
-  addProcessor(v: Processor) {
-    // this.processors[v.category] = v;
-  }
-
-  // 초기상태 설정
-  render(viewmodel: ViewModel) {
-    const processorEnties = Object.entries(this.processors);
-
-    this.items.forEach((item) => {
-      const vm = viewmodel[item.el.uid];
-      if (!(vm instanceof ViewModel)) return;
-      const el = item.el;
-      vm.uid = el.uid;
-
-      processorEnties.forEach(([category, processor]) => {
-        if (vm[category]) {
-          // Object.entries(vm[category]).forEach(([k, v]) => processor.process(vm, el, k, v));
+        if (this.isEventDirective(name)) {
+          directives["eventHandler"](el, this.vm, value, modifier);
+        } else {
+          const render = directives[key];
+          render(el, this.vm, value, modifier);
+          new Observer(el, this.vm, value, render);
         }
-      });
+        el.removeAttribute(name);
+      }
     });
   }
-
-  watch(vm: ViewModel) {
-    vm.addListener(this);
-    this.render(vm);
-  }
-  unwatch(vm: ViewModel) {
-    vm.removeListener(this);
+  templateBind(node: Node) {
+    const templateValue = this.extractTemplate(node.textContent);
+    const render = directives["text"];
+    render(node, this.vm, templateValue);
+    new Observer(node, this.vm, templateValue, render);
   }
 
-  viewmodelUpdated(viewmodel: ViewModel, updated: Set<ViewModelInfo>) {
-    const items: { [K: string]: [ViewModel, HTMLElement] } = {};
-
-    this.items.forEach((item) => {
-      items[item.property.directiveValue] = [viewmodel[item.property.directiveValue], item.el];
-    });
-
-    updated.forEach((info) => {
-      if (!items[info.subkey]) return;
-      const [vm, el] = items[info.subkey];
-      const processor = this.processors[info.category.split(".").pop()];
-      if (!el || !processor) return;
-      // processor.process(vm, el, info.key, info.value);
-    });
+  isDirective(attr: string) {
+    return attr.indexOf("v-") === 0;
   }
-}
 
-// ViewModel로 바꿔야하나
-export class ViewItem {
-  public children: ViewItem[] = [];
-  public parent: ViewItem | null = null;
+  isEventDirective(dir: string) {
+    return dir.indexOf("v-on") === 0;
+  }
 
-  constructor(
-    public el: HTMLElement,
-    public type: "root" | "static" | "reactive",
-    public property?: {
-      directive: string;
-      modifier: string;
-      directiveValue: string;
-      template?: string;
-    },
-  ) {
-    Object.seal(this);
+  extractDirective(attr: string) {
+    const regExp = /^v-(\w+)(:(\w+))?$/;
+    const match = attr.match(regExp);
+    return { key: match[1] as DirectiveKey, modifier: match[3] || null };
+  }
+
+  extractTemplate(text: string) {
+    const regExp = /{{\s*(.*?)\s*}}/;
+    const match = regExp.exec(text);
+    return match ? match[1] : null;
   }
 }

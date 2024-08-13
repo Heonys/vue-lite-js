@@ -1,4 +1,4 @@
-import { Vuelite } from "../src/render";
+import { Vuelite } from "../src/";
 
 // 💡 this로 반응형 데이터 타입 자동으로 추론되게
 // 반응형 데이터는 #으로 시작하는 이름 불가
