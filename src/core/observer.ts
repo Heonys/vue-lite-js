@@ -4,11 +4,9 @@ import { extractPath } from "../utils/index";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
 export class Dep {
-  // 💡target을 스택으로 관리해야하는가?
   static activated: Observer = null;
   private listener = new Set<Observer>();
 
-  // addListener 변경?
   subscribe(observer: Observer) {
     this.listener.add(observer);
   }
@@ -42,8 +40,6 @@ export class Observer {
     private onUpdate: DirectiveMethod,
   ) {
     this.value = this.getterTrigger();
-
-    console.log(this.exp, this.deps);
   }
 
   addDep(dep: Dep) {
@@ -57,6 +53,7 @@ export class Observer {
     vm의 데이터에서 get트랩을 발생시키기 위한 의도로 사용한다
     즉, Dep와 Observer와의 관계를 이어주기 위한 트리거로 사용됨 
     */
+
     Dep.activated = this;
     const value = extractPath(this.vm, this.exp);
     Dep.activated = null;
@@ -65,11 +62,12 @@ export class Observer {
 
   update() {
     const value = this.value;
-    const newValue = this.getterTrigger();
+    // const newValue = this.getterTrigger();
+    // 일단 이거 2개가 같은이유 확인
 
-    if (value !== newValue) {
-      this.value = newValue;
-      this.onUpdate.call(this.vm, this.el, this.vm, newValue);
-    }
+    // if (value !== newValue) {
+    //   this.value = newValue;
+    // }
+    this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
   }
 }

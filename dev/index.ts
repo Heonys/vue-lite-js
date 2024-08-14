@@ -6,24 +6,24 @@ const vm = new Vuelite({
   el: "#app",
   data() {
     return {
-      title: "제목",
-      hello: "헬로우",
-      contents: "내용없음",
-      firstName: "퍼스트네임",
-      lastName: "라스트네임",
-      count: 0,
-      textStyle: {
-        color: "#FF0000",
-      },
-      selectedOption: "option2",
+      // title: "제목",
+      // hello: "헬로우",
+      // contents: "내용없음",
+      // firstName: "퍼스트네임",
+      // lastName: "라스트네임",
+      // count: 0,
+      // textStyle: {
+      //   color: "#FF0000",
+      // },
+      // selectedOption: "option2",
       selected: "male",
-      isActive: true,
-      inputData: "",
-      classData: {
-        recur: {
-          isActive: true,
-        },
-      },
+      // isActive: true,
+      // inputData: "",
+      // classData: {
+      //   recur: {
+      //     isActive: true,
+      //   },
+      // },
     };
   },
   computed: {

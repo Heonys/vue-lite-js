@@ -13,17 +13,6 @@ export class Scanner {
   }
 }
 
-/* 
-⭐
-Scanner의 역할 -> 
-1) Dom에서 템플릿 및 디렉티브와 같은 것들을 파싱 (Visitor에게 순회에 대한 책임은 전가)
-2) 초기페이지 렌더링? 
-
-.🚩수정할 것  
-1. Scanner의 역할 분리 
-2. 최적화를 위해 fragment 활용 
-*/
-
 export class VueScanner extends Scanner {
   private fragment: DocumentFragment;
 
