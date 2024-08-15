@@ -18,7 +18,7 @@ export class Binder {
         } else {
           const render = directives[key];
           render(el, this.vm, value, modifier);
-          new Observer(el, this.vm, value, render);
+          // new Observer(el, this.vm, value, render);
         }
         el.removeAttribute(name);
       }

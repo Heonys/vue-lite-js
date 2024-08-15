@@ -62,12 +62,13 @@ export class Observer {
 
   update() {
     const value = this.value;
-    // const newValue = this.getterTrigger();
-    // 일단 이거 2개가 같은이유 확인
+    const newValue = this.getterTrigger();
 
-    // if (value !== newValue) {
-    //   this.value = newValue;
-    // }
-    this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
+    console.log(value, newValue);
+
+    if (value !== newValue) {
+      this.value = newValue;
+      this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
+    }
   }
 }

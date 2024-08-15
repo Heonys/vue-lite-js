@@ -19,6 +19,8 @@ class Reactivity {
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
+        // console.log("get ::", key);
+
         if (!deps.has(key)) deps.set(key, new Dep());
         deps.get(key).depend();
 
@@ -31,6 +33,8 @@ class Reactivity {
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
+        // console.log("set", key, value);
+
         if (isObject(value)) caches.set(key, me.define(value));
         else caches.delete(key);
 

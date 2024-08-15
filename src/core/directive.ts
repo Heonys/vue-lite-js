@@ -65,10 +65,13 @@ export const directives: { [Method in DirectiveKey]: DirectiveMethod } = {
         } else if (input.type === "radio") {
           input.name = exp;
           input.checked = extractPath(vm, exp) === input.value;
-          input.addEventListener("change", (event) => {
+
+          const handler = (event: Event) => {
             const value = (event.target as HTMLInputElement).value;
             assignPath(vm, exp, value);
-          });
+          };
+
+          input.addEventListener("change", handler);
         } else {
           input.value = extractPath(vm, exp);
           input.addEventListener("input", (event) => {
