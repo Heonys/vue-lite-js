@@ -33,8 +33,6 @@ class Reactivity {
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
-        // console.log("set", key, value);
-
         if (isObject(value)) caches.set(key, me.define(value));
         else caches.delete(key);
 

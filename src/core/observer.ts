@@ -61,14 +61,8 @@ export class Observer {
   }
 
   update() {
-    const value = this.value;
     const newValue = this.getterTrigger();
-
-    console.log(value, newValue);
-
-    if (value !== newValue) {
-      this.value = newValue;
-      this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
-    }
+    this.value = newValue;
+    this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
   }
 }

@@ -74,10 +74,12 @@ export const directives: { [Method in DirectiveKey]: DirectiveMethod } = {
           input.addEventListener("change", handler);
         } else {
           input.value = extractPath(vm, exp);
-          input.addEventListener("input", (event) => {
+
+          const handler = (event: Event) => {
             const value = (event.target as HTMLInputElement).value;
             assignPath(vm, exp, value);
-          });
+          };
+          input.addEventListener("input", handler);
         }
         break;
       }

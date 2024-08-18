@@ -16,8 +16,7 @@ export class Binder {
         if (this.isEventDirective(name)) {
           directives["eventHandler"](el, this.vm, value, modifier);
         } else {
-          const render = directives[key];
-          render(el, this.vm, value, modifier);
+          directives[key](el, this.vm, value, modifier);
           // new Observer(el, this.vm, value, render);
         }
         el.removeAttribute(name);

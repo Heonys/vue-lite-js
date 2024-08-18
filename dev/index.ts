@@ -6,7 +6,7 @@ const vm = new Vuelite({
   el: "#app",
   data() {
     return {
-      // title: "제목",
+      title: "",
       // hello: "헬로우",
       // contents: "내용없음",
       // firstName: "퍼스트네임",
@@ -16,7 +16,7 @@ const vm = new Vuelite({
       //   color: "#FF0000",
       // },
       // selectedOption: "option2",
-      selected: "male",
+      // selected: "male",
       // isActive: true,
       // inputData: "",
       // classData: {

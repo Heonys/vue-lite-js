@@ -7,8 +7,10 @@
   </head>
   <body>
     <div id="app">
+      <input type="text" v-model="title" />
+      <div>{{ title }}</div>
 
-      <div>
+      <!-- <div>
         <label>
           male <input type="radio" value="male" v-model="selected" />
         </label>
@@ -19,10 +21,9 @@
           other <input type="radio" value="other" v-model="selected" />
         </label>
     </div>
-    <div>{{ selected }}</div>
+    <div>{{ selected }}</div> -->
 
-
-    <!-- <select v-model="selectedOption">
+      <!-- <select v-model="selectedOption">
       <option value="option1">Option 1</option>
       <option value="option2">Option 2</option>
       <option value="option3">Option 3</option>
@@ -43,8 +44,6 @@
     </div>
   </body>
 </html>
-
-
 
 <!-- 
 
