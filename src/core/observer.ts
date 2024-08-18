@@ -1,5 +1,5 @@
-import { Vuelite } from "../index";
-import { extractPath } from "../utils/index";
+import { Vuelite } from "./index";
+import { extractPath } from "../utils/common";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
 export class Dep {
@@ -52,7 +52,6 @@ export class Observer {
     vm의 데이터에서 get트랩을 발생시키기 위한 의도로 사용한다
     즉, Dep와 Observer와의 관계를 이어주기 위한 트리거로 사용됨 
     */
-
     Dep.activated = this;
     const value = extractPath(this.vm, this.exp);
     Dep.activated = null;

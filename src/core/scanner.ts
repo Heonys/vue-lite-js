@@ -1,6 +1,5 @@
-import { Vuelite } from "../index";
-import { isElementNode, isIncludeText, isTextNode } from "../utils/index";
-import { Binder } from "./binder";
+import { Binder, Vuelite } from "./index";
+import { isElementNode, isIncludeText, isTextNode } from "../utils/format";
 import { Visitor } from "./visitor";
 
 export class Scanner {

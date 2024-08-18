@@ -1,17 +1,7 @@
-import { Vuelite } from "../index";
-import { directiveUtils } from "../utils/directive";
-import {
-  isObjectFormat,
-  normalizeToJson,
-  isObject,
-  extractPath,
-  assignPath,
-  isInlineStyle,
-  isHtmlFormat,
-} from "../utils/index";
+import { Vuelite, Observer } from "./index";
+import { normalizeToJson, extractPath, assignPath } from "../utils/common";
+import { isHtmlFormat, isInlineStyle, isObject, isObjectFormat } from "../utils/format";
 import { DirectiveKey } from "./binder";
-import { Observer } from "./observer";
-import { updaters } from "./updater";
 
 /* 
     결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
@@ -31,20 +21,19 @@ type DirectiveTypes = {
 
 export const directives: DirectiveTypes = {
   text(node, vm, exp) {
-    updaters.text(node, extractPath(vm, exp));
-
-    new Observer(node, vm, exp, (value: any) => {
-      updaters.text(node, value);
-    });
+    node.textContent = extractPath(vm, exp);
+    new Observer(node, vm, exp, (value: any) => (node.textContent = value));
   },
   bind(el: HTMLElement, vm, exp, modifier) {
     if (modifier === "text" || modifier === "class" || modifier === "style") {
       this[modifier](el, vm, exp);
     } else {
-      updaters.customBind(el, extractPath(vm, exp), modifier);
-      new Observer(el, vm, exp, (value: any) => {
-        updaters.customBind(el, value, modifier);
-      });
+      const updater = (value: any, modifier: string) => {
+        if (el.hasAttribute(modifier)) el.setAttribute(modifier, value);
+      };
+
+      updater(extractPath(vm, exp), modifier);
+      new Observer(el, vm, exp, (value: any) => updater(value, modifier));
     }
   },
 
@@ -69,23 +58,22 @@ export const directives: DirectiveTypes = {
             const value = (event.target as HTMLInputElement).checked;
             assignPath(vm, exp, value);
           });
+          new Observer(el, vm, exp, (value: any) => (input.checked = value));
         } else if (input.type === "radio") {
           input.name = exp;
           input.checked = extractPath(vm, exp) === input.value;
-
-          const handler = (event: Event) => {
+          input.addEventListener("change", (event) => {
             const value = (event.target as HTMLInputElement).value;
             assignPath(vm, exp, value);
-          };
-
-          input.addEventListener("change", handler);
+          });
+          new Observer(el, vm, exp, (value: any) => (input.checked = value === input.value));
         } else {
           input.value = extractPath(vm, exp);
-          const handler = (event: Event) => {
+          input.addEventListener("input", (event) => {
             const value = (event.target as HTMLInputElement).value;
             assignPath(vm, exp, value);
-          };
-          input.addEventListener("input", handler);
+          });
+          new Observer(el, vm, exp, (value: any) => (input.value = value));
         }
         break;
       }
@@ -96,31 +84,36 @@ export const directives: DirectiveTypes = {
           const value = (event.target as HTMLTextAreaElement).value;
           assignPath(vm, exp, value);
         });
+        new Observer(el, vm, exp, (value: any) => (textarea.value = value));
         break;
       }
       case "SELECT": {
         const select = el as HTMLSelectElement;
 
         if (select.multiple) {
-          const options = Array.from(select.options);
-          const proxy = extractPath(vm, exp);
-          if (!Array.isArray(proxy)) return;
+          const updater = (value: any) => {
+            const options = Array.from(select.options);
+            if (!Array.isArray(value)) return;
 
-          options.forEach((option) => {
-            option.selected = proxy.includes(option.value);
-          });
-
+            options.forEach((option) => {
+              option.selected = value.includes(option.value);
+            });
+          };
+          updater(extractPath(vm, exp));
           select.addEventListener("change", (event) => {
             const target = event.target as HTMLSelectElement;
             const selectedValues = Array.from(target.selectedOptions).map((option) => option.value);
             assignPath(vm, exp, selectedValues);
           });
+
+          new Observer(el, vm, exp, (value: any) => updater(value));
         } else {
           select.value = extractPath(vm, exp);
           select.addEventListener("change", (event) => {
             const value = (event.target as HTMLSelectElement).value;
             assignPath(vm, exp, value);
           });
+          new Observer(el, vm, exp, (value: any) => (select.value = value));
         }
         break;
       }
@@ -143,11 +136,15 @@ export const directives: DirectiveTypes = {
       });
     } else {
       const proxy = extractPath(vm, exp);
-      if (isObject(proxy)) {
-        Object.entries(proxy).forEach(([key, value]) => {
-          if (value) el.classList.add(key);
-        });
-      }
+      const updater = (value: any) => {
+        if (isObject(value)) {
+          Object.entries(value).forEach(([k, v]) => {
+            if (v) el.classList.add(k);
+          });
+        }
+      };
+      updater(proxy);
+      new Observer(el, vm, exp, (value: any) => updater(value));
     }
   },
 
@@ -165,11 +162,15 @@ export const directives: DirectiveTypes = {
       }
     } else {
       const styles = extractPath(vm, exp);
-      if (isObject(styles)) {
-        for (const [key, value] of Object.entries(styles)) {
-          (el.style as any)[key] = value;
+      const updater = (value: any) => {
+        if (isObject(value)) {
+          for (const [k, v] of Object.entries(value)) {
+            (el.style as any)[k] = v;
+          }
         }
-      }
+      };
+      updater(styles);
+      new Observer(el, vm, exp, (value: any) => updater(value));
     }
   },
 
@@ -178,6 +179,7 @@ export const directives: DirectiveTypes = {
     else {
       const proxy = extractPath(vm, exp);
       if (typeof proxy === "string") el.innerHTML = proxy;
+      new Observer(el, vm, exp, (value: any) => (el.innerHTML = value));
     }
   },
 

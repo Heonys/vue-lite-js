@@ -1,8 +1,11 @@
-import { Vuelite } from "../index";
-import { directiveUtils } from "../utils/directive";
+import { Vuelite } from "./index";
+import {
+  extractDirective,
+  extractTemplate,
+  isDirective,
+  isEventDirective,
+} from "../utils/directive";
 import { directives } from "./directive";
-import { Observer } from "./observer";
-import { updaters } from "./updater";
 
 type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
 export type DirectiveKey = DirectiveNames[number];
@@ -12,10 +15,10 @@ export class Binder {
 
   directiveBind(el: Element) {
     Array.from(el.attributes).forEach(({ name, value }) => {
-      if (directiveUtils.isDirective(name)) {
-        const { key, modifier } = directiveUtils.extractDirective(name);
+      if (isDirective(name)) {
+        const { key, modifier } = extractDirective(name);
 
-        if (directiveUtils.isEventDirective(name)) {
+        if (isEventDirective(name)) {
           directives["eventHandler"](el, this.vm, value, modifier);
         } else {
           directives[key](el, this.vm, value, modifier);
@@ -25,7 +28,7 @@ export class Binder {
     });
   }
   templateBind(node: Node) {
-    const templateValue = directiveUtils.extractTemplate(node.textContent);
+    const templateValue = extractTemplate(node.textContent);
     directives["text"](node, this.vm, templateValue);
   }
 }
