@@ -1,4 +1,3 @@
-import { DirectiveMethod } from "./directive";
 import { Vuelite } from "../index";
 import { extractPath } from "../utils/index";
 
@@ -37,7 +36,7 @@ export class Observer {
     private el: Node,
     private vm: Vuelite,
     private exp: string,
-    private onUpdate: DirectiveMethod,
+    private onUpdate: (value: any) => void,
   ) {
     this.value = this.getterTrigger();
   }
@@ -61,8 +60,12 @@ export class Observer {
   }
 
   update() {
+    const oldValue = this.value;
     const newValue = this.getterTrigger();
-    this.value = newValue;
-    this.onUpdate.call(this.vm, this.el, this.vm, this.exp);
+
+    if (oldValue !== newValue) {
+      this.value = newValue;
+      this.onUpdate.call(this.vm, newValue);
+    }
   }
 }

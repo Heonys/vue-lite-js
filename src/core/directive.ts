@@ -1,4 +1,5 @@
 import { Vuelite } from "../index";
+import { directiveUtils } from "../utils/directive";
 import {
   isObjectFormat,
   normalizeToJson,
@@ -9,6 +10,8 @@ import {
   isHtmlFormat,
 } from "../utils/index";
 import { DirectiveKey } from "./binder";
+import { Observer } from "./observer";
+import { updaters } from "./updater";
 
 /* 
     결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
@@ -22,22 +25,26 @@ import { DirectiveKey } from "./binder";
 단, 이벤트 핸들러는 반응형 데이터와 무관하기때문에 v-on으로 watcher가 생성되진 않음 
 */
 
-export interface DirectiveMethod {
-  (node: Node, vm: Vuelite, exp: string, modifier?: string): void;
-}
+type DirectiveTypes = {
+  [Method in DirectiveKey]: (node: Node, vm: Vuelite, exp: string, modifier?: string) => void;
+};
 
-export const directives: { [Method in DirectiveKey]: DirectiveMethod } = {
+export const directives: DirectiveTypes = {
   text(node, vm, exp) {
-    const proxy = extractPath(vm, exp);
-    node.textContent = proxy;
+    updaters.text(node, extractPath(vm, exp));
+
+    new Observer(node, vm, exp, (value: any) => {
+      updaters.text(node, value);
+    });
   },
   bind(el: HTMLElement, vm, exp, modifier) {
     if (modifier === "text" || modifier === "class" || modifier === "style") {
       this[modifier](el, vm, exp);
     } else {
-      if (el.hasAttribute(modifier)) {
-        el.setAttribute(modifier, extractPath(vm, exp));
-      }
+      updaters.customBind(el, extractPath(vm, exp), modifier);
+      new Observer(el, vm, exp, (value: any) => {
+        updaters.customBind(el, value, modifier);
+      });
     }
   },
 
@@ -74,7 +81,6 @@ export const directives: { [Method in DirectiveKey]: DirectiveMethod } = {
           input.addEventListener("change", handler);
         } else {
           input.value = extractPath(vm, exp);
-
           const handler = (event: Event) => {
             const value = (event.target as HTMLInputElement).value;
             assignPath(vm, exp, value);
