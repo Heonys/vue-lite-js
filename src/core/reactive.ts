@@ -18,17 +18,15 @@ class Reactivity {
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
-        // console.log("get ::", key);
-
         if (!deps.has(key)) deps.set(key, new Dep());
         deps.get(key).depend();
 
         const child = target[key];
+
         if (isObject(child)) {
           if (!caches.has(key)) caches.set(key, me.define(child));
           return caches.get(key);
         }
-
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
@@ -91,7 +89,7 @@ function injectComputed(vm: Vuelite) {
         value.set.call(vm, ...params);
       };
     } else {
-      descripter.get = () => value;
+      descripter.get = () => value.call(vm);
     }
     Object.defineProperty(vm, key, descripter);
   });

@@ -7,6 +7,10 @@ const vm = new Vuelite({
   data() {
     return {
       title: "",
+      // name: "jiheon",
+      // myname: function () {
+      //   return this.name;
+      // },
       // hello: "헬로우",
       // contents: "내용없음",
       // firstName: "퍼스트네임",
@@ -17,7 +21,7 @@ const vm = new Vuelite({
       // },
       // selectedOption: "option2",
       // selected: "male",
-      // isActive: true,
+      isActive: true,
       // inputData: "",
       // classData: {
       //   recur: {
@@ -27,19 +31,29 @@ const vm = new Vuelite({
     };
   },
   computed: {
+    isChecked() {
+      return this.isActive ? "체크 됨" : "체크 안됨";
+    },
     fullName() {
       return this.firstName + " " + this.lastName;
     },
   },
+  /* 
+  템플릿은 데이터의 결과를 보여주는게 아닌 데이터의 상태를 표현하기 위한 것
+  computed는 데이터의 상태 표현을 최적화하고, methods는 동작을 수행하는 역할을 명확히 구분짓기 위해 설계된 것 
+  */
   methods: {
+    test() {
+      return Math.random().toFixed(5);
+    },
     increase() {
       this.count++;
     },
     decrease() {
       this.count--;
     },
-    hanldeInput() {
-      console.log(this.selected);
+    hanldeInput(e: Event) {
+      this.title = (e.target as HTMLInputElement).value;
     },
   },
   styles: {

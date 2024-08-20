@@ -16,6 +16,12 @@ export function isObjectFormat(str: string) {
   return regex.test(str);
 }
 
+export function isFunctionFormat(str: string) {
+  const regex = /^\s*(\w+(\.\w+)*)\(\)\s*$/;
+  const match = str.match(regex);
+  return match ? match[1] : null;
+}
+
 function typeOf(value: any): string {
   return Object.prototype.toString //
     .call(value)
@@ -25,6 +31,10 @@ function typeOf(value: any): string {
 
 export const isObject = (data: any): data is object => {
   return typeOf(data) === "object";
+};
+
+export const isFunction = (data: any): data is Function => {
+  return typeOf(data) === "function";
 };
 
 export const isInlineStyle = (value: any): value is string => {

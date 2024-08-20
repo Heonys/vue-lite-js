@@ -1,6 +1,12 @@
 import { Vuelite, Observer } from "./index";
 import { normalizeToJson, extractPath, assignPath } from "../utils/common";
-import { isHtmlFormat, isInlineStyle, isObject, isObjectFormat } from "../utils/format";
+import {
+  isFunctionFormat,
+  isHtmlFormat,
+  isInlineStyle,
+  isObject,
+  isObjectFormat,
+} from "../utils/format";
 import { DirectiveKey } from "./binder";
 
 /* 
@@ -21,8 +27,20 @@ type DirectiveTypes = {
 
 export const directives: DirectiveTypes = {
   text(node, vm, exp) {
-    node.textContent = extractPath(vm, exp);
-    new Observer(node, vm, exp, (value: any) => (node.textContent = value));
+    const match = isFunctionFormat(exp);
+
+    if (match) {
+      node.textContent = (extractPath(vm, match) as Function).call(vm);
+      new Observer(node, vm, match, (value: any) => {
+        node.textContent = value;
+      });
+    } else {
+      node.textContent = extractPath(vm, exp);
+      new Observer(node, vm, exp, (value: any) => (node.textContent = value));
+    }
+
+    // node.textContent = value;
+    // new Observer(node, vm, exp, (value: any) => (node.textContent = value));
   },
   bind(el: HTMLElement, vm, exp, modifier) {
     if (modifier === "text" || modifier === "class" || modifier === "style") {

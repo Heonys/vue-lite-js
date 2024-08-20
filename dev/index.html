@@ -7,9 +7,20 @@
   </head>
   <body>
     <div id="app">
-      <input type="text" v-model="title" />
-      <input type="text" v-model="title" />
+      
+      <input type="text" v-on:input="hanldeInput"  />
       <div>{{ title }}</div>
+      <input type="text" v-bind:value="title">
+
+
+
+
+
+    
+      <!-- <input type="checkbox" v-model="isActive">
+      <div>{{ isChecked }}</div> -->
+      
+
 
       <!-- <div>
         <label>
