@@ -7,9 +7,6 @@ import {
 } from "../utils/directive";
 import { directives } from "./directive";
 
-type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
-export type DirectiveKey = DirectiveNames[number];
-
 export class Binder {
   constructor(private vm: Vuelite) {}
 

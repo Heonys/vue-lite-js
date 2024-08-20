@@ -7,7 +7,6 @@ import {
   isObject,
   isObjectFormat,
 } from "../utils/format";
-import { DirectiveKey } from "./binder";
 
 /* 
     결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
@@ -21,6 +20,9 @@ import { DirectiveKey } from "./binder";
 단, 이벤트 핸들러는 반응형 데이터와 무관하기때문에 v-on으로 watcher가 생성되진 않음 
 */
 
+type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
+export type DirectiveKey = DirectiveNames[number];
+
 type DirectiveTypes = {
   [Method in DirectiveKey]: (node: Node, vm: Vuelite, exp: string, modifier?: string) => void;
 };
@@ -31,9 +33,7 @@ export const directives: DirectiveTypes = {
 
     if (match) {
       node.textContent = (extractPath(vm, match) as Function).call(vm);
-      new Observer(node, vm, match, (value: any) => {
-        node.textContent = value;
-      });
+      new Observer(node, vm, match, (value: any) => (node.textContent = value));
     } else {
       node.textContent = extractPath(vm, exp);
       new Observer(node, vm, exp, (value: any) => (node.textContent = value));
@@ -46,10 +46,7 @@ export const directives: DirectiveTypes = {
     if (modifier === "text" || modifier === "class" || modifier === "style") {
       this[modifier](el, vm, exp);
     } else {
-      const updater = (value: any, modifier: string) => {
-        if (el.hasAttribute(modifier)) el.setAttribute(modifier, value);
-      };
-
+      const updater = (value: any, modifier: string) => ((el as any)[modifier] = value);
       updater(extractPath(vm, exp), modifier);
       new Observer(el, vm, exp, (value: any) => updater(value, modifier));
     }

@@ -1,4 +1,4 @@
-import { DirectiveKey } from "../core/binder";
+import { DirectiveKey } from "../core/directive";
 
 export function extractDirective(attr: string) {
   const regExp = /^v-(\w+)(:(\w+))?$/;

@@ -7,6 +7,7 @@ const vm = new Vuelite({
   data() {
     return {
       title: "",
+      hello: true,
       // name: "jiheon",
       // myname: function () {
       //   return this.name;
@@ -16,11 +17,11 @@ const vm = new Vuelite({
       // firstName: "퍼스트네임",
       // lastName: "라스트네임",
       // count: 0,
-      // textStyle: {
-      //   color: "#FF0000",
-      // },
-      // selectedOption: "option2",
-      // selected: "male",
+      textStyle: {
+        color: "#FF0000",
+      },
+      selectedOption: "option2",
+      selected: "male",
       isActive: true,
       // inputData: "",
       // classData: {
@@ -28,6 +29,7 @@ const vm = new Vuelite({
       //     isActive: true,
       //   },
       // },
+      world: "<div>hello world</div>",
     };
   },
   computed: {
@@ -54,6 +56,9 @@ const vm = new Vuelite({
     },
     hanldeInput(e: Event) {
       this.title = (e.target as HTMLInputElement).value;
+    },
+    handleCheck() {
+      this.isActive = !this.isActive;
     },
   },
   styles: {

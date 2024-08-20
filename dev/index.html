@@ -8,21 +8,26 @@
   <body>
     <div id="app">
       
-      <input type="text" v-on:input="hanldeInput"  />
+      
+      <input 
+        type="text" 
+        v-model="title" 
+        v-bind:class="{ myclass: hello }"
+        
+      />
       <div>{{ title }}</div>
-      <input type="text" v-bind:value="title">
 
-
+      <div v-html="world" v-bind:style="{ color: _#FF0000 }"   />
 
 
 
     
-      <!-- <input type="checkbox" v-model="isActive">
+      <!-- <input type="checkbox" v-bind:checked="isActive" v-on:change="handleCheck" >
       <div>{{ isChecked }}</div> -->
       
 
-
-      <!-- <div>
+<!-- 
+      <div>
         <label>
           male <input type="radio" value="male" v-model="selected" />
         </label>
@@ -35,11 +40,7 @@
     </div>
     <div>{{ selected }}</div> -->
 
-      <!-- <select v-model="selectedOption">
-      <option value="option1">Option 1</option>
-      <option value="option2">Option 2</option>
-      <option value="option3">Option 3</option>
-    </select> -->
+
 
       <!-- <section id="wrapper">
         <h2 v-text="hello">{{ title }}</h2>
