@@ -11,6 +11,46 @@ generaterObserber 이런느낌으로
 
 updater들은 따로 관리 ? 
 
-
-
 */
+
+import { isObject } from "../utils/format";
+
+/* 
+updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴때 
+전달되는 구체적인 업데이트 함수  
+*/
+
+export const updaters = {
+  text(node: Node, value: string) {
+    node.textContent = value;
+  },
+  class(el: HTMLElement, value: any) {
+    /*
+    
+    여기서 들어오는 value는 트리거를 통해서 반환되는 반응형값인데 
+    중요한건 v-class에서 반응형값을 직접 사용하는경우라면 문제가되지 않지만 
+    
+    실제 디렉티브에서 인라인 스타일로 class를 사용하고 있다면 문제가됨 
+    
+    
+
+    
+    */
+
+    if (isObject(value)) {
+      Object.entries(value).forEach(([k, v]) => {
+        if (v) el.classList.add(k);
+      });
+    } else {
+      //
+    }
+  },
+  style(el: HTMLElement, value: object) {
+    Object.entries(value).forEach(([k, v]) => {
+      (el.style as any)[k] = v;
+    });
+  },
+  html(el: HTMLElement, value: string) {
+    el.innerHTML = value;
+  },
+};

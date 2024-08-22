@@ -1,7 +1,6 @@
 import { Vuelite } from "../src/core/index";
 
 // 💡 this로 반응형 데이터 타입 자동으로 추론되게
-// 반응형 데이터는 #으로 시작하는 이름 불가
 const vm = new Vuelite({
   el: "#app",
   data() {
@@ -46,7 +45,7 @@ const vm = new Vuelite({
   */
   methods: {
     test() {
-      return Math.random().toFixed(5);
+      return this.title + " world ";
     },
     increase() {
       this.count++;

@@ -1,4 +1,4 @@
-import { Vuelite, Observer } from "./index";
+import { Observer, Vuelite } from "./index";
 import { normalizeToJson, extractPath, assignPath } from "../utils/common";
 import {
   isFunctionFormat,
@@ -7,6 +7,9 @@ import {
   isObject,
   isObjectFormat,
 } from "../utils/format";
+import type { DirectiveTypes } from "../types/directive";
+import { updaters } from "./updaters";
+import { extractDirective, isEventDirective } from "../utils/directive";
 
 /* 
     결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
@@ -20,12 +23,53 @@ import {
 단, 이벤트 핸들러는 반응형 데이터와 무관하기때문에 v-on으로 watcher가 생성되진 않음 
 */
 
-type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
-export type DirectiveKey = DirectiveNames[number];
+export class Directive {
+  type: "origin" | "inline" | "method" = "origin";
+  modifier: string;
+  updater: Function;
 
-type DirectiveTypes = {
-  [Method in DirectiveKey]: (node: Node, vm: Vuelite, exp: string, modifier?: string) => void;
-};
+  constructor(
+    private name: string,
+    private vm: Vuelite,
+    private node: Node,
+    private exp: any,
+  ) {
+    const { key, modifier } = extractDirective(name);
+    this.modifier = modifier;
+    if (isObjectFormat(exp)) this.type = "inline";
+    else if (isFunctionFormat(exp)) this.type = "method";
+
+    if (isEventDirective(name)) {
+      directives["eventHandler"](node, vm, exp, modifier);
+    } else {
+      directives[key](node, vm, exp, modifier);
+    }
+    if (node instanceof HTMLElement) node.removeAttribute(name);
+  }
+
+  text() {
+    const { node, vm, exp } = this;
+    const match = isFunctionFormat(exp);
+    if (match) {
+      node.textContent = (extractPath(vm, match) as Function).call(vm);
+    } else {
+      node.textContent = extractPath(vm, exp);
+    }
+    this.bind(updaters.text);
+  }
+  bind(updater?: Function) {}
+  model(node: Node, vm: Vuelite, exp: string, modifier: string) {}
+  style(node: Node, vm: Vuelite, exp: string, modifier: string) {}
+  class(node: Node, vm: Vuelite, exp: string, modifier: string) {}
+  html(node: Node, vm: Vuelite, exp: string, modifier: string) {}
+  eventHandler(node: Node, vm: Vuelite, exp: string, modifier: string) {}
+}
+
+/* 
+
+
+
+*/
 
 export const directives: DirectiveTypes = {
   text(node, vm, exp) {
@@ -44,7 +88,7 @@ export const directives: DirectiveTypes = {
   },
   bind(el: HTMLElement, vm, exp, modifier) {
     if (modifier === "text" || modifier === "class" || modifier === "style") {
-      this[modifier](el, vm, exp);
+      this[modifier](el, vm, exp, null);
     } else {
       const updater = (value: any, modifier: string) => ((el as any)[modifier] = value);
       updater(extractPath(vm, exp), modifier);
@@ -152,6 +196,8 @@ export const directives: DirectiveTypes = {
     } else {
       const proxy = extractPath(vm, exp);
       const updater = (value: any) => {
+        console.log("class updater ::", value);
+
         if (isObject(value)) {
           Object.entries(value).forEach(([k, v]) => {
             if (v) el.classList.add(k);
@@ -175,6 +221,7 @@ export const directives: DirectiveTypes = {
           (el.style as any)[key] = styleValue;
         }
       }
+      // 이경우는 왜 옵저버 안만듬
     } else {
       const styles = extractPath(vm, exp);
       const updater = (value: any) => {

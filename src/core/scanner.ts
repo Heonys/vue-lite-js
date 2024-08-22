@@ -1,6 +1,6 @@
-import { Binder, Vuelite } from "./index";
-import { isElementNode, isIncludeText, isTextNode } from "../utils/format";
+import { Vuelite } from "./index";
 import { Visitor } from "./visitor";
+import { Observable } from "./observable";
 
 export class Scanner {
   constructor(private visitor: Visitor) {}
@@ -16,24 +16,12 @@ export class VueScanner extends Scanner {
   private fragment: DocumentFragment;
 
   scan(vm: Vuelite) {
-    const patten: RegExp = /{{\s*(.*?)\s*}}/;
-    const binder = new Binder(vm);
-
-    const action = (node: Node) => {
-      const text = node.textContent;
-      if (isElementNode(node)) {
-        binder.directiveBind(node);
-      } else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
-        binder.templateBind(node);
-      }
-    };
+    const action = (node: Node) => new Observable(vm, node);
 
     this.node2Fragment(vm.el);
     action(this.fragment);
     this.visit(action, this.fragment);
     vm.el.appendChild(this.fragment);
-
-    return binder;
   }
 
   private node2Fragment(el: HTMLElement) {

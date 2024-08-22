@@ -13,7 +13,7 @@ export class Vuelite {
 
     injectReactive(this); // 반응성 주입
     const scanner = new VueScanner(new NodeVisitor());
-    const binder = scanner.scan(this);
+    scanner.scan(this);
 
     /* 
 
