@@ -12,12 +12,14 @@
       <input 
         type="text" 
         v-model="title" 
-        v-bind:class="{ myclass: hello }"
+        v-bind:class="{ myclass: hello, myclass2: 'true' }"
         
       />
       <div>{{ title }}</div>
 
-      <!-- <div v-html="world" v-bind:style="{ color: _#FF0000 }"   /> -->
+
+      <div v-style="{ color: textStyle.color, backgroundColor: 'red' }" >{{ hello }}</div>
+
 
       <div>경계선</div>
       <div>{{ test() }}</div>

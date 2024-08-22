@@ -25,9 +25,12 @@ export function assignPath(obj: Record<PropertyKey, any>, path: string, value: a
 export function normalizeToJson(str: string) {
   return str
     .replace(/(\w+):/g, '"$1":') //
-    .replace(/:\s*'([^']+)'/g, ': "_$1"') //
     .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
       if (/^".*"$/.test(p1)) return match;
       return `: "${p1}"`;
     });
+}
+
+export function evaluateValue(str: string) {
+  return str === "true" ? true : str === "false" ? false : str;
 }

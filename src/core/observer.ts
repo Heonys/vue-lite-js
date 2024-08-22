@@ -1,6 +1,6 @@
 import { Vuelite } from "./index";
-import { extractPath } from "../utils/common";
-import { isFunction } from "../utils/format";
+import { evaluateValue, extractPath, normalizeToJson } from "../utils/common";
+import { isFunction, isFunctionFormat, isObjectFormat, isQuotedString } from "../utils/format";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
 export class Dep {
@@ -34,14 +34,12 @@ export class Observer {
   */
 
   constructor(
-    private el: Node,
+    private node: Node,
     private vm: Vuelite,
     private exp: string,
-    private onUpdate: (value: any) => void,
+    private onUpdate: (node: Node, value: any) => void,
   ) {
     this.value = this.getterTrigger();
-
-    // console.log([...this.deps]);
   }
 
   addDep(dep: Dep) {
@@ -56,8 +54,25 @@ export class Observer {
     즉, Dep와 Observer와의 관계를 이어주기 위한 트리거로 사용됨 
     */
     Dep.activated = this;
-    let value = extractPath(this.vm, this.exp);
-    if (isFunction(value)) value = value.call(this.vm);
+
+    let value;
+    if (isObjectFormat(this.exp)) {
+      const json: Record<string, any> = JSON.parse(normalizeToJson(this.exp));
+      value = Object.entries(json).reduce((acc, [key, value]) => {
+        if (isQuotedString(value)) {
+          acc[key] = evaluateValue(value.slice(1, -1));
+        } else {
+          acc[key] = extractPath(this.vm, value);
+        }
+        return acc;
+      }, json);
+    } else {
+      const match = isFunctionFormat(this.exp);
+      value = match
+        ? (extractPath(this.vm, match) as Function).call(this.vm)
+        : extractPath(this.vm, this.exp);
+    }
+
     Dep.activated = null;
     return value;
   }
@@ -68,7 +83,7 @@ export class Observer {
 
     if (oldValue !== newValue) {
       this.value = newValue;
-      this.onUpdate.call(this.vm, newValue);
+      this.onUpdate.call(this.vm, this.node, newValue);
     }
   }
 }

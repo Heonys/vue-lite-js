@@ -37,9 +37,11 @@ export const isFunction = (data: any): data is Function => {
   return typeOf(data) === "function";
 };
 
-export const isInlineStyle = (value: any): value is string => {
-  return typeOf(value) === "string" && value.indexOf("_") === 0;
-};
+// 문자열의 시작과 끝이 동일한 따옴표로 감싸져 있는지 확인
+export function isQuotedString(str: string) {
+  const regex = /^["'].*["']$/;
+  return regex.test(str) && str[0] === str[str.length - 1];
+}
 
 export function isHtmlFormat(str: string) {
   const htmlTagPattern = /<\/?[a-z][\s\S]*>/i;
