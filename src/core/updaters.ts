@@ -5,6 +5,8 @@ updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴�
 전달되는 구체적인 업데이트 함수  
 */
 
+export type Updater = (node: Node, value: any) => void;
+
 export const updaters = {
   text(node: Node, value: string) {
     node.textContent = value;
@@ -35,14 +37,16 @@ export const updaters = {
   inputRadio(el: HTMLInputElement, value: any) {
     el.checked = el.value === value;
   },
-  inputNormal(el: HTMLInputElement, value: any) {
-    el.value = value;
-  },
 
-  textarea(el: HTMLTextAreaElement, value: any) {
+  inputValue(el: HTMLInputElement, value: any) {
     el.value = value;
   },
-  select(el: HTMLSelectElement, value: any) {
-    el.value = value;
+  inputMultiple(el: HTMLSelectElement, value: any) {
+    const options = Array.from(el.options);
+    if (!Array.isArray(value)) return;
+
+    options.forEach((option) => {
+      option.selected = value.includes(option.value);
+    });
   },
 };

@@ -1,7 +1,6 @@
 import { extractTemplate, isDirective } from "../utils/directive";
 import { isElementNode, isIncludeText, isTextNode } from "../utils/format";
-import { Directive } from "./directive";
-import { Vuelite } from "./viewmodel";
+import { Vuelite, Directive } from "./index";
 
 export class Observable {
   constructor(

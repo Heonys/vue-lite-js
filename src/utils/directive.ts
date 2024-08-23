@@ -1,4 +1,5 @@
 import type { DirectiveKey } from "../types/directive";
+import { isElementNode, isTextNode } from "./format";
 
 export function extractDirective(attr: string) {
   const regExp = /^v-(\w+)(:(\w+))?$/;
@@ -19,3 +20,13 @@ export function isDirective(attr: string) {
 export function isEventDirective(dir: string) {
   return dir.indexOf("v-on") === 0;
 }
+
+export const isReactiveNode = (node: Node) => {
+  if (isElementNode(node)) {
+    const attributes = node.attributes;
+    return Array.from(attributes).some((attr) => isDirective(attr.name));
+  } else if (isTextNode(node)) {
+    const textContent = node.textContent || "";
+    return extractTemplate(textContent) ? true : false;
+  }
+};

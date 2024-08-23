@@ -49,7 +49,7 @@ class Reactivity {
 }
 
 export function injectReactive(vm: Vuelite) {
-  const { data, methods } = vm.options;
+  const { data } = vm.options;
   const returned = typeof data === "function" ? data() : {};
   const proxy = new Reactivity(returned).proxy;
 
@@ -64,14 +64,19 @@ export function injectReactive(vm: Vuelite) {
     });
   }
 
+  injectMethod(vm);
+  injectComputed(vm);
+}
+
+function injectMethod(vm: Vuelite) {
+  const { methods } = vm.options;
+
   Object.entries(methods).forEach(([key, method]) => {
     if (Object.hasOwn(vm, key)) throw new Error(`${key} has already been declared`);
     Object.defineProperty(vm, key, {
       value: (...args: any[]) => method.apply(vm, args),
     });
   });
-
-  injectComputed(vm);
 }
 
 function injectComputed(vm: Vuelite) {

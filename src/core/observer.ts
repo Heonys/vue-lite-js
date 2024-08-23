@@ -1,6 +1,5 @@
 import { Vuelite } from "./index";
-import { evaluateValue, extractPath, normalizeToJson } from "../utils/common";
-import { isFunction, isFunctionFormat, isObjectFormat, isQuotedString } from "../utils/format";
+import { evaluateValue } from "../utils/common";
 
 // 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
 export class Dep {
@@ -54,25 +53,7 @@ export class Observer {
     즉, Dep와 Observer와의 관계를 이어주기 위한 트리거로 사용됨 
     */
     Dep.activated = this;
-
-    let value;
-    if (isObjectFormat(this.exp)) {
-      const json: Record<string, any> = JSON.parse(normalizeToJson(this.exp));
-      value = Object.entries(json).reduce((acc, [key, value]) => {
-        if (isQuotedString(value)) {
-          acc[key] = evaluateValue(value.slice(1, -1));
-        } else {
-          acc[key] = extractPath(this.vm, value);
-        }
-        return acc;
-      }, json);
-    } else {
-      const match = isFunctionFormat(this.exp);
-      value = match
-        ? (extractPath(this.vm, match) as Function).call(this.vm)
-        : extractPath(this.vm, this.exp);
-    }
-
+    const value = evaluateValue(this.vm, this.exp);
     Dep.activated = null;
     return value;
   }
