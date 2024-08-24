@@ -25,7 +25,8 @@ export class Observable {
     });
   }
   templateBind(node: Node) {
-    const templateValue = extractTemplate(node.textContent);
-    new Directive("v-text", this.vm, node, templateValue);
+    extractTemplate(node.textContent).forEach((value) => {
+      new Directive("v-text", this.vm, node, value);
+    });
   }
 }

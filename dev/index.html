@@ -9,7 +9,7 @@
     <div id="app">
       
       
-      <input 
+      <!-- <input 
         type="text" 
         v-model="title" 
         v-bind:class="{ myclass: hello, myclass2: 'true' }"
@@ -18,11 +18,25 @@
       <div>{{ title }}</div>
 
 
-      <div v-style="{ color: textStyle.color, backgroundColor: 'red' }" >{{ hello }}</div>
+      <div v-style="{ color: textStyle.color, backgroundColor: 'red' }" >{{ hello }}</div> -->
 
 
-      <div>경계선</div>
-      <div>{{ test() }}</div>
+
+      <!-- <div v-html="world" ></div> -->
+
+      <!-- <div>경계선</div>
+      <div>{{ test() }}</div> -->
+
+
+
+      <!--  template 여러개 사용하는 경우 테스트  -->
+      <div>첫번째는 : {{ test() }} 그리고 두번쨰는 : {{ message2 }}</div>
+      <div>첫번째는 : {{ message }} 그리고 두번쨰는 : {{ message2 }}</div>
+
+      <div id="wrapper">래퍼</div>
+
+      <!-- <div v-style="textStyle" v-class="{ active: isActive }" >테스트</div> -->
+
 
 
 

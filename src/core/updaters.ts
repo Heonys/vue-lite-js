@@ -1,4 +1,6 @@
+import { replaceTemplate } from "../utils/directive";
 import { isObject, isQuotedString } from "../utils/format";
+import { Directive } from "./index";
 
 /* 
 updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴때 
@@ -8,8 +10,8 @@ updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴�
 export type Updater = (node: Node, value: any) => void;
 
 export const updaters = {
-  text(node: Node, value: string) {
-    node.textContent = value;
+  text(this: Directive, node: Node, value: string) {
+    node.textContent = replaceTemplate(node.textContent, this.exp, value);
   },
   class(el: HTMLElement, value: any) {
     if (isObject(value)) {

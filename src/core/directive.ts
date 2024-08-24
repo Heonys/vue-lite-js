@@ -21,7 +21,7 @@ export class Directive {
     name: string,
     private vm: Vuelite,
     private node: Node,
-    private exp: any,
+    public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
     this.modifier = modifier;
@@ -113,7 +113,7 @@ export class Directive {
   }
 
   text() {
-    this.bind(updaters.text);
+    this.bind(updaters.text.bind(this));
   }
   style() {
     this.bind(updaters.style);

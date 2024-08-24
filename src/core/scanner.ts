@@ -1,9 +1,9 @@
-import { Vuelite, Visitor, Observable } from "./index";
+import { Vuelite, Observable } from "./index";
+import type { Visitor } from "./visitor";
 import { isReactiveNode } from "../utils/directive";
 
 abstract class Scanner {
   constructor(private visitor: Visitor) {}
-
   visit(action: Function, target: any) {
     this.visitor.visit(action, target);
   }

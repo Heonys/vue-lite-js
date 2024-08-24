@@ -11,7 +11,8 @@ const vm = new Vuelite({
       // myname: function () {
       //   return this.name;
       // },
-      // hello: "헬로우",
+      message: "메시지",
+      message2: "메시지2",
       // contents: "내용없음",
       // firstName: "퍼스트네임",
       // lastName: "라스트네임",
@@ -61,7 +62,7 @@ const vm = new Vuelite({
     },
   },
   styles: {
-    // 여기서는 css처럼 Selector를 전달해서 스타일 적용하기 (css 속성들은 camelCase이고 v-style과는 독립적)
+    // only camelCase key
     "#wrapper": {
       width: "50%",
       background: "#ffa",

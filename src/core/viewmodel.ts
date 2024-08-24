@@ -1,5 +1,5 @@
-import { VueScanner, NodeVisitor, injectReactive } from "./index";
-import type { Options } from "./option";
+import { VueScanner, NodeVisitor, injectReactive, injectStyleSheet } from "./index";
+import { type Options } from "./option";
 
 export class Vuelite {
   el: HTMLElement;
@@ -11,6 +11,8 @@ export class Vuelite {
     this.options = options;
 
     injectReactive(this);
+    injectStyleSheet(this);
+
     const scanner = new VueScanner(new NodeVisitor());
     scanner.scan(this);
   }

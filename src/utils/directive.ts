@@ -8,9 +8,15 @@ export function extractDirective(attr: string) {
 }
 
 export function extractTemplate(text: string) {
-  const regExp = /{{\s*(.*?)\s*}}/;
-  const match = regExp.exec(text);
-  return match ? match[1] : null;
+  const regExp = /{{\s*(.*?)\s*}}/g;
+  const matched = [];
+  let match;
+
+  while ((match = regExp.exec(text)) !== null) {
+    matched.push(match[1]);
+  }
+
+  return matched;
 }
 
 export function isDirective(attr: string) {
@@ -29,4 +35,13 @@ export const isReactiveNode = (node: Node) => {
     const textContent = node.textContent || "";
     return extractTemplate(textContent) ? true : false;
   }
+};
+
+function escapeParentheses(string: string): string {
+  return string.replace(/[()]/g, "\\$&");
+}
+
+export const replaceTemplate = (template: string, key: string, value: string) => {
+  const regex = new RegExp(`{{\\s*${escapeParentheses(key)}\\s*}}`, "g");
+  return template.replace(regex, value);
 };
