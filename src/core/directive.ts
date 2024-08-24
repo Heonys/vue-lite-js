@@ -2,6 +2,7 @@ import { Observer, Vuelite } from "./index";
 import { Updater, updaters } from "./updaters";
 import { extractPath, assignPath, evaluateValue } from "../utils/common";
 import { extractDirective, isEventDirective } from "../utils/directive";
+import { isDynamic } from "../utils/format";
 
 /* 
     결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
@@ -17,6 +18,7 @@ import { extractDirective, isEventDirective } from "../utils/directive";
 
 export class Directive {
   modifier: string;
+  template: string;
   constructor(
     name: string,
     private vm: Vuelite,
@@ -24,7 +26,8 @@ export class Directive {
     public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
-    this.modifier = modifier;
+    this.modifier = isDynamic(modifier) ? extractPath(vm, modifier.slice(1, -1)) : modifier;
+    this.template = node.textContent;
 
     if (isEventDirective(name)) this.eventHandler();
     else this[key]();
@@ -35,7 +38,11 @@ export class Directive {
   bind(updater?: Updater) {
     const mod = this.modifier;
     if (mod === "text" || mod === "class" || mod === "style") {
-      updater = updaters[mod];
+      updater = updaters[mod].bind(this);
+    }
+
+    if (!updater) {
+      updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
 
     const value = evaluateValue(this.vm, this.exp);

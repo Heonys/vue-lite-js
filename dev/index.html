@@ -7,72 +7,15 @@
   </head>
   <body>
     <div id="app">
-      
-      
-      <!-- <input 
-        type="text" 
-        v-model="title" 
-        v-bind:class="{ myclass: hello, myclass2: 'true' }"
-        
-      />
-      <div>{{ title }}</div>
+
+      <!-- <input type="text" v-model="title">
+      <div>{{ title }}</div> -->
 
 
-      <div v-style="{ color: textStyle.color, backgroundColor: 'red' }" >{{ hello }}</div> -->
+      <!-- <div v-bind:my="custom">테스트</div> -->
+      <div v-bind:[dynamic]="classData">테스트</div>
 
 
-
-      <!-- <div v-html="world" ></div> -->
-
-      <!-- <div>경계선</div>
-      <div>{{ test() }}</div> -->
-
-
-
-      <!--  template 여러개 사용하는 경우 테스트  -->
-      <div>첫번째는 : {{ test() }} 그리고 두번쨰는 : {{ message2 }}</div>
-      <div>첫번째는 : {{ message }} 그리고 두번쨰는 : {{ message2 }}</div>
-
-      <div id="wrapper">래퍼</div>
-
-      <!-- <div v-style="textStyle" v-class="{ active: isActive }" >테스트</div> -->
-
-
-
-
-    
-      <!-- <input type="checkbox" v-bind:checked="isActive" v-on:change="handleCheck" >
-      <div>{{ isChecked }}</div> -->
-      
-
-<!-- 
-      <div>
-        <label>
-          male <input type="radio" value="male" v-model="selected" />
-        </label>
-        <label>
-          female <input type="radio" value="female" v-model="selected" />
-        </label>
-        <label>
-          other <input type="radio" value="other" v-model="selected" />
-        </label>
-    </div>
-    <div>{{ selected }}</div> -->
-
-
-
-      <!-- <section id="wrapper">
-        <h2 v-text="hello">{{ title }}</h2>
-        <input type="text" v-model="inputData" v-on:input="hanldeInput">
-        <div>
-          <div v-class="{ inline: true, active: isActive }">{{ hello }}</div>
-          <div v-class="classData.recur">{{ hello }}</div>
-
-          <div v-style="{ color: textStyle.color, backgroundColor: '#ddd' }" >{{ hello }}</div>
-          <div v-style="textStyle" >{{ hello }}</div>
-        </div>
-        <button v-style="btn" v-on:click="increase">클릭</button>
-      </section> -->
     </div>
   </body>
 </html>

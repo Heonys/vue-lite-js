@@ -1,4 +1,4 @@
-import { replaceTemplate } from "../utils/directive";
+import { isContainsTemplate, replaceTemplate } from "../utils/directive";
 import { isObject, isQuotedString } from "../utils/format";
 import { Directive } from "./index";
 
@@ -11,7 +11,11 @@ export type Updater = (node: Node, value: any) => void;
 
 export const updaters = {
   text(this: Directive, node: Node, value: string) {
-    node.textContent = replaceTemplate(node.textContent, this.exp, value);
+    if (isContainsTemplate(this.template)) {
+      node.textContent = replaceTemplate(this.template, this.exp, value);
+    } else {
+      node.textContent = value;
+    }
   },
   class(el: HTMLElement, value: any) {
     if (isObject(value)) {
@@ -50,5 +54,14 @@ export const updaters = {
     options.forEach((option) => {
       option.selected = value.includes(option.value);
     });
+  },
+  customBind(this: Directive, el: HTMLInputElement, value: any) {
+    // (el as any)[this.modifier] = value;
+    el.setAttribute(this.modifier, value);
+  },
+  objectBind(this: Directive, el: HTMLInputElement, value: any) {
+    if (isObject(value)) {
+      Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
+    }
   },
 };

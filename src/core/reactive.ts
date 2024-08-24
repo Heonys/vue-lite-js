@@ -90,8 +90,8 @@ function injectComputed(vm: Vuelite) {
     const descripter: PropertyDescriptor = {};
     if (isAccessor(value)) {
       descripter.get = value.get.bind(vm);
-      descripter.set = (params) => {
-        value.set.call(vm, ...params);
+      descripter.set = (...params) => {
+        value.set.apply(vm, params);
       };
     } else {
       descripter.get = () => value.call(vm);
