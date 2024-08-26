@@ -27,6 +27,7 @@ export class VueScanner extends Scanner {
 
     if (vm.template) {
       this.node2Fragment(vm.template);
+      vm.el.innerHTML = "";
     } else {
       this.node2Fragment(vm.el);
     }

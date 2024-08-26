@@ -1,0 +1,7 @@
+/node_modules
+/dev
+/build
+
+_note.md
+
+*.spec.ts

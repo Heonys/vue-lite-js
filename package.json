@@ -1,16 +1,43 @@
 {
   "name": "vuelite",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Clones Vue.js to implement a basic MVVM framework using TypeScript",
+  
+  "main": "dist/bundle.js",
+  "module": "dist/bundle.esm.js",
+  "types": "dist/types/index.d.ts", 
+
+  "exports": {
+    "types": "./dist/types/index.d.ts",
+    "import": "./dist/bundle.esm.js",
+    "default": "./dist/bundle.common.js"
+  },
+
+  "author": "heonys",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Heonys/vuelite/issues"
+  },
+  "homepage": "https://github.com/Heonys/vuelite#readme",
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heonys/vuelite.git"
+  },
+  "keywords": [
+    "vuelite",
+    "vuejs",
+    "mvvm"
+  ],
+  "files": ["dist"],
   "scripts": {
-		"start": "npm run dev",
-		"dev": "webpack-dev-server --progress --config build/webpack.config.dev.js",
+    "start": "npm run dev",
+    "build": "rollup --config build/rollup.config.js",
+    "dev": "webpack-dev-server --progress --config build/webpack.config.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",

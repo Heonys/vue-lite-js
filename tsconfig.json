@@ -7,17 +7,16 @@
 		"noImplicitThis": true,
 		"removeComments": true,
 		"preserveConstEnums": true,
-		"sourceMap": true,
+
 		"declaration": true,
+		"sourceMap": true,
+		"outDir": "./dist",
+		"declarationDir": ".types",
+
 		"baseUrl": ".",
         "paths": {
-            "@/*": ["./src/*"],
-			"@core/*": ["./src/core/*"],
-			"@binder/*": ["./src/core/binder/*"],
-			"@vm/*": ["./src/core/viewmodel/*"],
-			"@reactive/*": ["./src/core/reactive/*"],
-			"@utils/*": ["./src/utils/*"]
-
+            "@/*": ["src/*"],
+			"@utils/*": ["src/utils/*"]
         }
 	},
 	"include": ["src/**/*", "src/types/**/*.d.ts" ],

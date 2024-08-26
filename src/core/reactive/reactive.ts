@@ -1,6 +1,6 @@
 import { Vuelite, Dep } from "../index";
 import { isObject } from "@utils/format";
-import { isAccessor } from "@vm/option";
+import { isAccessor } from "../viewmodel/option";
 
 type Target = { [k: string]: any };
 
