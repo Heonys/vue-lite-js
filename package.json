@@ -1,11 +1,11 @@
 {
-  "name": "vuelite",
+  "name": "vue-lite-js",
   "version": "1.0.0",
   "description": "Clones Vue.js to implement a basic MVVM framework using TypeScript",
   
   "main": "dist/bundle.js",
   "module": "dist/bundle.esm.js",
-  "types": "dist/types/index.d.ts", 
+  "types": "dist/types/core/viewmodel/vuelite.d.ts", 
 
   "exports": {
     "types": "./dist/types/index.d.ts",

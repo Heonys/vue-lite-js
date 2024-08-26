@@ -4,10 +4,6 @@ module.exports = {
   resolve: {
     alias: {
       "@": resolve("src"),
-      "@core": resolve("src/core"),
-      "@binder": resolve("src/core/binder"),
-      "@vm": resolve("src/core/viewmodel"),
-      "@reactive": resolve("src/core/reactive"),
       "@utils": resolve("src/utils"),
     },
     extensions: [".ts", ".js"],
