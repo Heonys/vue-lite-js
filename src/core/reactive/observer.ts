@@ -1,27 +1,5 @@
-import { Vuelite } from "./index";
-import { evaluateValue } from "../utils/common";
-
-// 데이터의 변화를 감지하고, 구독자(Observer)에게 알리는 역할
-export class Dep {
-  static activated: Observer = null;
-  private listener = new Set<Observer>();
-
-  subscribe(observer: Observer) {
-    this.listener.add(observer);
-  }
-  unsubscribe(observer: Observer) {
-    this.listener.delete(observer);
-  }
-  notify() {
-    this.listener.forEach((observer) => {
-      observer.update();
-    });
-  }
-
-  depend() {
-    Dep.activated?.addDep(this);
-  }
-}
+import { Dep, Vuelite } from "../index";
+import { evaluateValue } from "@utils/common";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {
@@ -31,7 +9,6 @@ export class Observer {
   Observer 입장에서 Dep은 자신이 감시(의존)하고 있는 속성을 뜻함
   따라서 여러 속성들에 의존할 수 있기 때문에 Dep 컬렉션을 갖고있는 것 
   */
-
   constructor(
     private node: Node,
     private vm: Vuelite,

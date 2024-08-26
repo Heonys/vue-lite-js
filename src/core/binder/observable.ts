@@ -1,6 +1,6 @@
-import { extractTemplate, isDirective } from "../utils/directive";
-import { isElementNode, isIncludeText, isTextNode } from "../utils/format";
-import { Vuelite, Directive } from "./index";
+import { extractTemplate, isDirective } from "@utils/directive";
+import { isElementNode, isIncludeText, isTextNode } from "@utils/format";
+import { Vuelite, Directive } from "../index";
 
 export class Observable {
   constructor(

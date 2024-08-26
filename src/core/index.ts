@@ -1,8 +1,9 @@
-export { injectStyleSheet } from "./style";
-export { Observable } from "./observable";
-export { Vuelite } from "./viewmodel";
-export { Dep, Observer } from "./observer";
-export { Directive } from "./directive";
-export { VueScanner } from "./scanner";
-export { NodeVisitor } from "./visitor";
-export { injectReactive } from "./reactive";
+export { injectStyleSheet } from "@vm/style";
+export { Observable } from "@binder/observable";
+export { Vuelite } from "@vm/vuelite";
+export { Observer } from "@reactive/observer";
+export { Dep } from "@reactive/dep";
+export { Directive } from "@binder/directive";
+export { VueScanner } from "@binder/scanner";
+export { NodeVisitor } from "@binder/visitor";
+export { injectReactive } from "@reactive/reactive";

@@ -8,7 +8,17 @@
 		"removeComments": true,
 		"preserveConstEnums": true,
 		"sourceMap": true,
-		"declaration": true
+		"declaration": true,
+		"baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"],
+			"@core/*": ["./src/core/*"],
+			"@binder/*": ["./src/core/binder/*"],
+			"@vm/*": ["./src/core/viewmodel/*"],
+			"@reactive/*": ["./src/core/reactive/*"],
+			"@utils/*": ["./src/utils/*"]
+
+        }
 	},
 	"include": ["src/**/*", "src/types/**/*.d.ts" ],
 	"exclude": ["node_modules", "**/*.spec.ts", "example/**/*"]

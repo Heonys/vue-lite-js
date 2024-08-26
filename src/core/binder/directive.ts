@@ -1,19 +1,16 @@
-import { Observer, Vuelite } from "./index";
+import { Observer, Vuelite } from "../index";
 import { Updater, updaters } from "./updaters";
-import { extractPath, assignPath, evaluateValue } from "../utils/common";
-import { extractDirective, isEventDirective } from "../utils/directive";
-import { isDynamic } from "../utils/format";
+import { extractPath, assignPath, evaluateValue } from "@utils/common";
+import { extractDirective, isEventDirective } from "@utils/directive";
+import { isDynamic } from "@utils/format";
 
 /* 
-    결국 어떤 디렉티브던 초기에 render 함수를 한번 실행하고 (mount 단계)
-    watcher를 생성해서 그 render함수를 넘겨주면 특정 속성이 변화했을때 dep가 update를 시켜줌을 통해
-    결과적으로 render가 다시 실행되고 해당 값이 최신값으로 갱신됨  
-*/
+  하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며
+  모든 반응형 데이터들은 변화를 감지하면 Dep에 의해서 변화를 알리기 때문에
+  이후에 notify를 통해 모든 구독자들의 update를 실행시킨다 
 
-/* 
-하나의 디렉티브당 하나의 옵저버 생성
-하나의 속성 (리액티브가 부여된)당 하나의 Dep 생성 
-단, 이벤트 핸들러는 반응형 데이터와 무관하기때문에 v-on으로 watcher가 생성되진 않음 
+  하지만 초기 렌더링인 마운트 단계에서 한번은 update가 되어야 하기때문에 updater를 초기에 한번은 수동으로 호출하고 
+  이후에 Observer의 updater에 의해서 반응형값의 변화가 실제 DOM에 반영됨 
 */
 
 export class Directive {
@@ -52,13 +49,12 @@ export class Directive {
     });
   }
   /* 
-    양방향 바인딩 
-    input, textarea, select 지원
-    input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게해서 일관되게 바인딩하기 
+    양방향 바인딩 (input, textarea, select 지원)
+    input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게해서 일관되게 바인딩하게 해준다 
 
     date, month, time, week 등 날짜나 시간관련된 속성 및 레거시 속성들을 제외  
     file의 경우는 논외로 v-model이 아닌 change 이벤트를 통해 수동으로 파일관리를 해야함 
-    지원되는 타입 (text, number, url, tel, search, ragnge, radio, password, email, color, checkbox)
+    지원되는 input 타입 (text, number, url, tel, search, ragnge, radio, password, email, color, checkbox)
   */
   model() {
     const el = this.node as HTMLElement;

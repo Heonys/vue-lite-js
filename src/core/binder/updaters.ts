@@ -1,6 +1,6 @@
-import { isContainsTemplate, replaceTemplate } from "../utils/directive";
-import { isObject, isQuotedString } from "../utils/format";
-import { Directive } from "./index";
+import { Directive } from "../index";
+import { isContainsTemplate, replaceTemplate } from "@utils/directive";
+import { isObject, isQuotedString } from "@utils/format";
 
 /* 
 updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴때 

@@ -1,4 +1,4 @@
-import { Vuelite } from "../core/viewmodel";
+import { Vuelite } from "../core/viewmodel/vuelite";
 import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 
 export function extractPath(obj: Record<PropertyKey, any>, path: string) {
@@ -62,4 +62,11 @@ export function evaluateValue(vm: Vuelite, exp: string) {
   }
 
   return result;
+}
+
+export function createDOMTemplate(template: string) {
+  if (!template) return;
+  const div = document.createElement("div");
+  div.innerHTML = template;
+  return div.firstElementChild;
 }

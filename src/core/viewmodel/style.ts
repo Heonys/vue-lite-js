@@ -1,4 +1,4 @@
-import { Vuelite } from "./viewmodel";
+import { Vuelite } from "./vuelite";
 
 /* 
 https://stackoverflow.com/questions/31126111/programatically-create-new-css-rules-in-a-stylesheet

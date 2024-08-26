@@ -1,6 +1,6 @@
-import { Vuelite, Dep } from "./index";
-import { isObject } from "../utils/format";
-import { isAccessor } from "./option";
+import { Vuelite, Dep } from "../index";
+import { isObject } from "@utils/format";
+import { isAccessor } from "@vm/option";
 
 type Target = { [k: string]: any };
 
@@ -36,11 +36,6 @@ class Reactivity {
           deps.get(key).notify();
         }
         return result;
-        /* 
-          ※ return Reflect.set(...) 을 하지않는 이유 
-          Reflect.set을 호출하기 전까지는 target 객체가 이전상태를 유지하기 때문에
-          set 트랩 내부에서 target의 바뀐값을 사용하기 위해서는 Reflect.set을 미리 호출해야함
-        */
       },
     };
 

@@ -5,6 +5,7 @@ type Accessor<T = any> = {
 
 export interface Options {
   el: string;
+  template?: string;
   data?: () => {
     [Key: string]: any;
   };

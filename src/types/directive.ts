@@ -1,4 +1,4 @@
-import { Vuelite } from "../core/viewmodel";
+import { Vuelite } from "../core/viewmodel/vuelite";
 
 type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
 export type DirectiveKey = DirectiveNames[number];

@@ -1,26 +1,28 @@
 import { Vuelite } from "../src/core/index";
 
+const template = `
+          <div>
+            <input type="text" v-model="title">
+            <div>{{ title }}</div>
+            <p>{{ fullNameMethod() }}</p>
+          </div>`;
+
 // 💡 this로 반응형 데이터 타입 자동으로 추론되게
 const vm = new Vuelite({
   el: "#app",
+  template,
   data() {
     return {
       title: "",
       hello: true,
-      // name: "jiheon",
-      // myname: function () {
-      //   return this.name;
-      // },
       dynamic: "class",
       objectBind: {
         id: "testId",
         class: "testClass",
         customKey: "customValue",
       },
-      custom: "motsuc",
       message: "메시지",
       message2: "메시지2",
-      // contents: "내용없음",
       firstName: "퍼스트네임",
       lastName: "라스트네임",
       count: 0,

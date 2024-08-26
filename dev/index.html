@@ -7,29 +7,9 @@
   </head>
   <body>
     <div id="app">
-
-      <!-- <input type="text" v-model="title">
-      <div>{{ title }}</div> -->
-
-
-      <!-- <div v-bind:my="custom">테스트</div> -->
-      <div v-bind:[dynamic]="classData">테스트</div>
-
-
+      <input type="text" v-model="title">
+      <div>{{ title }}</div>
     </div>
   </body>
 </html>
 
-<!-- 
-
-이후에 v-for, v-if 디렉티브 추가하기 
-
-일단 현재는 디렉티브 축약형 (:, @)등 생각하지않고 나중에 고려하기 -> v-style, v-class 이런애들 그러면 수정해야함 
-
-v-slot이나  컴포넌트 분리 또한 생각하지 않기 
-
-테스트 코드 추가하기 
-
-<vue-[compoenent name] /> 이런식으로 커스텀 엘리먼트를 사용하여 컴포넌트 분리할 수 있게하기 
-
--->
