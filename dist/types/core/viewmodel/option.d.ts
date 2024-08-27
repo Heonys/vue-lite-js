@@ -1,6 +1,7 @@
-type Accessor<T = any> = {
-    get(): T;
-    set(value: T): void;
+import Vuelite from "./vuelite";
+type Accessor = {
+    get(this: Vuelite): any;
+    set(this: Vuelite, value: any): void;
 };
 export interface Options {
     el: string;
@@ -9,10 +10,10 @@ export interface Options {
         [Key: string]: any;
     };
     methods?: {
-        [Key: string]: Function;
+        [Key: string]: (this: Vuelite, ...args: any[]) => void;
     };
     computed?: {
-        [Key: string]: Function | Accessor;
+        [Key: string]: ((this: Vuelite) => any) | Accessor;
     };
     watch?: {};
     styles?: {

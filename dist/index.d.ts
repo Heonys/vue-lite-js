@@ -12,9 +12,9 @@ declare const updaters: {
     objectBind(this: Directive, el: HTMLInputElement, value: any): void;
 };
 
-type Accessor<T = any> = {
-    get(): T;
-    set(value: T): void;
+type Accessor = {
+    get(this: Vuelite): any;
+    set(this: Vuelite, value: any): void;
 };
 interface Options {
     el: string;
@@ -23,10 +23,10 @@ interface Options {
         [Key: string]: any;
     };
     methods?: {
-        [Key: string]: Function;
+        [Key: string]: (this: Vuelite, ...args: any[]) => void;
     };
     computed?: {
-        [Key: string]: Function | Accessor;
+        [Key: string]: ((this: Vuelite) => any) | Accessor;
     };
     watch?: {};
     styles?: {

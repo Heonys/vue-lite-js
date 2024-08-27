@@ -489,6 +489,8 @@ function injectReactive(vm) {
 }
 function injectMethod(vm) {
     const { methods } = vm.options;
+    if (!methods)
+        return;
     Object.entries(methods).forEach(([key, method]) => {
         if (Object.hasOwn(vm, key))
             throw new Error(`${key} has already been declared`);
@@ -499,6 +501,8 @@ function injectMethod(vm) {
 }
 function injectComputed(vm) {
     const { computed } = vm.options;
+    if (!computed)
+        return;
     for (const key in computed) {
         if (Object.hasOwn(vm, key))
             throw new Error(`${key} has already been declared`);
@@ -533,6 +537,8 @@ class StyleRule {
 }
 function injectStyleSheet(vm) {
     const { styles } = vm.options;
+    if (!styles)
+        return;
     const styleElement = document.createElement("style");
     document.head.appendChild(styleElement);
     Object.entries(styles).forEach(([selector, styles]) => {
