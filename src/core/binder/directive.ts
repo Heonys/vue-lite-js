@@ -1,8 +1,9 @@
-import { Observer, Vuelite } from "../index";
 import { Updater, updaters } from "./updaters";
 import { extractPath, assignPath, evaluateValue } from "@utils/common";
 import { extractDirective, isEventDirective } from "@utils/directive";
 import { isDynamic } from "@utils/format";
+import Vuelite from "../viewmodel/vuelite";
+import { Observer } from "../reactive/observer";
 
 /* 
   하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며

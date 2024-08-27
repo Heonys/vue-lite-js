@@ -1,5 +1,6 @@
-import { Dep, Vuelite } from "../index";
 import { evaluateValue } from "@utils/common";
+import { Dep } from "./dep";
+import Vuelite from "../viewmodel/vuelite";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {

@@ -1,4 +1,5 @@
-import { Dep, Vuelite } from "../index";
+import { Dep } from "./dep";
+import Vuelite from "../viewmodel/vuelite";
 export declare class Observer {
     private node;
     private vm;

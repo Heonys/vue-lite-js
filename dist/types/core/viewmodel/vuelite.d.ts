@@ -1,5 +1,5 @@
 import { type Options } from "./option";
-export declare class Vuelite {
+export default class Vuelite {
     el: HTMLElement;
     template?: Element;
     options: Options;

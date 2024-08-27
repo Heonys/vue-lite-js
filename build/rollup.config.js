@@ -1,20 +1,11 @@
-import tsPlugin from "@rollup/plugin-typescript";
-import terser from "@rollup/plugin-terser";
-import alias from "@rollup/plugin-alias";
-const { resolve } = require("./utils");
+const tsPlugin = require("@rollup/plugin-typescript");
+const terser = require("@rollup/plugin-terser");
+const { dts } = require("rollup-plugin-dts");
 
-export default [
+module.exports = [
   {
-    input: "src/core/viewmodel/vuelite.ts",
-    plugins: [
-      tsPlugin(),
-      alias({
-        entries: [
-          { find: "@", replacement: resolve("src") },
-          { find: "@utils", replacement: resolve("src/utils") },
-        ],
-      }),
-    ],
+    input: "src/index.ts",
+    plugins: [tsPlugin()],
     output: [
       {
         file: "dist/bundle.esm.js",
@@ -32,17 +23,8 @@ export default [
     ],
   },
   {
-    input: "src/core/viewmodel/vuelite.ts",
-    plugins: [
-      tsPlugin(),
-      terser(),
-      alias({
-        entries: [
-          { find: "@", replacement: resolve("src") },
-          { find: "@utils", replacement: resolve("src/utils") },
-        ],
-      }),
-    ],
+    input: "src/index.ts",
+    plugins: [tsPlugin(), terser()],
     output: [
       {
         file: "dist/bundle.min.js",
@@ -50,5 +32,15 @@ export default [
         format: "esm",
       },
     ],
+  },
+  {
+    input: "./dist/types/index.d.ts",
+    plugins: [dts()],
+    output: [{ file: "dist/index.d.ts", format: "esm" }],
+  },
+  {
+    input: "./dist/types/index.d.ts",
+    plugins: [dts()],
+    output: [{ file: "dist/index.d.cts", format: "cjs" }],
   },
 ];

@@ -1,5 +1,5 @@
-import { Vuelite } from "../index";
 import { Updater } from "./updaters";
+import Vuelite from "../viewmodel/vuelite";
 export declare class Directive {
     private vm;
     private node;

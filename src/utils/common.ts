@@ -1,4 +1,4 @@
-import { Vuelite } from "../core/viewmodel/vuelite";
+import Vuelite from "../core/viewmodel/vuelite";
 import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 
 export function extractPath(obj: Record<PropertyKey, any>, path: string) {

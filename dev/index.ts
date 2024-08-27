@@ -1,4 +1,4 @@
-import { Vuelite } from "../src/core/index";
+import Vuelite from "../src/core/viewmodel/vuelite";
 
 const template = `
           <div>

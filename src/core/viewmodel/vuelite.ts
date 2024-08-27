@@ -1,8 +1,11 @@
-import { VueScanner, NodeVisitor, injectReactive, injectStyleSheet } from "../index";
 import { createDOMTemplate } from "@utils/common";
 import { type Options } from "./option";
+import { injectReactive } from "../reactive/reactive";
+import { injectStyleSheet } from "./style";
+import { VueScanner } from "../binder/scanner";
+import { NodeVisitor } from "../binder/visitor";
 
-export class Vuelite {
+export default class Vuelite {
   el: HTMLElement;
   template?: Element;
   options: Options;

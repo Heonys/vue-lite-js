@@ -1,2 +1,2 @@
-import { Vuelite } from "./vuelite";
+import Vuelite from "./vuelite";
 export declare function injectStyleSheet(vm: Vuelite): void;

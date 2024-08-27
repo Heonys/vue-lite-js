@@ -1,4 +1,4 @@
-import { Vuelite } from "../index";
+import Vuelite from "../viewmodel/vuelite";
 import type { Visitor } from "./visitor";
 declare abstract class Scanner {
     private visitor;

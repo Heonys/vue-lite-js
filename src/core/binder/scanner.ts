@@ -1,4 +1,5 @@
-import { Vuelite, Observable } from "../index";
+import Vuelite from "../viewmodel/vuelite";
+import { Observable } from "./observable";
 import type { Visitor } from "./visitor";
 import { isReactiveNode } from "@utils/directive";
 

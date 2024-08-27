@@ -1,10 +1,11 @@
-import { Vuelite, Dep } from "../index";
 import { isObject } from "@utils/format";
 import { isAccessor } from "../viewmodel/option";
+import { Dep } from "./dep";
+import Vuelite from "../viewmodel/vuelite";
 
 type Target = { [k: string]: any };
 
-class Reactivity {
+export class Reactivity {
   public proxy: Target;
 
   constructor(data: object) {

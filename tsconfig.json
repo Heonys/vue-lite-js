@@ -7,11 +7,12 @@
 		"noImplicitThis": true,
 		"removeComments": true,
 		"preserveConstEnums": true,
+		// "moduleResolution": "Node",
 
 		"declaration": true,
 		"sourceMap": true,
 		"outDir": "./dist",
-		"declarationDir": ".types",
+		"declarationDir": "./types",
 
 		"baseUrl": ".",
         "paths": {
@@ -19,6 +20,6 @@
 			"@utils/*": ["src/utils/*"]
         }
 	},
-	"include": ["src/**/*", "src/types/**/*.d.ts" ],
+	"include": ["src/**/*", "src/**/*.d.ts" ],
 	"exclude": ["node_modules", "**/*.spec.ts", "example/**/*"]
 }

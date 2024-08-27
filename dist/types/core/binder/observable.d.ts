@@ -1,4 +1,4 @@
-import { Vuelite } from "../index";
+import Vuelite from "../viewmodel/vuelite";
 export declare class Observable {
     vm: Vuelite;
     node: Node;

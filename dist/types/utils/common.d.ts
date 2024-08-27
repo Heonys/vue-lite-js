@@ -1,4 +1,4 @@
-import { Vuelite } from "../core/viewmodel/vuelite";
+import Vuelite from "../core/viewmodel/vuelite";
 export declare function extractPath(obj: Record<PropertyKey, any>, path: string): any;
 export declare function assignPath(obj: Record<PropertyKey, any>, path: string, value: any): void;
 export declare function normalizeToJson(str: string): string;

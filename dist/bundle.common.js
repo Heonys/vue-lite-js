@@ -2,32 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-class StyleRule {
-    constructor(sheet) {
-        const len = sheet.cssRules.length;
-        sheet.insertRule("*{}", len);
-        this.rule = sheet.cssRules[len];
-    }
-    selector(selector) {
-        this.rule.selectorText = selector;
-    }
-    setStyle(key, value) {
-        this.rule.style[key] = value;
-    }
-}
-function injectStyleSheet(vm) {
-    const { styles } = vm.options;
-    const styleElement = document.createElement("style");
-    document.head.appendChild(styleElement);
-    Object.entries(styles).forEach(([selector, styles]) => {
-        const rule = new StyleRule(styleElement.sheet);
-        rule.selector(selector);
-        Object.entries(styles).forEach(([key, value]) => {
-            rule.setStyle(key, value);
-        });
-    });
-}
-
 function isObjectFormat(str) {
     const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
     return regex.test(str);
@@ -109,32 +83,62 @@ const replaceTemplate = (template, key, value) => {
     return template.replace(regex, value);
 };
 
-class Observable {
-    constructor(vm, node) {
-        this.vm = vm;
-        this.node = node;
-        const patten = /{{\s*(.*?)\s*}}/;
-        const text = node.textContent;
-        if (isElementNode(node)) {
-            this.directiveBind(node);
+const updaters = {
+    text(node, value) {
+        if (isContainsTemplate(this.template)) {
+            node.textContent = replaceTemplate(this.template, this.exp, value);
         }
-        else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
-            this.templateBind(node);
+        else {
+            node.textContent = value;
         }
-    }
-    directiveBind(el) {
-        Array.from(el.attributes).forEach(({ name, value }) => {
-            if (isDirective(name)) {
-                new Directive(name, this.vm, el, value);
+    },
+    class(el, value) {
+        if (isObject(value)) {
+            Object.entries(value).forEach(([k, v]) => {
+                if (v)
+                    el.classList.add(k);
+            });
+        }
+    },
+    style(el, value) {
+        for (const [k, v] of Object.entries(value)) {
+            if (isQuotedString(v)) {
+                el.style[k] = v.slice(1, -1);
             }
+            else {
+                el.style[k] = v;
+            }
+        }
+    },
+    html(el, value) {
+        el.innerHTML = value;
+    },
+    inputCheckbox(el, value) {
+        el.checked = value;
+    },
+    inputRadio(el, value) {
+        el.checked = el.value === value;
+    },
+    inputValue(el, value) {
+        el.value = value;
+    },
+    inputMultiple(el, value) {
+        const options = Array.from(el.options);
+        if (!Array.isArray(value))
+            return;
+        options.forEach((option) => {
+            option.selected = value.includes(option.value);
         });
-    }
-    templateBind(node) {
-        extractTemplate(node.textContent).forEach((value) => {
-            new Directive("v-text", this.vm, node, value);
-        });
-    }
-}
+    },
+    customBind(el, value) {
+        el.setAttribute(this.modifier, value);
+    },
+    objectBind(el, value) {
+        if (isObject(value)) {
+            Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
+        }
+    },
+};
 
 function extractPath(obj, path) {
     path = path.trim();
@@ -197,6 +201,28 @@ function createDOMTemplate(template) {
     return div.firstElementChild;
 }
 
+class Dep {
+    constructor() {
+        this.listener = new Set();
+    }
+    subscribe(observer) {
+        this.listener.add(observer);
+    }
+    unsubscribe(observer) {
+        this.listener.delete(observer);
+    }
+    notify() {
+        this.listener.forEach((observer) => {
+            observer.update();
+        });
+    }
+    depend() {
+        var _a;
+        (_a = Dep.activated) === null || _a === void 0 ? void 0 : _a.addDep(this);
+    }
+}
+Dep.activated = null;
+
 class Observer {
     constructor(node, vm, exp, onUpdate) {
         this.node = node;
@@ -225,85 +251,6 @@ class Observer {
         }
     }
 }
-
-class Dep {
-    constructor() {
-        this.listener = new Set();
-    }
-    subscribe(observer) {
-        this.listener.add(observer);
-    }
-    unsubscribe(observer) {
-        this.listener.delete(observer);
-    }
-    notify() {
-        this.listener.forEach((observer) => {
-            observer.update();
-        });
-    }
-    depend() {
-        var _a;
-        (_a = Dep.activated) === null || _a === void 0 ? void 0 : _a.addDep(this);
-    }
-}
-Dep.activated = null;
-
-const updaters = {
-    text(node, value) {
-        if (isContainsTemplate(this.template)) {
-            node.textContent = replaceTemplate(this.template, this.exp, value);
-        }
-        else {
-            node.textContent = value;
-        }
-    },
-    class(el, value) {
-        if (isObject(value)) {
-            Object.entries(value).forEach(([k, v]) => {
-                if (v)
-                    el.classList.add(k);
-            });
-        }
-    },
-    style(el, value) {
-        for (const [k, v] of Object.entries(value)) {
-            if (isQuotedString(v)) {
-                el.style[k] = v.slice(1, -1);
-            }
-            else {
-                el.style[k] = v;
-            }
-        }
-    },
-    html(el, value) {
-        el.innerHTML = value;
-    },
-    inputCheckbox(el, value) {
-        el.checked = value;
-    },
-    inputRadio(el, value) {
-        el.checked = el.value === value;
-    },
-    inputValue(el, value) {
-        el.value = value;
-    },
-    inputMultiple(el, value) {
-        const options = Array.from(el.options);
-        if (!Array.isArray(value))
-            return;
-        options.forEach((option) => {
-            option.selected = value.includes(option.value);
-        });
-    },
-    customBind(el, value) {
-        el.setAttribute(this.modifier, value);
-    },
-    objectBind(el, value) {
-        if (isObject(value)) {
-            Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
-        }
-    },
-};
 
 class Directive {
     constructor(name, vm, node, exp) {
@@ -411,6 +358,33 @@ class Directive {
         const fn = extractPath(this.vm, this.exp);
         if (typeof fn === "function")
             this.node.addEventListener(this.modifier, fn);
+    }
+}
+
+class Observable {
+    constructor(vm, node) {
+        this.vm = vm;
+        this.node = node;
+        const patten = /{{\s*(.*?)\s*}}/;
+        const text = node.textContent;
+        if (isElementNode(node)) {
+            this.directiveBind(node);
+        }
+        else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
+            this.templateBind(node);
+        }
+    }
+    directiveBind(el) {
+        Array.from(el.attributes).forEach(({ name, value }) => {
+            if (isDirective(name)) {
+                new Directive(name, this.vm, el, value);
+            }
+        });
+    }
+    templateBind(node) {
+        extractTemplate(node.textContent).forEach((value) => {
+            new Directive("v-text", this.vm, node, value);
+        });
     }
 }
 
@@ -548,6 +522,32 @@ function injectComputed(vm) {
     });
 }
 
+class StyleRule {
+    constructor(sheet) {
+        const len = sheet.cssRules.length;
+        sheet.insertRule("*{}", len);
+        this.rule = sheet.cssRules[len];
+    }
+    selector(selector) {
+        this.rule.selectorText = selector;
+    }
+    setStyle(key, value) {
+        this.rule.style[key] = value;
+    }
+}
+function injectStyleSheet(vm) {
+    const { styles } = vm.options;
+    const styleElement = document.createElement("style");
+    document.head.appendChild(styleElement);
+    Object.entries(styles).forEach(([selector, styles]) => {
+        const rule = new StyleRule(styleElement.sheet);
+        rule.selector(selector);
+        Object.entries(styles).forEach(([key, value]) => {
+            rule.setStyle(key, value);
+        });
+    });
+}
+
 class Vuelite {
     constructor(options) {
         this.el = document.querySelector(options.el);
@@ -560,4 +560,12 @@ class Vuelite {
     }
 }
 
-exports.Vuelite = Vuelite;
+exports.Dep = Dep;
+exports.Directive = Directive;
+exports.NodeVisitor = NodeVisitor;
+exports.Observable = Observable;
+exports.Observer = Observer;
+exports.Reactivity = Reactivity;
+exports.VueScanner = VueScanner;
+exports.default = Vuelite;
+exports.updaters = updaters;

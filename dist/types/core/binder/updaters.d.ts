@@ -1,4 +1,4 @@
-import { Directive } from "../index";
+import { Directive } from "./directive";
 export type Updater = (node: Node, value: any) => void;
 export declare const updaters: {
     text(this: Directive, node: Node, value: string): void;
