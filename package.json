@@ -3,21 +3,11 @@
   "version": "1.0.2",
   "description": "Clones Vue.js to implement a basic MVVM framework using TypeScript",
   "main": "dist/bundle.js",
+  "types": "./dist/index.d.ts",
   "module": "dist/bundle.esm.js",
   "jsdelivr": "dist/bundle.min.js",
   "unpkg": "dist/bundle.min.js",
-  "exports": {
-    ".": {
-      "types": {
-        "require": "./dist/index.d.cts",
-        "default": "./dist/index.d.ts"
-      },
-      "browser": {
-        "require": "./dist/bundle.common.js",
-        "default": "./dist/bundle.esm.js"
-      }
-    }
-  },
+
   "author": "heonys",
   "license": "MIT",
   "bugs": {

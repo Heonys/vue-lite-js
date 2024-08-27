@@ -66,6 +66,7 @@ export function injectReactive(vm: Vuelite) {
 
 function injectMethod(vm: Vuelite) {
   const { methods } = vm.options;
+  if (!methods) return;
 
   Object.entries(methods).forEach(([key, method]) => {
     if (Object.hasOwn(vm, key)) throw new Error(`${key} has already been declared`);
@@ -77,6 +78,7 @@ function injectMethod(vm: Vuelite) {
 
 function injectComputed(vm: Vuelite) {
   const { computed } = vm.options;
+  if (!computed) return;
 
   for (const key in computed) {
     if (Object.hasOwn(vm, key)) throw new Error(`${key} has already been declared`);

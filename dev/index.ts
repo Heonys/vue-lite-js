@@ -1,4 +1,4 @@
-import Vuelite from "../src/core/viewmodel/vuelite";
+import Vuelite from "../src/index";
 
 const template = `
           <div>
@@ -10,7 +10,7 @@ const template = `
 // 💡 this로 반응형 데이터 타입 자동으로 추론되게
 const vm = new Vuelite({
   el: "#app",
-  template,
+  // template,
   data() {
     return {
       title: "",

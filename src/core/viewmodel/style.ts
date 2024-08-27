@@ -20,6 +20,7 @@ class StyleRule {
 
 export function injectStyleSheet(vm: Vuelite) {
   const { styles } = vm.options;
+  if (!styles) return;
   const styleElement = document.createElement("style");
   document.head.appendChild(styleElement);
 
