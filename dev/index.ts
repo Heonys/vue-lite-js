@@ -69,7 +69,7 @@ const vm = new Vuelite({
     decrease() {
       this.count--;
     },
-    hanldeInput(e: Event) {
+    handleInput(e: Event) {
       this.title = (e.target as HTMLInputElement).value;
     },
     handleCheck() {

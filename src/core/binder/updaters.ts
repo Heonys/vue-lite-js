@@ -2,11 +2,6 @@ import { isContainsTemplate, replaceTemplate } from "@utils/directive";
 import { isObject, isQuotedString } from "@utils/format";
 import { Directive } from "./directive";
 
-/* 
-updater란 dep에서 변화를 감지하고 구독자들에게 변화를 알릴때 
-전달되는 구체적인 업데이트 함수  
-*/
-
 export type Updater = (node: Node, value: any) => void;
 
 export const updaters = {
@@ -55,7 +50,7 @@ export const updaters = {
       option.selected = value.includes(option.value);
     });
   },
-  customBind(this: Directive, el: HTMLInputElement, value: any) {
+  customBind(this: Directive, el: HTMLElement, value: any) {
     // (el as any)[this.modifier] = value;
     el.setAttribute(this.modifier, value);
   },
