@@ -2,7 +2,7 @@ import type { DirectiveKey } from "../types/directive";
 import { isElementNode, isTextNode } from "./format";
 
 export function extractDirective(attr: string) {
-  const regExp = /^v-(\w+)(:(\[\w+\]|[\w+]))?$/;
+  const regExp = /^v-(\w+)(:(\w+))?$/;
   const match = attr.match(regExp);
   return { key: match[1] as DirectiveKey, modifier: match[3] || null };
 }

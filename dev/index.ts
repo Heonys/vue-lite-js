@@ -10,18 +10,16 @@ const template = `
 // 💡 this로 반응형 데이터 타입 자동으로 추론되게
 const vm = new Vuelite({
   el: "#app",
-  // template,
   data() {
     return {
       title: "",
       hello: true,
-      dynamic: "class",
       objectBind: {
         id: "testId",
         class: "testClass",
         customKey: "customValue",
       },
-      message: "메시지",
+      message: "",
       message2: "메시지2",
       firstName: "퍼스트네임",
       lastName: "라스트네임",
@@ -32,7 +30,7 @@ const vm = new Vuelite({
       selectedOption: "option2",
       selected: "male",
       selected2: ["male", "another"],
-      isActive: true,
+      checked: true,
       classData: {
         isActive: true,
         myclass: false,
@@ -43,7 +41,7 @@ const vm = new Vuelite({
   },
   computed: {
     isChecked() {
-      return this.isActive ? "체크 됨" : "체크 안됨";
+      return this.checked ? "checked" : "unchecked";
     },
     fullName() {
       return this.firstName + " + " + this.lastName;
@@ -75,10 +73,10 @@ const vm = new Vuelite({
       this.title = (e.target as HTMLInputElement).value;
     },
     handleCheck() {
-      this.isActive = !this.isActive;
+      this.checked = !this.checked;
     },
     handleClick() {
-      this.firstName = "퍼스트네임2";
+      this.message = "vuelite";
     },
     fullNameMethod() {
       return this.firstName + " + " + this.lastName;

@@ -1,7 +1,6 @@
 import { Updater, updaters } from "./updaters";
 import { extractPath, assignPath, evaluateValue } from "@utils/common";
 import { extractDirective, isEventDirective } from "@utils/directive";
-import { isDynamic } from "@utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 
@@ -24,7 +23,7 @@ export class Directive {
     public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
-    this.modifier = isDynamic(modifier) ? extractPath(vm, modifier.slice(1, -1)) : modifier;
+    this.modifier = modifier;
     this.template = node.textContent;
 
     if (isEventDirective(name)) this.eventHandler();
@@ -35,6 +34,7 @@ export class Directive {
 
   bind(updater?: Updater) {
     const mod = this.modifier;
+
     if (mod === "text" || mod === "class" || mod === "style") {
       updater = updaters[mod].bind(this);
     }
@@ -45,8 +45,8 @@ export class Directive {
 
     const value = evaluateValue(this.vm, this.exp);
     updater && updater(this.node, value);
-    new Observer(this.node, this.vm, this.exp, (node, value) => {
-      updater && updater(node, value);
+    new Observer(this.vm, this.exp, (value) => {
+      updater && updater(this.node, value);
     });
   }
   /* 

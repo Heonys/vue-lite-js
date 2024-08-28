@@ -65,8 +65,3 @@ export const isIncludeText = (node: HTMLElement) => {
   if (!attrs) return;
   return Array.from(attrs).some((v) => v.name === "v-text");
 };
-
-export const isDynamic = (str: string) => {
-  const regex = /^\[\w+\]$/;
-  return regex.test(str);
-};
