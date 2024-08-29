@@ -26,11 +26,9 @@
 ## 🚀 Introduction
 
 
-현대적인 프레임워크들이 `MVVM(Model-View-ViewModel)` 패턴을 사용하여 효율적인 데이터 바인딩과 사용자 인터페이스 관리를 지원한다는 점에서 영감을 받아 이러한 `MVVM` 패턴을 기반으로 하여 `vue.js`와 유사한 기능을 제공하는 기초적인 `MVVM` 프레임워크입니다. <br>
+현대적인 프레임워크들이 `MVVM(Model-View-ViewModel)` 패턴을 사용하여 효율적인 데이터 바인딩과 사용자 인터페이스 관리를 지원한다는 점에서 영감을 받아 이러한 `MVVM` 패턴을 기반으로 하여 `vue.js`를 클론하여 유사한 기능과 문법을 제공하는 기초적인 `MVVM` 프레임워크입니다. <br>
 
-이 프로젝트의 주된 목표는 `vue.js`의 핵심 동작 방식을 클론하면서, `MVVM` 패턴과 옵저버 패턴을 실제로 적용해보는 것입니다 <br>
-
-프로젝트의 기본적인 구조는 [reference](URL)의 코드를 기반으로 하였으며 복잡한 문제를 고려하지 않았지만, 양방향 데이터 바인딩 원리와 `vue.js`의 핵심원리를 이해하는데 도움을 줄 수 있다고 생각합니다  <br>
+이 저장소의 주된 목표는 `vue.js`의 핵심 동작 방식을 클론하면서, `MVVM` 패턴과 옵저버 패턴을 실제로 적용해보는 것입니다. 프로젝트의 전반적인 구조는 [#Reference](#-reference)의 코드를 기반으로 하였으며 복잡한 문제를 고려하지 않았지만, 양방향 데이터 바인딩 원리와 `vue.js`의 핵심원리를 이해하는데 도움을 줄 수 있다고 생각합니다.  <br>
 
 
 ## 🎉 Getting Started
@@ -41,7 +39,7 @@
 npm install vue-lite-js@latest
 ```
 #### Local Development
-개발 환경에서 직접 `vuelite`를 테스트하거나 소스 코드를 수정하고 싶다면, 다음 단계를 따라주세요
+개발 환경에서 소스 코드를 수정하고 직접 테스트 하고싶으면, 다음 단계를 따라주세요
 
 ##### 저장소 클론 
 ```sh
@@ -55,7 +53,22 @@ npm install
 ```sh
 npm run start 
 ```
+
+##### 테스트를 위한 마크다운 및 스크립트 작성  
+```sh
+📦 vuelite 
+├── 📂 dev 
+│    ├── 📄 index.html ✅
+│    └── 📄 index.ts ✅
+├── 📂 src ✅
+│    ├── 📂 core
+│    ├── 📂 types
+│    ... 
+```
 프로젝트 내부 `src`폴더 에서 소스코드를 수정하고 `dev`폴더 내의 `index.html`과 `index.ts` 에서 빠른 테스트 가능 합니다
+
+
+
 
 
 ## 💡Basic usage
@@ -100,7 +113,7 @@ new Vuelite({
 
 ## ✨ Details 
 
->1. 기본적으로 `vue.js`의 **Option API** 방식을 클론하고 있으며, `vue.js`의 핵심 기능을 지원하지만 모든 기능을 지원하지 않습니다. <br /> ※ [todos]()에서 향후 업데이트 예정 사항을 확인할 수 있습니다.
+>1. 기본적으로 `vue.js`의 **Option API** 방식을 클론하고 있으며, `vue.js`의 핵심 기능을 지원하지만 모든 기능을 지원하지 않습니다. 
 >2. 옵션에서 `template` 속성은 지원하지만 `vue.js`의 `.vue` 파일과 같은 로더를 지원하지 않기 때문에 `HTML` 파일에서 마크업을 직접 작성해야 하는 불편함이 있습니다. 따라서 전통적인 프레임워크보다는 라이브러리에 가까운 특성을 가지고 있습니다. 
 >3. 싱글 파일 컴포넌트 포맷을 지원하지 않기 때문에 `<style>` 블록의 형태를 지원하기 위해서 옵션에서 `styles` 속성을 지원합니다.
 >4. 스타일 바인딩과 클래스 바인딩의 편의를 위해서 `v-style`, `v-class` 디렉티브를 지원합니다. 동작은 `v-bind:`를 사용한 바인딩과 동일하게 동작합니다.
@@ -130,56 +143,81 @@ class Vuelite {
 ```
 `MVVM` 패턴에서 `viewmodel` 역할을 수행하는 `vue` 인스턴스의 생성 단계로 `option` 객체를 받아서 `DOM`과 데이터 바인딩을 제공할 수 있도록하는 진입점 역할을 한다
 
+> **Viewmodel을 구현하는 핵심 아이디어**
 >1. 옵션객체로 받아온 데이터에 반응성을 불어넣어 데이터의 변화를 감지
->2. 노드를 순회하며 디렉티브를 파싱하고 옵저버를 생성  
+>2. DOM을 순회하며 디렉티브를 파싱하고 옵저버를 생성  
 >3. 반응형 데이터와 옵저버의 상호작용에 따른 양방향 바인딩을 달성 
 
 
 ### 2. 반응성 주입
 
+<p align="center">
+  <img src="./img/diagram2.png" alt="Description of diagram" />
+</p>
 
-#### Proxy 객체 생성 
+
 ```ts
+// target: 래핑하려는 원본 객체
+// handler: 동작을 가로채는 메서드인 '트랩(trap)'이 담긴 객체
 new Proxy(target, handler);
 ```
-`Proxy` 객체는 원본 객체를 감싸는 역할을 하는데 이를 통해 원본 객체에 대한 접근을 제어하거나, 특정 동작을 가로채서 새로운 기능을 추가할 수 있다. 
+[Proxy](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 객체는 원본 객체를 감싸는 객체로 타겟이 되는 원본 객체에 대한 접근을 제어하거나, 특정 동작을 가로채서 새로운 기능을 추가할 수 있게하는 래핑 객체이다.  
 
 
-`viewmodel`에서 데이터의 변화를 감지하여 실제뷰(DOM)과의 양방향 바인딩하는 것이 우리의 목적이기 때문에 데이터의 변화에 어떻게 감지할 수 있을지 고민해봐야하는데 자바스크립트에서는 언어 차원에서 객체의 속성에 동적으로 `getter`와 `setter`를 등록할 수 있게 해주는 `Object.defineProperty`와 더불어 `Proxy`가 존재한다.<br /> 
+`viewmodel`에서 데이터의 변화를 감지하여 실제 뷰(DOM)과의 양방향 바인딩하는 것이 우리의 목적이기 때문에 데이터의 변화에 어떻게 감지할 수 있을지 고민해봐야한다. 이를 위해 자바스크립트에서는 언어 차원에서 객체의 속성에 동적으로 `getter`와 `setter`를 등록할 수 있게 해주는 `Object.defineProperty`와 더불어 `Proxy`를 사용하여 이를 구현할 수 있다. <br /> 
 
 >실제로 `Vue2` 에서는 `defineProperty`로 반응형 데이터를 구현하고, `Vue3` 에서는 `Proxy`를 사용하여 반응형 데이터를 구현한다.
 
 
+따라서 `Proxy`객체로 `viewmodel`의 모든 `data` 속성을 래핑하여 `get 트랩`, `set 트랩`을 추가하고 모든 속성들의 변화를 감지하도록 구현할 것이다. <br />
+
+```ts
+const handler = {
+  get(target: Target, key: string, receiver: Target) {
+    // 1. get 트랩 (getter)
+  },
+  set(target: Target, key: string, value: any, receiver: Target) {
+    // 2. set 트랩 (setter)
+  },
+};
+new Proxy(data, handler);
+```
+하지만 `Proxy`를 생성하는 현재 단계에선 `getter`, `setter`를 설명하기 난해한 부분이 존재하는데 헷갈리지 말아야하는건 이 부분은 해당 속성에 접근하거나 해당 속성에 값을 수정할때 작동하는 트랩으로 어차피 나중에 실행되는 부분으로 핵심적인 로직이긴 하지만, 지금 단계에선 그냥 `getter`, `setter`를 등록함으로써 `Reactivty`를 주입했구나 하고 생각하면 될 것 같다 
+
+1) **get 트랩**
+[Dep](#dep-객체-생성) 객체를 생성하고 현재 활성화된 [Observer](#5-observer-생성)와의 의존성을 연결하는 역할을 한다. `Scanner`에서 디렉티브를 파싱하고 `Observer`를 생성할때, 해당 디렉티브에 해당하는 `expresion`을 `vm`에서 찾는과정에서 `getter`를 발생시키고 따라서 해당 `expresion`에 매핑되는 Dep가 생성되어 생성된 Obserber와 연결이 맺어진다.
+
+2) **set 트랩**
+`get 트랩`은 옵저버가 생성될때 이미 한번은 실행되었기 때문에 이후에 `set 트랩`에서는 항상 해당하는 `key`에 대응하는 `Dep`가 매핑되어있다. `setter`가 발생한 시점은 해당 속성 값의 변화가 일어났다는 뜻으로 `notify`를 호출함으로써 해당 `Dep`를 구독하고 있는 모든 `Observer`들에게 너가 의존하고있는 속성에 변화가 일어났으니 `update`를 하라고 알림을 보내는 역할을 한다
 
 
+#### Dep 객체 생성 
+`Dep`객체는 `Dependency`의 약자로 데이터의 변화를 감지하고, 구독자인 `Observer`들에게 알림을 하는 역할을 한다. `Proxy`를 생성할때 데이터의 모든 속성마다 `Dep`객체가 생성되는 것으로도 알 수 있지만 모든 반응형 데이터들은 매핑되는 `Dep`을 가지고있다. 여기서 `Dep` 인스턴스 자체는 내가 매핑된 반응형 데이터가 뭔지에 대한 상태값을 가지고 있지않는데 이는 `Reactivty`의 `define`메소드에서 내부적으로 `deps`라는 이름으로 `key`와 `Dep`를 매핑하여 관리하고있기 때문에 나중에 `setter`가 동작할때 클로저 공간에 있는 `deps`에 접근하여 매핑되는 `key`가 뭔지 알 수 있기 때문에 `Dep`자체는 자기가 매핑된 키에 대한 상태를 갖고있지 않고 `notify`를 할 수 있다. 
 
 
+```ts
+class Dep {
+  static activated: Observer
+  //...
+}
+```
+`activated`속성은 현재 활성화된 옵저버가 무엇인지 상태를 갖고 `Dep`와 `Obserber`의 의존관계를 맺기 위한 `static`변수로 일종의 전역변수 같은 느낌으로 사용된다.
 
-
-- get 트랩 -> Dep 생성 
-- set 트랩 -> 해당 속성에 해당하는 Dep의 notify 호출 
-- 쉽게말해 모든 data들은 프록시로 래핑되며 모든 속성당 1:1 대응하여 Dep가 생성됨 
-  하지만 프록시가 생성되는 타이밍에 getter가 호출되는건 아니기 때문에 
-  정확히는 이 타이밍에는 프록시 객체가 래핑되어 get트랩, set트랩이 등록되는 단계 
-  이후에 해당 속성이 변경될때 -> set트랩이 발동되며 값을 가로채는데 이때 해당 dep를 
-  구독하고 있는 모든 Obserber 들에게 update가 발생한다 
-- computed, methods -> vm에서 접근가능 하도록 속성추가 
-
-#### Dep(Dependency) 객체 생성 
-- Dep의 역할: 데이터의 변화를 감지하고, 구독자(Observer)에게 알림 
-
-
-
-
+#### computed와 methods 주입
+```ts
+injectMethod(vm);
+injectComputed(vm);
+```
+`DOM`과 바인딩이 되어야하는 `data`들과는 다르게 `computed`와 `method`들은 반응성을 주입할 필요가 없다. 따라서 `viewmodel`에서 접근할 수 있도록 `viewmodel`의 속성으로 등록해주면 되는데 핵심은 `this` 바인딩을 통해 `computed`또는 `method`내부에서 `this`를 사용할때 `this`가 `vm`을 가리키도록 명시적으로 지정해주는 것이다 
 
 ### 3. 디렉티브 및 템플릿 파싱 
 ```ts
 const scanner = new VueScanner(new NodeVisitor());
 scanner.scan(this);
 ```
-옵션에서 전달받은 `el` 속성으로 부터 하위의 모든 노드를 순회하면서 `v-`접두사가 붙은 디렉티브 속성 또는 `{{ }}` 템플릿 문법을 사용하고 있는 모든 텍스트를 검사한다 여기서 `DOM`을 순회하는게 아닌 `Node`를 순회하는 이유는 템플릿을 파싱하기 위해 텍스트 노드까지 검사해야하기 때문 <br />
+옵션에서 전달받은 `el` 속성으로 부터 하위의 모든 노드를 순회하면서 `v-`접두사가 붙은 디렉티브 속성 또는 템플릿 문법 `{{ }}` 을 사용하고 있는 모든 텍스트를 검사한다. 여기서 `DOM`을 순회하는게 아닌 `Node` 단위로 순회하는 이유는 템플릿을 파싱하기 위해 텍스트 노드까지 검사해야하기 때문이다. <br />
 
-노드 순회를 위해 순회하는 역할 자체는 `Visitor`에게 위임하고 노드마다 처리할 구체적인 액션은 `Scanner`에서 처리하도록 `visitor`와 `scanner`를 분리한다.
+노드 순회를 위해 순회하는 역할 자체는 `Visitor`에게 위임하고 노드마다 처리할 구체적인 액션은 `Scanner`에서 처리하도록 `Visitor`와 `Scanner`를 분리한다.
 
 ```ts
 const action = (node: Node) => {
@@ -188,7 +226,7 @@ const action = (node: Node) => {
 ```
 모든 노드를 순회하면서 해당 노드가 디렉티브를 갖거나 텍스트에 템플릿 문법을 갖고있는지를 확인하고 `Observable` 생성한다.  <br />
 
-여기서 `Observable`는 단순히 `v-`접두사를 갖는 디렉티브인지 템플릿인지 여부만 확인하여 `Directive`를 생성하고 있고 템플릿 바인딩은 `v-text` 디렉티브로 변경된다. 이때, 이벤트를 등록하는 `v-on`을 제외하고 모든 디렉티브는 디렉티브 종류에 따라서 `updater`를 인자로 받아서 `v-bind` 에서 일괄적으로 `Observer`를 생성한다
+여기서 `Observable`는 단순히 `v-`접두사를 갖는 디렉티브인지 템플릿인지의 여부만 확인하여 `Directive`를 생성하고, 템플릿 바인딩은 `v-text` 디렉티브로 변경된다. 이때, 이벤트를 등록하는 `v-on`을 제외하고 모든 디렉티브는 디렉티브 종류에 따라서 `updater`를 인자로 받아서 `v-bind` 에서 일괄적으로 `Observer`를 생성한다
 
 
 ### 4. v-model 바인딩 
@@ -213,7 +251,7 @@ const action = (node: Node) => {
 </div>
 ```
 
-실제로 `v-model`은 위의 코드처럼 `v-bind`와 `v-on:event`의 조합으로 동일하게 동작하며 `vuelite` 에서도 2가지 방식 모두 지원한다
+실제로 `v-model`은 위의 코드처럼 `v-bind`와 `v-on:event`의 조합으로 동일하게 동작하며 `vuelite` 에서도 이러한 2가지 방식 모두 지원한다. 
 
 ```html
 <input type="checkbox" v-model="isChecked">
@@ -224,7 +262,6 @@ const action = (node: Node) => {
 <select v-model="selectedRadio">
   <option value="javascript">javascript</option>
   <option value="python">python</option>
-  <option value="C++">C++</option>
 </select>
 ```
 
@@ -238,17 +275,17 @@ const action = (node: Node) => {
 
 ```ts
 bind(updater?: Updater) {
-// ... 
-const value = evaluateValue(this.vm, this.exp);
-updater && updater(this.node, value);
-new Observer(this.vm, this.exp, (value) => {
+  // ... 
+  const value = evaluateValue(this.vm, this.exp);
   updater && updater(this.node, value);
-});
+  new Observer(this.vm, this.exp, (value) => {
+    updater && updater(this.node, value);
+  });
 ```
 디렉티브 종류에 따라서 `updater`가 정해지고 결과적으로 `Obserber`가 생성된다. 
-여기서 `updater`란 `Reactive`가 주입된 속성에서 변화가 일어나 set트랩에서 notify가 발생했을때 해당 `dep`을 구독하고있는 모든 Observer들 에게 변화가 일어났으니 업데이트를 하라고 알림을 보내는데 그 시점에 Observer가 변화에 대응하여 `DOM`을 업데이트 하도록 즉, viewmodel data 변화가 최종적으로 화면에 반영되는 구체적인 업데이트 함수를 의미한다 <br />
+여기서 `updater`란 `Reactive`가 주입된 속성에서 변화가 일어나 `set트랩`에서 `notify`가 발생했을때 해당 `dep`을 구독하고있는 모든 `Observer`들 에게 변화가 일어났으니 업데이트를 하라고 알림을 보내는데 그 시점에 `Observer`가 변화에 대응하여 `DOM`을 업데이트 하도록 즉, `viewmodel`의 `data` 변화가 최종적으로 화면에 반영되는 구체적인 업데이트 함수를 의미한다 <br />
 
-위의 코드에서 `Observer`를 생성하기 전에 `updater`를 미리 한번 실행하는데 이건 첫 렌더링에 viewmodel의 속성을 DOM에 반영하기 위함이다.
+위의 코드에서 `Observer`를 생성하기 전에 `updater`를 미리 한번 실행하는데 이건 첫 렌더링에 `viewmodel`의 속성을 `DOM`에 반영하기 위함이다.
 
 
 #### Observer와 Dep의 관계 
@@ -277,10 +314,10 @@ depend() {
 ```
 `Observer` 클래스에서 `getterTrigger` 메소드가 존재하는데 이 메소드의 역할은 단순히 `vm`에서 해당 속성을 가져오는 일을 하고있어 보이지만, 이 함수는 그 이상으로 굉장히 중요한 역할을 하고있다.  
 
->1. 처음에 `Reactivty` 클래스에서 모든 data 속성에 래핑한 프록시 객체의 get 트랩을 의도적으로 발생시키기 위한 트리거로 사용된다
->2. get 트랩이 발생되기 이전에 `Dep.activated`를 현재의 this 즉, 현재의 `Observer`로 설정을 해놓고 get 트랩이 발생하면 `dep.depend()`를 호출하여 해당 `Observer`에서 `Dep`를 등록하고, 반대로 해당 옵저버는 Dep을 구독하여 관계를 구축한다. 
+>1. 처음에 `Reactivty` 클래스에서 모든 `data` 속성에 래핑한 프록시 객체의 `get 트랩`을 의도적으로 발생시키기 위한 트리거로 사용된다
+>2. `get 트랩`이 발생되기 이전에 `Dep.activated`를 현재의 `this` 즉, 현재의 `Observer`로 설정을 해놓고 `get 트랩`이 발생하면 `dep.depend()`를 호출하여 해당 `Observer`에서 `Dep`를 등록하고, 반대로 해당 옵저버는 `Dep`을 구독하여 관계를 구축한다. 
   
-결과적으로 `getterTrigger`는 반응형 데이터의 get트랩을 발생시켜서 `Dep` 객체를 생성하게함과 동시에 이렇게 만들어진 `Dep`객체가 `Observer`와의 관계를 맺어주는 중요한 역할을 한다
+결과적으로 `getterTrigger`는 반응형 데이터의 `get 트랩`을 발생시켜서 `Dep` 객체를 생성하며 값을 가져옴과 동시에 이렇게 만들어진 `Dep`객체가 `Observer`와의 관계를 맺어주는 중요한 역할을 한다
 
 
 

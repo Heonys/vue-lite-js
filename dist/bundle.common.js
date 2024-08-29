@@ -36,13 +36,9 @@ const isIncludeText = (node) => {
         return;
     return Array.from(attrs).some((v) => v.name === "v-text");
 };
-const isDynamic = (str) => {
-    const regex = /^\[\w+\]$/;
-    return regex.test(str);
-};
 
 function extractDirective(attr) {
-    const regExp = /^v-(\w+)(:(\[\w+\]|[\w+]))?$/;
+    const regExp = /^v-(\w+)(:(\w+))?$/;
     const match = attr.match(regExp);
     return { key: match[1], modifier: match[3] || null };
 }
@@ -224,8 +220,7 @@ class Dep {
 Dep.activated = null;
 
 class Observer {
-    constructor(node, vm, exp, onUpdate) {
-        this.node = node;
+    constructor(vm, exp, onUpdate) {
         this.vm = vm;
         this.exp = exp;
         this.onUpdate = onUpdate;
@@ -247,7 +242,7 @@ class Observer {
         const newValue = this.getterTrigger();
         if (oldValue !== newValue) {
             this.value = newValue;
-            this.onUpdate.call(this.vm, this.node, newValue);
+            this.onUpdate.call(this.vm, newValue);
         }
     }
 }
@@ -258,7 +253,7 @@ class Directive {
         this.node = node;
         this.exp = exp;
         const { key, modifier } = extractDirective(name);
-        this.modifier = isDynamic(modifier) ? extractPath(vm, modifier.slice(1, -1)) : modifier;
+        this.modifier = modifier;
         this.template = node.textContent;
         if (isEventDirective(name))
             this.eventHandler();
@@ -277,8 +272,8 @@ class Directive {
         }
         const value = evaluateValue(this.vm, this.exp);
         updater && updater(this.node, value);
-        new Observer(this.node, this.vm, this.exp, (node, value) => {
-            updater && updater(node, value);
+        new Observer(this.vm, this.exp, (value) => {
+            updater && updater(this.node, value);
         });
     }
     model() {

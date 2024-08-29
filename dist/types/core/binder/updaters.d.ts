@@ -9,6 +9,6 @@ export declare const updaters: {
     inputRadio(el: HTMLInputElement, value: any): void;
     inputValue(el: HTMLInputElement, value: any): void;
     inputMultiple(el: HTMLSelectElement, value: any): void;
-    customBind(this: Directive, el: HTMLInputElement, value: any): void;
+    customBind(this: Directive, el: HTMLElement, value: any): void;
     objectBind(this: Directive, el: HTMLInputElement, value: any): void;
 };
