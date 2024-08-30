@@ -20,5 +20,3 @@
    <a href='./README.md'>한국어</a> | English
 </p>
 
-
-## Intro

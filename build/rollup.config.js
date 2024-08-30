@@ -29,7 +29,7 @@ module.exports = [
       {
         file: "dist/bundle.min.js",
         name: "Vuelite",
-        format: "esm",
+        format: "umd",
       },
     ],
   },
