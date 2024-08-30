@@ -1,6 +1,4 @@
 
-
-
 <p align='center'>
   <img src='./img/logo.png' width='400'/>
 </p>
@@ -8,8 +6,8 @@
 <p align='center'>Clones Vue.js to implement a basic MVVM framework</p>
 
 <p align='center'>
-    <a href=''>
-        <img src="https://img.shields.io/badge/deploy-YourAppURL-blue" />
+    <a href='https://vuelite-demo.vercel.app'>
+        <img src="https://img.shields.io/badge/deploy-Vuelite Demo-blue" />
     </a>
     <a href=''>
         <img src="https://img.shields.io/badge/CDN-Active-brightgreen" />
@@ -75,13 +73,13 @@ npm run start
 프로젝트 내부 `src`폴더 에서 소스코드를 수정하고 `dev`폴더 내의 `index.html`과 `index.ts` 에서 빠른 테스트 가능 합니다
 
 
-
-
-
 ## 💡Basic usage
 
-<p align="center">
+<p style="text-align: center;">
   <img src="./img/Animation.gif" alt="Description of GIF" />
+  <br />
+  <sapn>CDN Demo: </sapn>
+  <a href='https://vuelite-demo.vercel.app'>https://vuelite-demo.vercel.app</a>
 </p>
 
 ```html
@@ -328,8 +326,6 @@ depend() {
   
 결과적으로 `getterTrigger`는 반응형 데이터의 `get 트랩`을 발생시켜서 `Dep` 객체를 생성하며 값을 가져옴과 동시에 이렇게 만들어진 `Dep`객체가 `Observer`와의 관계를 맺어주는 중요한 역할을 합니다. 
 
-
-## 🪄 마무리 
 
 ## 📝 Todos
 - [ ] 디렉티브 축약 형태 지원하기 

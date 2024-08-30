@@ -1,29 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vuelite Demo</title>
     <script src="https://unpkg.com/vue-lite-js@latest"></script>
-
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="app">
-        <input type="text" v-model="message" />
-        <p v-style="textStyle">{{ message }}</p>
+      <input type="text" v-model="message" />
+      <p v-style="textStyle">{{ message }}</p>
+      <button v-on:click="handleClick">change vuelite</button>
+      <div>
+        <input type="checkbox" v-model="checked" />
+        <span>{{ isChecked }}</span>
+      </div>
     </div>
 
-    <script>        
-        new Vuelite({
+    <script>
+      new Vuelite({
         el: "#app",
         data() {
-            return {
-            message : "",
+          return {
+            message: "",
+            checked: true,
             textStyle: { color: "#FF0000" },
-            }
+          };
         },
-        })
+        methods: {
+          handleClick() {
+            this.message = "vuelite";
+          },
+        },
+        computed: {
+          isChecked() {
+            return this.checked ? "checked" : "unchecked";
+          },
+        },
+      });
     </script>
-</body>
+  </body>
 </html>
