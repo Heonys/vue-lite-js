@@ -7,4 +7,5 @@ import { Dep } from "./core/reactive/dep";
 import { Observer } from "./core/reactive/observer";
 import { Reactivity } from "./core/reactive/reactive";
 import Vuelite from "./core/viewmodel/vuelite";
-export { Vuelite as default, Directive, Observable, VueScanner, updaters, NodeVisitor, Dep, Observer, Reactivity, };
+export default Vuelite;
+export { Directive, Observable, VueScanner, updaters, NodeVisitor, Dep, Observer, Reactivity };

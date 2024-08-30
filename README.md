@@ -42,9 +42,9 @@ npm install vue-lite-js@latest
 - #### Using cdn
 브라우저에서 직접 사용하려면, 아래와 같이 `cdn`을 통해 스크립트를 포함하세요
 ```html
-<script src="https://unpkg.com/vue-lite-js"></script>
+<script src="https://unpkg.com/vue-lite-js@latest"></script>
 <!-- or -->
-<script src="https://cdn.jsdelivr.net/npm/vue-lite-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-lite-js@latest"></script>
 ```
 
 - #### Local Development
