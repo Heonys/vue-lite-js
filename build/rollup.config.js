@@ -4,7 +4,7 @@ const { dts } = require("rollup-plugin-dts");
 
 module.exports = [
   {
-    input: "src/index.ts",
+    input: "src/core/viewmodel/vuelite.ts",
     plugins: [tsPlugin()],
     output: [
       {
@@ -23,7 +23,7 @@ module.exports = [
     ],
   },
   {
-    input: "src/index.ts",
+    input: "src/core/viewmodel/vuelite.ts",
     plugins: [tsPlugin(), terser()],
     output: [
       {

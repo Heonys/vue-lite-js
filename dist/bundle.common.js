@@ -1,7 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
 function isObjectFormat(str) {
     const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
     return regex.test(str);
@@ -36,6 +34,206 @@ const isIncludeText = (node) => {
         return;
     return Array.from(attrs).some((v) => v.name === "v-text");
 };
+
+function extractPath(obj, path) {
+    path = path.trim();
+    return path.split(".").reduce((target, key) => {
+        if (target && Object.hasOwn(target, key))
+            return target[key];
+        return null;
+    }, obj);
+}
+function assignPath(obj, path, value) {
+    path = path.trim();
+    let target = obj;
+    path.split(".").forEach((key, index, arr) => {
+        if (index === arr.length - 1)
+            target[key] = value;
+        else {
+            if (!Object.hasOwn(target, key))
+                return;
+            target = target[key];
+        }
+    });
+}
+function normalizeToJson(str) {
+    return str
+        .replace(/(\w+):/g, '"$1":')
+        .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
+        if (/^".*"$/.test(p1))
+            return match;
+        return `: "${p1}"`;
+    });
+}
+function evaluateBoolean(str) {
+    return str === "true" ? true : str === "false" ? false : str;
+}
+function evaluateValue(vm, exp) {
+    let result;
+    if (isObjectFormat(exp)) {
+        const json = JSON.parse(normalizeToJson(exp));
+        result = Object.entries(json).reduce((acc, [key, value]) => {
+            if (isQuotedString(value)) {
+                acc[key] = evaluateBoolean(value.slice(1, -1));
+            }
+            else {
+                acc[key] = extractPath(vm, value);
+            }
+            return acc;
+        }, json);
+    }
+    else {
+        const match = isFunctionFormat(exp);
+        result = match ? extractPath(vm, match).call(vm) : extractPath(vm, exp);
+    }
+    return result;
+}
+function createDOMTemplate(template) {
+    if (!template)
+        return;
+    const div = document.createElement("div");
+    div.innerHTML = template;
+    return div.firstElementChild;
+}
+
+function isAccessor(data) {
+    if (typeof data !== "function")
+        return true;
+    return false;
+}
+
+class Dep {
+    constructor() {
+        this.listener = new Set();
+    }
+    subscribe(observer) {
+        this.listener.add(observer);
+    }
+    unsubscribe(observer) {
+        this.listener.delete(observer);
+    }
+    notify() {
+        this.listener.forEach((observer) => {
+            observer.update();
+        });
+    }
+    depend() {
+        var _a;
+        (_a = Dep.activated) === null || _a === void 0 ? void 0 : _a.addDep(this);
+    }
+}
+Dep.activated = null;
+
+class Reactivity {
+    constructor(data) {
+        this.proxy = this.define(data);
+    }
+    define(data) {
+        const me = this;
+        const caches = new Map();
+        const deps = new Map();
+        const handler = {
+            get(target, key, receiver) {
+                if (!deps.has(key))
+                    deps.set(key, new Dep());
+                deps.get(key).depend();
+                const child = target[key];
+                if (isObject(child)) {
+                    if (!caches.has(key))
+                        caches.set(key, me.define(child));
+                    return caches.get(key);
+                }
+                return Reflect.get(target, key, receiver);
+            },
+            set(target, key, value, receiver) {
+                const result = Reflect.set(target, key, value, receiver);
+                if (deps.has(key)) {
+                    deps.get(key).notify();
+                }
+                return result;
+            },
+        };
+        return new Proxy(data, handler);
+    }
+}
+function injectReactive(vm) {
+    const { data } = vm.options;
+    const returned = typeof data === "function" ? data() : {};
+    const proxy = new Reactivity(returned).proxy;
+    for (const key in returned) {
+        Object.defineProperty(vm, key, {
+            configurable: false,
+            get: () => proxy[key],
+            set: (value) => {
+                proxy[key] = value;
+            },
+        });
+    }
+    injectMethod(vm);
+    injectComputed(vm);
+}
+function injectMethod(vm) {
+    const { methods } = vm.options;
+    if (!methods)
+        return;
+    Object.entries(methods).forEach(([key, method]) => {
+        if (Object.hasOwn(vm, key))
+            throw new Error(`${key} has already been declared`);
+        Object.defineProperty(vm, key, {
+            value: (...args) => method.apply(vm, args),
+        });
+    });
+}
+function injectComputed(vm) {
+    const { computed } = vm.options;
+    if (!computed)
+        return;
+    for (const key in computed) {
+        if (Object.hasOwn(vm, key))
+            throw new Error(`${key} has already been declared`);
+    }
+    Object.entries(computed).forEach(([key, value]) => {
+        const descripter = {};
+        if (isAccessor(value)) {
+            descripter.get = value.get.bind(vm);
+            descripter.set = (...params) => {
+                value.set.apply(vm, params);
+            };
+        }
+        else {
+            descripter.get = () => value.call(vm);
+        }
+        Object.defineProperty(vm, key, descripter);
+    });
+}
+
+class StyleRule {
+    constructor(sheet) {
+        const len = sheet.cssRules.length;
+        sheet.insertRule("*{}", len);
+        this.rule = sheet.cssRules[len];
+    }
+    selector(selector) {
+        this.rule.selectorText = selector;
+    }
+    setStyle(key, value) {
+        this.rule.style[key] = value;
+    }
+}
+function injectStyleSheet(vm) {
+    const { styles } = vm.options;
+    if (!styles)
+        return;
+    const styleElement = document.createElement("style");
+    document.head.appendChild(styleElement);
+    Object.entries(styles).forEach(([selector, styles]) => {
+        const rule = new StyleRule(styleElement.sheet);
+        rule.selector(selector);
+        Object.entries(styles).forEach(([key, value]) => {
+            rule.setStyle(key, value);
+        });
+    });
+}
 
 function extractDirective(attr) {
     const regExp = /^v-(\w+)(:(\w+))?$/;
@@ -135,89 +333,6 @@ const updaters = {
         }
     },
 };
-
-function extractPath(obj, path) {
-    path = path.trim();
-    return path.split(".").reduce((target, key) => {
-        if (target && Object.hasOwn(target, key))
-            return target[key];
-        return null;
-    }, obj);
-}
-function assignPath(obj, path, value) {
-    path = path.trim();
-    let target = obj;
-    path.split(".").forEach((key, index, arr) => {
-        if (index === arr.length - 1)
-            target[key] = value;
-        else {
-            if (!Object.hasOwn(target, key))
-                return;
-            target = target[key];
-        }
-    });
-}
-function normalizeToJson(str) {
-    return str
-        .replace(/(\w+):/g, '"$1":')
-        .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
-        if (/^".*"$/.test(p1))
-            return match;
-        return `: "${p1}"`;
-    });
-}
-function evaluateBoolean(str) {
-    return str === "true" ? true : str === "false" ? false : str;
-}
-function evaluateValue(vm, exp) {
-    let result;
-    if (isObjectFormat(exp)) {
-        const json = JSON.parse(normalizeToJson(exp));
-        result = Object.entries(json).reduce((acc, [key, value]) => {
-            if (isQuotedString(value)) {
-                acc[key] = evaluateBoolean(value.slice(1, -1));
-            }
-            else {
-                acc[key] = extractPath(vm, value);
-            }
-            return acc;
-        }, json);
-    }
-    else {
-        const match = isFunctionFormat(exp);
-        result = match ? extractPath(vm, match).call(vm) : extractPath(vm, exp);
-    }
-    return result;
-}
-function createDOMTemplate(template) {
-    if (!template)
-        return;
-    const div = document.createElement("div");
-    div.innerHTML = template;
-    return div.firstElementChild;
-}
-
-class Dep {
-    constructor() {
-        this.listener = new Set();
-    }
-    subscribe(observer) {
-        this.listener.add(observer);
-    }
-    unsubscribe(observer) {
-        this.listener.delete(observer);
-    }
-    notify() {
-        this.listener.forEach((observer) => {
-            observer.update();
-        });
-    }
-    depend() {
-        var _a;
-        (_a = Dep.activated) === null || _a === void 0 ? void 0 : _a.addDep(this);
-    }
-}
-Dep.activated = null;
 
 class Observer {
     constructor(vm, exp, onUpdate) {
@@ -432,123 +547,6 @@ class NodeVisitor {
     }
 }
 
-function isAccessor(data) {
-    if (typeof data !== "function")
-        return true;
-    return false;
-}
-
-class Reactivity {
-    constructor(data) {
-        this.proxy = this.define(data);
-    }
-    define(data) {
-        const me = this;
-        const caches = new Map();
-        const deps = new Map();
-        const handler = {
-            get(target, key, receiver) {
-                if (!deps.has(key))
-                    deps.set(key, new Dep());
-                deps.get(key).depend();
-                const child = target[key];
-                if (isObject(child)) {
-                    if (!caches.has(key))
-                        caches.set(key, me.define(child));
-                    return caches.get(key);
-                }
-                return Reflect.get(target, key, receiver);
-            },
-            set(target, key, value, receiver) {
-                const result = Reflect.set(target, key, value, receiver);
-                if (deps.has(key)) {
-                    deps.get(key).notify();
-                }
-                return result;
-            },
-        };
-        return new Proxy(data, handler);
-    }
-}
-function injectReactive(vm) {
-    const { data } = vm.options;
-    const returned = typeof data === "function" ? data() : {};
-    const proxy = new Reactivity(returned).proxy;
-    for (const key in returned) {
-        Object.defineProperty(vm, key, {
-            configurable: false,
-            get: () => proxy[key],
-            set: (value) => {
-                proxy[key] = value;
-            },
-        });
-    }
-    injectMethod(vm);
-    injectComputed(vm);
-}
-function injectMethod(vm) {
-    const { methods } = vm.options;
-    if (!methods)
-        return;
-    Object.entries(methods).forEach(([key, method]) => {
-        if (Object.hasOwn(vm, key))
-            throw new Error(`${key} has already been declared`);
-        Object.defineProperty(vm, key, {
-            value: (...args) => method.apply(vm, args),
-        });
-    });
-}
-function injectComputed(vm) {
-    const { computed } = vm.options;
-    if (!computed)
-        return;
-    for (const key in computed) {
-        if (Object.hasOwn(vm, key))
-            throw new Error(`${key} has already been declared`);
-    }
-    Object.entries(computed).forEach(([key, value]) => {
-        const descripter = {};
-        if (isAccessor(value)) {
-            descripter.get = value.get.bind(vm);
-            descripter.set = (...params) => {
-                value.set.apply(vm, params);
-            };
-        }
-        else {
-            descripter.get = () => value.call(vm);
-        }
-        Object.defineProperty(vm, key, descripter);
-    });
-}
-
-class StyleRule {
-    constructor(sheet) {
-        const len = sheet.cssRules.length;
-        sheet.insertRule("*{}", len);
-        this.rule = sheet.cssRules[len];
-    }
-    selector(selector) {
-        this.rule.selectorText = selector;
-    }
-    setStyle(key, value) {
-        this.rule.style[key] = value;
-    }
-}
-function injectStyleSheet(vm) {
-    const { styles } = vm.options;
-    if (!styles)
-        return;
-    const styleElement = document.createElement("style");
-    document.head.appendChild(styleElement);
-    Object.entries(styles).forEach(([selector, styles]) => {
-        const rule = new StyleRule(styleElement.sheet);
-        rule.selector(selector);
-        Object.entries(styles).forEach(([key, value]) => {
-            rule.setStyle(key, value);
-        });
-    });
-}
-
 class Vuelite {
     constructor(options) {
         this.el = document.querySelector(options.el);
@@ -561,12 +559,4 @@ class Vuelite {
     }
 }
 
-exports.Dep = Dep;
-exports.Directive = Directive;
-exports.NodeVisitor = NodeVisitor;
-exports.Observable = Observable;
-exports.Observer = Observer;
-exports.Reactivity = Reactivity;
-exports.VueScanner = VueScanner;
-exports.default = Vuelite;
-exports.updaters = updaters;
+module.exports = Vuelite;

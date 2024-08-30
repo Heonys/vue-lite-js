@@ -9,5 +9,4 @@ import { Reactivity } from "./core/reactive/reactive";
 import Vuelite from "./core/viewmodel/vuelite";
 
 export default Vuelite;
-
 export { Directive, Observable, VueScanner, updaters, NodeVisitor, Dep, Observer, Reactivity };
