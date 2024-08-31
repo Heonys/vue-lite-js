@@ -80,10 +80,10 @@ You can modify the source code in the `src` folder and write markdown and script
 
 ## 💡Basic usage
 
-<p style="text-align: center;">
+<p align="center">
   <img src="./img/Animation.gif" alt="Description of GIF" />
   <br />
-  <sapn>CDN Demo: </sapn>
+  <span>CDN Demo: </span>
   <a href='https://vuelite-demo.vercel.app' target="_blank">https://vuelite-demo.vercel.app</a>
 </p>
 
