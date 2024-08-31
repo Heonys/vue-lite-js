@@ -1,8 +1,3 @@
-export declare function isTernary(str: string): {
-    condition: string;
-    truthy: string;
-    falsy: string;
-};
 export declare function isObjectFormat(str: string): boolean;
 export declare function isFunctionFormat(str: string): string;
 export declare const isObject: (data: any) => data is object;

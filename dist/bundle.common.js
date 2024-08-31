@@ -236,9 +236,19 @@ function injectStyleSheet(vm) {
 }
 
 function extractDirective(attr) {
-    const regExp = /^v-(\w+)(:(\w+))?$/;
-    const match = attr.match(regExp);
-    return { key: match[1], modifier: match[3] || null };
+    if (isShortcut(attr)) {
+        if (attr.slice(0, 1) === ":") {
+            return { key: "bind", modifier: attr.slice(1) };
+        }
+        else {
+            return { key: "eventHandler", modifier: attr.slice(1) };
+        }
+    }
+    else {
+        const regExp = /^v-(\w+)(:(\w+))?$/;
+        const match = attr.match(regExp);
+        return { key: match[1], modifier: match[3] || null };
+    }
 }
 function extractTemplate(text) {
     const regExp = /{{\s*(.*?)\s*}}/g;
@@ -249,15 +259,14 @@ function extractTemplate(text) {
     }
     return matched;
 }
-function isContainsTemplate(str) {
-    const regex = /{{\s*[^{}\s]+\s*}}/;
-    return regex.test(str);
+function isShortcut(name) {
+    return [":", "@"].includes(name[0]);
 }
 function isDirective(attr) {
-    return attr.indexOf("v-") === 0;
+    return attr.startsWith("v-") || attr.startsWith(":") || attr.startsWith("@");
 }
-function isEventDirective(dir) {
-    return dir.indexOf("v-on") === 0;
+function isEventDirective(name) {
+    return name.startsWith("v-on:") || name.startsWith("@");
 }
 const isReactiveNode = (node) => {
     if (isElementNode(node)) {
@@ -279,12 +288,13 @@ const replaceTemplate = (template, key, value) => {
 
 const updaters = {
     text(node, value) {
-        if (isContainsTemplate(this.template)) {
-            node.textContent = replaceTemplate(this.template, this.exp, value);
-        }
-        else {
-            node.textContent = value;
-        }
+        let template = this.template;
+        const templateValues = extractTemplate(template);
+        const filtered = templateValues.filter((v) => v !== this.exp);
+        filtered.forEach((exp) => {
+            template = replaceTemplate(template, exp, evaluateValue(this.vm, exp));
+        });
+        node.textContent = replaceTemplate(template, this.exp, value);
     },
     class(el, value) {
         if (isObject(value)) {
@@ -369,7 +379,10 @@ class Directive {
         this.exp = exp;
         const { key, modifier } = extractDirective(name);
         this.modifier = modifier;
-        this.template = node.textContent;
+        if (!Directive.nodes.has(node)) {
+            Directive.nodes.set(node, node.textContent);
+        }
+        this.template = Directive.nodes.get(node);
         if (isEventDirective(name))
             this.eventHandler();
         else
@@ -470,6 +483,7 @@ class Directive {
             this.node.addEventListener(this.modifier, fn);
     }
 }
+Directive.nodes = new Map();
 
 class Observable {
     constructor(vm, node) {

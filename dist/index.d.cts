@@ -39,9 +39,10 @@ declare class Vuelite<Data = {}, Methods = {}, Computed = {}> {
 }
 
 declare class Directive {
-    private vm;
-    private node;
+    vm: Vuelite;
+    node: Node;
     exp: any;
+    static nodes: Map<Node, string>;
     modifier: string;
     template: string;
     constructor(name: string, vm: Vuelite, node: Node, exp: any);
