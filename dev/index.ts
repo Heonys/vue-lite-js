@@ -20,16 +20,12 @@ const vm = new Vuelite({
         customKey: "customValue",
       },
       message: "",
-      message2: "메시지2",
       firstName: "퍼스트네임",
       lastName: "라스트네임",
       count: 0,
       textStyle: {
         color: "#FF0000",
       },
-      selectedOption: "option2",
-      selected: "male",
-      selected2: ["male", "another"],
       checked: true,
       classData: {
         isActive: true,
@@ -37,6 +33,8 @@ const vm = new Vuelite({
         myclass2: true,
       },
       world: "<div>hello world</div>",
+      selectedValue: "male",
+      selectedOption: "Vue",
     };
   },
   computed: {
@@ -55,20 +53,8 @@ const vm = new Vuelite({
       },
     },
   },
-  /* 
-  템플릿은 데이터의 결과를 보여주는게 아닌 데이터의 상태를 표현하기 위한 것
-  computed는 데이터의 상태 표현을 최적화하고, methods는 동작을 수행하는 역할을 명확히 구분짓기 위해 설계된 것 
-  */
+
   methods: {
-    test() {
-      return this.title + " world ";
-    },
-    increase() {
-      this.count++;
-    },
-    decrease() {
-      this.count--;
-    },
     handleInput(e: Event) {
       this.title = (e.target as HTMLInputElement).value;
     },
@@ -95,8 +81,6 @@ const vm = new Vuelite({
 // console.log(vm);
 
 /* 
-
-
 computed, method 차이 
 
 1) computed
@@ -109,4 +93,9 @@ computed는 리액티브가 주입된 데이터에 의존하여 계산된 값을
 따라서 동일한 메서드를 여러 번 호출하면 매번 새로운 결과를 계산한다
 computed는 주로 계산된 값을 제공하는 데 사용되고, methods는 어떤 동작이나 이벤트 처리기를 정의할 때 사용된다.
 
+*/
+
+/* 
+  템플릿은 데이터의 결과를 보여주는게 아닌 데이터의 상태를 표현하기 위한 것
+  computed는 데이터의 상태 표현을 최적화하고, methods는 동작을 수행하는 역할을 명확히 구분짓기 위해 설계된 것 
 */

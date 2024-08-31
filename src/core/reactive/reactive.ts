@@ -1,7 +1,7 @@
 import { isObject } from "@utils/format";
-import { isAccessor } from "../viewmodel/option";
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
+import { isAccessor } from "../viewmodel/option";
 
 type Target = { [k: string]: any };
 
@@ -92,7 +92,7 @@ function injectComputed(vm: Vuelite) {
         value.set.apply(vm, params);
       };
     } else {
-      descripter.get = () => value.call(vm);
+      descripter.get = () => (value as Function).call(vm);
     }
     Object.defineProperty(vm, key, descripter);
   });

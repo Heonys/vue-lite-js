@@ -21,6 +21,27 @@
       v-on:input="handleInput"
     >
     <div>{{ title }}</div>
+
+    <div v-class="classData" v-html="world"></div>
+
+
+    <label>
+      male<input type="radio" value="male" v-model="selectedValue">
+    </label>
+    <label>
+      female<input type="radio" value="female" v-model="selectedValue">
+    </label>
+    <div>{{ selectedValue }}</div>
+
+    <select v-model="selectedOption">
+      <option value="React">React</option>
+      <option value="Vue">Vue</option>
+      <option value="Angular">Angular</option>
+    </select>
+    <div>{{ selectedOption }}</div>
+
+    
+    
     </div>
   </body>
 </html>

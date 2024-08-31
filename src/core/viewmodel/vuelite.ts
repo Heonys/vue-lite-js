@@ -5,13 +5,13 @@ import { injectStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 
-export default class Vuelite {
+export default class Vuelite<Data = {}, Methods = {}, Computed = {}> {
   el: HTMLElement;
   template?: Element;
-  options: Options;
+  options: Options<Data, Methods, Computed>;
   [customKey: string]: any;
 
-  constructor(options: Options) {
+  constructor(options: Options<Data, Methods, Computed>) {
     this.el = document.querySelector(options.el);
     this.options = options;
     this.template = createDOMTemplate(options.template);

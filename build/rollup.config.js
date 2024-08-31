@@ -1,11 +1,12 @@
 const tsPlugin = require("@rollup/plugin-typescript");
 const terser = require("@rollup/plugin-terser");
 const { dts } = require("rollup-plugin-dts");
+const del = require("rollup-plugin-delete");
 
 module.exports = [
   {
     input: "src/core/viewmodel/vuelite.ts",
-    plugins: [tsPlugin()],
+    plugins: [del({ targets: "dist/*" }), tsPlugin()],
     output: [
       {
         file: "dist/bundle.esm.js",

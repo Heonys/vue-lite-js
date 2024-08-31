@@ -1,20 +1,19 @@
 import Vuelite from "./vuelite";
 
-type Accessor = {
-  get(this: Vuelite): any;
-  set(this: Vuelite, value: any): void;
+type Accessor<Data, Methods, Computed> = {
+  get?(this: Vuelite<Data, Methods, Computed>): any;
+  set?(this: Vuelite<Data, Methods, Computed>, value: any): void;
 };
-export interface Options {
+
+export interface Options<Data, Methods, Computed> {
   el: string;
   template?: string;
-  data?: () => {
-    [Key: string]: any;
-  };
-  methods?: {
-    [Key: string]: (this: Vuelite, ...args: any[]) => void;
-  };
+  data?: () => Data;
+  methods?: Methods & ThisType<Data & Methods & Computed>;
   computed?: {
-    [Key: string]: ((this: Vuelite) => any) | Accessor;
+    [K in keyof Computed]: Computed[K] extends Accessor<Data, Methods, Computed>
+      ? Computed[K]
+      : (() => any) & ThisType<Data & Methods & Computed>;
   };
   watch?: {};
   styles?: {
@@ -22,7 +21,9 @@ export interface Options {
   };
 }
 
-export function isAccessor(data: Function | Accessor): data is Accessor {
+type AccessorForm = { get?(): any; set?(value: any): void };
+
+export function isAccessor(data: Function | AccessorForm): data is AccessorForm {
   if (typeof data !== "function") return true;
   return false;
 }

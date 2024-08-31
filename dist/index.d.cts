@@ -12,21 +12,17 @@ declare const updaters: {
     objectBind(this: Directive, el: HTMLInputElement, value: any): void;
 };
 
-type Accessor = {
-    get(this: Vuelite): any;
-    set(this: Vuelite, value: any): void;
+type Accessor<Data, Methods, Computed> = {
+    get?(this: Vuelite<Data, Methods, Computed>): any;
+    set?(this: Vuelite<Data, Methods, Computed>, value: any): void;
 };
-interface Options {
+interface Options<Data, Methods, Computed> {
     el: string;
     template?: string;
-    data?: () => {
-        [Key: string]: any;
-    };
-    methods?: {
-        [Key: string]: (this: Vuelite, ...args: any[]) => void;
-    };
+    data?: () => Data;
+    methods?: Methods & ThisType<Data & Methods & Computed>;
     computed?: {
-        [Key: string]: ((this: Vuelite) => any) | Accessor;
+        [K in keyof Computed]: Computed[K] extends Accessor<Data, Methods, Computed> ? Computed[K] : (() => any) & ThisType<Data & Methods & Computed>;
     };
     watch?: {};
     styles?: {
@@ -34,12 +30,12 @@ interface Options {
     };
 }
 
-declare class Vuelite {
+declare class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     el: HTMLElement;
     template?: Element;
-    options: Options;
+    options: Options<Data, Methods, Computed>;
     [customKey: string]: any;
-    constructor(options: Options);
+    constructor(options: Options<Data, Methods, Computed>);
 }
 
 declare class Directive {

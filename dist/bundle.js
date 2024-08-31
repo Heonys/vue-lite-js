@@ -100,12 +100,6 @@
         return div.firstElementChild;
     }
 
-    function isAccessor(data) {
-        if (typeof data !== "function")
-            return true;
-        return false;
-    }
-
     class Dep {
         constructor() {
             this.listener = new Set();
@@ -127,6 +121,12 @@
         }
     }
     Dep.activated = null;
+
+    function isAccessor(data) {
+        if (typeof data !== "function")
+            return true;
+        return false;
+    }
 
     class Reactivity {
         constructor(data) {

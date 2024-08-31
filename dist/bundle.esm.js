@@ -94,12 +94,6 @@ function createDOMTemplate(template) {
     return div.firstElementChild;
 }
 
-function isAccessor(data) {
-    if (typeof data !== "function")
-        return true;
-    return false;
-}
-
 class Dep {
     constructor() {
         this.listener = new Set();
@@ -121,6 +115,12 @@ class Dep {
     }
 }
 Dep.activated = null;
+
+function isAccessor(data) {
+    if (typeof data !== "function")
+        return true;
+    return false;
+}
 
 class Reactivity {
     constructor(data) {
