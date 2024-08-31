@@ -19,11 +19,6 @@ export function extractTemplate(text: string) {
   return matched;
 }
 
-export function isContainsTemplate(str: string) {
-  const regex = /{{\s*[^{}\s]+\s*}}/;
-  return regex.test(str);
-}
-
 export function isDirective(attr: string) {
   return attr.indexOf("v-") === 0;
 }
@@ -47,6 +42,8 @@ function escapeParentheses(string: string): string {
 }
 
 export const replaceTemplate = (template: string, key: string, value: string) => {
+  // console.log(template, key, value);
+
   const regex = new RegExp(`{{\\s*${escapeParentheses(key)}\\s*}}`, "g");
   return template.replace(regex, value);
 };

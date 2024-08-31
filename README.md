@@ -258,7 +258,7 @@ const action = (node: Node) => {
 </div>
 ```
 
-실제로 `v-model`은 위의 코드처럼 `v-bind`와 `v-on:event`의 조합으로 동일하게 동작하며 `vuelite` 에서도 이러한 2가지 방식을 모두 지원합니다. 
+실제로 `v-model`은 위의 코드처럼 `v-bind`와 `v-on:event`의 조합으로 동일하게 동작하며 `vuelite` 에서도 이러한 두가지 방식을 모두 지원합니다. 
 
 ```html
 <input type="checkbox" v-model="isChecked">

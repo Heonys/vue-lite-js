@@ -14,18 +14,22 @@ import { Observer } from "../reactive/observer";
 */
 
 export class Directive {
+  static nodes = new Map<Node, string>();
   modifier: string;
   template: string;
   constructor(
     name: string,
-    private vm: Vuelite,
-    private node: Node,
+    public vm: Vuelite,
+    public node: Node,
     public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
     this.modifier = modifier;
-    this.template = node.textContent;
 
+    if (!Directive.nodes.has(node)) {
+      Directive.nodes.set(node, node.textContent);
+    }
+    this.template = Directive.nodes.get(node);
     if (isEventDirective(name)) this.eventHandler();
     else this[key]();
 

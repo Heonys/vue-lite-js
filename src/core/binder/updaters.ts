@@ -1,16 +1,20 @@
-import { isContainsTemplate, replaceTemplate } from "@utils/directive";
+import { extractTemplate, replaceTemplate } from "@utils/directive";
 import { isObject, isQuotedString } from "@utils/format";
 import { Directive } from "./directive";
+import { evaluateValue } from "@/utils/common";
 
 export type Updater = (node: Node, value: any) => void;
 
 export const updaters = {
   text(this: Directive, node: Node, value: string) {
-    if (isContainsTemplate(this.template)) {
-      node.textContent = replaceTemplate(this.template, this.exp, value);
-    } else {
-      node.textContent = value;
-    }
+    let template = this.template;
+    const templateValues = extractTemplate(template);
+    const filtered = templateValues.filter((v) => v !== this.exp);
+
+    filtered.forEach((exp) => {
+      template = replaceTemplate(template, exp, evaluateValue(this.vm, exp));
+    });
+    node.textContent = replaceTemplate(template, this.exp, value);
   },
   class(el: HTMLElement, value: any) {
     if (isObject(value)) {

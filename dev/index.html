@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="app">
-      <input type="text" v-model="message" />
+      <!-- <input type="text" v-model="message" />
       <p v-style="textStyle">{{ message }}</p>
       <button v-on:click="handleClick">change vuelite</button>
       <div>
@@ -38,10 +38,17 @@
       <option value="Vue">Vue</option>
       <option value="Angular">Angular</option>
     </select>
-    <div>{{ selectedOption }}</div>
+    <div>{{ selectedOption }}</div> -->
 
-    
-    
+
+    <input type="text" v-model="firstName">
+    <input type="text" v-model="lastName">
+
+
+    <div>{{ firstName }} {{ lastName }}</div>
+    <div>fullName : {{ fullName }}</div>
+    <div>fullName method : {{ fullNameMethod() }}</div>
+
     </div>
   </body>
 </html>

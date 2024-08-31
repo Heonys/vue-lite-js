@@ -20,8 +20,8 @@ const vm = new Vuelite({
         customKey: "customValue",
       },
       message: "",
-      firstName: "퍼스트네임",
-      lastName: "라스트네임",
+      firstName: "Jiheon",
+      lastName: "Kim",
       count: 0,
       textStyle: {
         color: "#FF0000",
