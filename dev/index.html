@@ -7,9 +7,9 @@
   </head>
   <body>
     <div id="app">
-      <!-- <input type="text" v-model="message" />
-      <p v-style="textStyle">{{ message }}</p>
-      <button v-on:click="handleClick">change vuelite</button>
+      <input type="text" v-model="message" />
+      <p :style="textStyle">{{ message }}</p>
+      <button @click="handleClick">change vuelite</button>
       <div>
         <input type="checkbox" v-model="checked" />
         <span>{{ isChecked }}</span>
@@ -38,7 +38,7 @@
       <option value="Vue">Vue</option>
       <option value="Angular">Angular</option>
     </select>
-    <div>{{ selectedOption }}</div> -->
+    <div>{{ selectedOption }}</div>
 
 
     <input type="text" v-model="firstName">

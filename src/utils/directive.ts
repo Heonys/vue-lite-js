@@ -2,9 +2,17 @@ import type { DirectiveKey } from "../types/directive";
 import { isElementNode, isTextNode } from "./format";
 
 export function extractDirective(attr: string) {
-  const regExp = /^v-(\w+)(:(\w+))?$/;
-  const match = attr.match(regExp);
-  return { key: match[1] as DirectiveKey, modifier: match[3] || null };
+  if (isShortcut(attr)) {
+    if (attr.slice(0, 1) === ":") {
+      return { key: "bind" as DirectiveKey, modifier: attr.slice(1) };
+    } else {
+      return { key: "eventHandler" as DirectiveKey, modifier: attr.slice(1) };
+    }
+  } else {
+    const regExp = /^v-(\w+)(:(\w+))?$/;
+    const match = attr.match(regExp);
+    return { key: match[1] as DirectiveKey, modifier: match[3] || null };
+  }
 }
 
 export function extractTemplate(text: string) {
@@ -19,12 +27,16 @@ export function extractTemplate(text: string) {
   return matched;
 }
 
-export function isDirective(attr: string) {
-  return attr.indexOf("v-") === 0;
+function isShortcut(name: string) {
+  return [":", "@"].includes(name[0]);
 }
 
-export function isEventDirective(dir: string) {
-  return dir.indexOf("v-on") === 0;
+export function isDirective(attr: string) {
+  return attr.startsWith("v-") || attr.startsWith(":") || attr.startsWith("@");
+}
+
+export function isEventDirective(name: string) {
+  return name.startsWith("v-on:") || name.startsWith("@");
 }
 
 export const isReactiveNode = (node: Node) => {
