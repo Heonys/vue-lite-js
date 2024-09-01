@@ -5,16 +5,16 @@ type Accessor<Data, Methods, Computed> = {
   set?(this: Vuelite<Data, Methods, Computed>, value: any): void;
 };
 
+type ComputedType<Data, Methods, Computed> = {
+  [K: string]: Accessor<Data, Methods, Computed> | (() => any);
+};
+
 export interface Options<Data, Methods, Computed> {
   el: string;
   template?: string;
   data?: () => Data;
   methods?: Methods & ThisType<Data & Methods & Computed>;
-  computed?: {
-    [K in keyof Computed]: Computed[K] extends Accessor<Data, Methods, Computed>
-      ? Computed[K]
-      : (() => any) & ThisType<Data & Methods & Computed>;
-  };
+  computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;
   watch?: {};
   styles?: {
     [K: string]: any;
