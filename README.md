@@ -120,12 +120,25 @@ new Vuelite({
 
 ## ✨ Details 
 
->1. 기본적으로 `Vue.js`의 **Option API** 방식을 클론하고 있으며, `Vue.js`의 핵심 기능을 지원하지만 모든 기능을 지원하지 않습니다. 
->2. 옵션에서 `template` 속성은 지원하지만, `Vue.js`의 `.vue` 파일과 같은 로더를 지원하지 않기 때문에 `HTML` 파일에서 마크업을 직접 작성해야 하는 불편함이 있습니다. 따라서 전통적인 프레임워크보다는 라이브러리에 가까운 특성을 가지고 있습니다. 
->3. 싱글 파일 컴포넌트 포맷을 지원하지 않기 때문에 `<style>` 블록의 형태를 지원하기 위해서 옵션에서 `styles` 속성을 지원합니다.
->4. 스타일 바인딩과 클래스 바인딩의 편의를 위해서 `v-style`, `v-class` 디렉티브를 지원합니다. 
+- 기본적으로 `Vue.js`의 **Option API** 방식을 클론하고 있으며, `Vue.js`의 핵심 기능을 지원하지만 모든 기능을 지원하지 않습니다. 
 
+- 옵션에서 `template` 속성은 지원하지만, `Vue.js`의 `.vue` 확장자와 같은 로더를 지원하지 않기 때문에 `HTML` 파일에서 따로 마크업을 작성해야 하는 불편함이 있습니다. 따라서 템플릿을 분리해서 사용하는 방식은 전통적인 `Vue.js`보다는 `Angular`와 유사한 면이 있습니다.
 
+- 싱글 파일 컴포넌트 포맷을 지원하지 않는 이러한 특성 때문에 `<style>` 태그 형태를 지원하기 위해서 `styles` 속성을 지원합니다.
+
+```ts
+new Vuelite({
+  // ... 
+  styles: {    
+    "#wrapper": {
+      // only camelCase key
+      width: "50%",
+      background: "#ffa",
+      cursor: "pointer",
+    },
+  },
+})
+```
 
 ## 🧩 Overview
 
@@ -339,6 +352,7 @@ depend() {
 - [ ] created, mounted, updated 등의 훅 추가하기 
 - [ ] 뷰모델 분리하기 (중첩될 수 있기 때문에 부모·자식 관계 추가)
 - [ ] props, children 지원하기 (v-slot)
+- [ ] Angular 처럼 템플릿과 스타일을 분리하여 주입하는 방식을 지원 (데코레이터) 
 - [ ] 부분적으로 Composition API 지원하기 
 
 ## 📖 Reference

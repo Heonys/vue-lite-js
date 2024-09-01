@@ -125,12 +125,25 @@ new Vuelite({
 
 ## ✨ Details 
 
->1. It primarily clones the **Option API** approach of `Vue.js` and supports its core functionalities, but does not include all features.
->2. While the `template` property is supported, there is no support for loaders like `.vue` files in `Vue.js`, so you need to write markup directly in `HTML` files. This makes it closer to a library than a traditional framework.
->3. Since it does not support single-file component formats, it includes a `styles` property in options to handle `<style>` blocks.
->4. To simplify style and class binding, it supports the `v-style` and `v-class` directives.
+- It primarily clones the **Option API** approach of `Vue.js` and supports its core functionalities, but does not include all features.
 
+- While the `template` option is supported, Vuelite does not support loaders like the `.vue` extension in `Vue.js`, which means you have the inconvenience of writing markup separately in an `HTML` file. Therefore, the approach of separating templates is more similar to `Angular` than traditional `Vue.js`.
 
+- Due to this characteristic of not supporting the single file component format, the `styles` option is provided to support the use of `<style>` tags.
+
+```ts
+new Vuelite({
+  // ... 
+  styles: {    
+    "#wrapper": {
+      // only camelCase key
+      width: "50%",
+      background: "#ffa",
+      cursor: "pointer",
+    },
+  },
+})
+```
 
 ## 🧩 Overview
 

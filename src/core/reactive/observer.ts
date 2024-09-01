@@ -1,6 +1,6 @@
-import { evaluateValue } from "@utils/common";
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
+import { safeEvaluate, unsafeEvaluate } from "@/utils/evaluate";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {
@@ -10,9 +10,11 @@ export class Observer {
   constructor(
     private vm: Vuelite,
     private exp: string,
+    public directiveName: string,
     private onUpdate: (value: any) => void,
   ) {
     this.value = this.getterTrigger();
+    onUpdate(this.value);
   }
 
   addDep(dep: Dep) {
@@ -22,7 +24,10 @@ export class Observer {
 
   getterTrigger() {
     Dep.activated = this;
-    const value = evaluateValue(this.vm, this.exp);
+    const value =
+      this.directiveName === "text"
+        ? unsafeEvaluate(this.vm, this.exp)
+        : safeEvaluate(this.vm, this.exp);
     Dep.activated = null;
     return value;
   }

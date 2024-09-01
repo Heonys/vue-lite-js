@@ -1,6 +1,3 @@
-import Vuelite from "../core/viewmodel/vuelite";
-import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
-
 export function extractPath(obj: Record<PropertyKey, any>, path: string) {
   path = path.trim();
   return path.split(".").reduce((target, key) => {
@@ -34,34 +31,10 @@ export function normalizeToJson(str: string) {
     });
 }
 
-export function evaluateBoolean(str: string) {
-  return str === "true" ? true : str === "false" ? false : str;
-}
-
-/* 
-디렉티브에 전달받은 표현식이 인라인 포맷인지 아니면 일반 리액티브가 주입된 데이터인지를 구분해서 계산하는 함수 
-일반 데이터라면 vm에서 데이터를 추출하고 template에서 사용하는 함수형태라면 메소드를 실행해서 반환
-또한 인라인 포맷이라면 객체로 변환하고 순회하면서 다시 재귀적으로 vm에서 데이터를 추출하고 
-최종적으로 계산된 결과값을 반환해주는 함수 
-*/
-export function evaluateValue(vm: Vuelite, exp: string) {
-  let result;
-  if (isObjectFormat(exp)) {
-    const json: Record<string, any> = JSON.parse(normalizeToJson(exp));
-    result = Object.entries(json).reduce((acc, [key, value]) => {
-      if (isQuotedString(value)) {
-        acc[key] = evaluateBoolean(value.slice(1, -1));
-      } else {
-        acc[key] = extractPath(vm, value);
-      }
-      return acc;
-    }, json);
-  } else {
-    const match = isFunctionFormat(exp);
-    result = match ? (extractPath(vm, match) as Function).call(vm) : extractPath(vm, exp);
-  }
-
-  return result;
+export function boolean2String(str: string) {
+  if (str === "true") return true;
+  if (str === "false") return false;
+  return str;
 }
 
 export function createDOMTemplate(template: string) {

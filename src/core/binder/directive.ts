@@ -1,8 +1,9 @@
 import { Updater, updaters } from "./updaters";
-import { extractPath, assignPath, evaluateValue } from "@utils/common";
+import { extractPath, assignPath } from "@utils/common";
 import { extractDirective, isEventDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
+import { safeEvaluate, unsafeEvaluate } from "@/utils/evaluate";
 
 /* 
   하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며
@@ -12,9 +13,9 @@ import { Observer } from "../reactive/observer";
   하지만 초기 렌더링인 마운트 단계에서 한번은 update가 되어야 하기때문에 updater를 초기에 한번은 수동으로 호출하고 
   이후에 Observer의 updater에 의해서 반응형값의 변화가 실제 DOM에 반영됨 
 */
-
 export class Directive {
   static nodes = new Map<Node, string>();
+  directiveName: string;
   modifier: string;
   template: string;
   constructor(
@@ -24,6 +25,8 @@ export class Directive {
     public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
+
+    this.directiveName = key;
     this.modifier = modifier;
 
     if (!Directive.nodes.has(node)) {
@@ -38,7 +41,6 @@ export class Directive {
 
   bind(updater?: Updater) {
     const mod = this.modifier;
-
     if (mod === "text" || mod === "class" || mod === "style") {
       updater = updaters[mod].bind(this);
     }
@@ -47,9 +49,7 @@ export class Directive {
       updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
 
-    const value = evaluateValue(this.vm, this.exp);
-    updater && updater(this.node, value);
-    new Observer(this.vm, this.exp, (value) => {
+    new Observer(this.vm, this.exp, this.directiveName, (value) => {
       updater && updater(this.node, value);
     });
   }

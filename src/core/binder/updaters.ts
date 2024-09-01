@@ -1,7 +1,7 @@
 import { extractTemplate, replaceTemplate } from "@utils/directive";
 import { isObject, isQuotedString } from "@utils/format";
 import { Directive } from "./directive";
-import { evaluateValue } from "@/utils/common";
+import { unsafeEvaluate } from "@/utils/evaluate";
 
 export type Updater = (node: Node, value: any) => void;
 
@@ -11,8 +11,10 @@ export const updaters = {
     const templateValues = extractTemplate(template);
     const filtered = templateValues.filter((v) => v !== this.exp);
 
+    // console.log(this.template, templateValues);
+
     filtered.forEach((exp) => {
-      template = replaceTemplate(template, exp, evaluateValue(this.vm, exp));
+      template = replaceTemplate(template, exp, unsafeEvaluate(this.vm, exp));
     });
     node.textContent = replaceTemplate(template, this.exp, value);
   },

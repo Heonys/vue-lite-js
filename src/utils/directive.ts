@@ -49,13 +49,11 @@ export const isReactiveNode = (node: Node) => {
   }
 };
 
-function escapeParentheses(string: string): string {
-  return string.replace(/[()]/g, "\\$&");
-}
+const escapeRegExp = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
 
 export const replaceTemplate = (template: string, key: string, value: string) => {
-  // console.log(template, key, value);
-
-  const regex = new RegExp(`{{\\s*${escapeParentheses(key)}\\s*}}`, "g");
+  const regex = new RegExp(`{{\\s*${escapeRegExp(key)}\\s*}}`, "g");
   return template.replace(regex, value);
 };

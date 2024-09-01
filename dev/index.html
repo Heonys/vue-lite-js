@@ -7,15 +7,15 @@
   </head>
   <body>
     <div id="app">
-      <input type="text" v-model="message" />
+      <!-- <input type="text" v-model="message" />
       <p :style="textStyle">{{ message }}</p>
       <button @click="handleClick">change vuelite</button>
       <div>
         <input type="checkbox" v-model="checked" />
         <span>{{ isChecked }}</span>
-      </div>
+      </div> -->
 
-    <input 
+    <!-- <input 
       type="text" 
       v-bind:value="title" 
       v-on:input="handleInput"
@@ -39,15 +39,27 @@
       <option value="Angular">Angular</option>
     </select>
     <div>{{ selectedOption }}</div>
+-->
 
-
-    <input type="text" v-model="firstName">
-    <input type="text" v-model="lastName">
-
+    <!-- <input type="text" v-model="firstName">
+    <input type="text" v-model="lastName"> -->
 
     <div>{{ firstName }} {{ lastName }}</div>
-    <div>fullName : {{ fullName }}</div>
+    <!-- <div>fullName : {{ fullName }}</div>
     <div>fullName method : {{ fullNameMethod() }}</div>
+    <div>{{ `Welcome, ${firstName}` }}</div> -->
+
+    
+    <!-- <div>
+      <input type="checkbox" v-model="checked" />
+      <span>{{ isChecked }}</span>
+    </div> 
+
+      <div>{{ checked ? "체크o" : "체크x" }}</div>
+      <div>{{ checked ? "체크o" : "체크x" }} {{ 5 + 6 }}</div>
+      <div>{{ 5 + 6 }}</div>
+      <div>{{ items[2] }}</div>
+      <div>color :: {{ textStyle.color }}</div> -->
 
     </div>
   </body>

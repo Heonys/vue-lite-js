@@ -35,6 +35,7 @@ const vm = new Vuelite({
       world: "<div>hello world</div>",
       selectedValue: "male",
       selectedOption: "Vue",
+      items: [1, 2, 3, 4, 5],
     };
   },
   computed: {

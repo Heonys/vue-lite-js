@@ -1,16 +1,3 @@
-// 삼항 연산자 확인
-// export function isTernary(str: string) {
-//   const ptn = /(.*?)\s*\?\s*(.*?)\s*:\s*(.*)/;
-//   const match = str.match(ptn);
-//   return (
-//     match && {
-//       condition: match[1],
-//       truthy: match[2],
-//       falsy: match[3],
-//     }
-//   );
-// }
-
 export function isObjectFormat(str: string) {
   const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
   return regex.test(str);
