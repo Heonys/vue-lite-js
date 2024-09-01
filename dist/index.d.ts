@@ -42,9 +42,8 @@ declare class Directive {
     vm: Vuelite;
     node: Node;
     exp: any;
-    static nodes: Map<Node, string>;
+    directiveName: string;
     modifier: string;
-    template: string;
     constructor(name: string, vm: Vuelite, node: Node, exp: any);
     bind(updater?: Updater): void;
     model(): void;
@@ -85,10 +84,11 @@ declare class VueScanner extends Scanner {
 declare class Observer {
     private vm;
     private exp;
+    directiveName: string;
     private onUpdate;
     private value;
     private deps;
-    constructor(vm: Vuelite, exp: string, onUpdate: (value: any) => void);
+    constructor(vm: Vuelite, exp: string, directiveName: string, onUpdate: (value: any) => void);
     addDep(dep: Dep): void;
     getterTrigger(): any;
     update(): void;

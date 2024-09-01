@@ -1,6 +1,7 @@
 import Vuelite from "@/core/viewmodel/vuelite";
 import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 import { boolean2String, extractPath, normalizeToJson } from "./common";
+import { extractTemplate } from "./directive";
 
 /*
 safeEvaluate 함수는 viewmodel에서 exp라는 속성에 접근해서 값을 가져오는 동작을 하며
@@ -33,10 +34,32 @@ unsafeEvaluate 함수는 new Function을 통해서 동적으로 코드를 생성
 template 에서 삼항연산자, 산술연산, 문자열 템플릿 리터럴, 배열의 인덱스 접근 등의 표현식을 평가할때 사용됩니다
 */
 export function unsafeEvaluate(context: object, expression: string) {
-  const fn = new Function(`
-        with (this) {
-            return ${expression};
-        }
+  try {
+    const fn = new Function(`
+      with (this) {
+        return ${expression};
+      }
     `);
-  return fn.call(context);
+    return fn.call(context);
+  } catch (error) {
+    return undefined;
+  }
+}
+
+export function evaluteTemplate(vm: Vuelite, exp: string) {
+  const templates = extractTemplate(exp);
+  const evaluatedValues = templates.reduce(
+    (acc, template) => {
+      const value = unsafeEvaluate(vm, template);
+      acc[template] = value;
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
+
+  const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
+    return evaluatedValues[key] || "";
+  });
+
+  return result;
 }

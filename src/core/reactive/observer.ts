@@ -1,6 +1,6 @@
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
-import { safeEvaluate, unsafeEvaluate } from "@/utils/evaluate";
+import { evaluteTemplate, safeEvaluate } from "@/utils/evaluate";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {
@@ -26,7 +26,7 @@ export class Observer {
     Dep.activated = this;
     const value =
       this.directiveName === "text"
-        ? unsafeEvaluate(this.vm, this.exp)
+        ? evaluteTemplate(this.vm, this.exp)
         : safeEvaluate(this.vm, this.exp);
     Dep.activated = null;
     return value;

@@ -1,4 +1,4 @@
-import { extractTemplate, isDirective } from "@utils/directive";
+import { isDirective } from "@utils/directive";
 import { isElementNode, isIncludeText, isTextNode } from "@utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { Directive } from "./directive";
@@ -26,8 +26,6 @@ export class Observable {
     });
   }
   templateBind(node: Node) {
-    extractTemplate(node.textContent).forEach((value) => {
-      new Directive("v-text", this.vm, node, value);
-    });
+    new Directive("v-text", this.vm, node, node.textContent);
   }
 }

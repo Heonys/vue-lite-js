@@ -1,5 +1,50 @@
 'use strict';
 
+function extractPath(obj, path) {
+    path = path.trim();
+    return path.split(".").reduce((target, key) => {
+        if (target && Object.hasOwn(target, key))
+            return target[key];
+        return null;
+    }, obj);
+}
+function assignPath(obj, path, value) {
+    path = path.trim();
+    let target = obj;
+    path.split(".").forEach((key, index, arr) => {
+        if (index === arr.length - 1)
+            target[key] = value;
+        else {
+            if (!Object.hasOwn(target, key))
+                return;
+            target = target[key];
+        }
+    });
+}
+function normalizeToJson(str) {
+    return str
+        .replace(/(\w+):/g, '"$1":')
+        .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
+        if (/^".*"$/.test(p1))
+            return match;
+        return `: "${p1}"`;
+    });
+}
+function boolean2String(str) {
+    if (str === "true")
+        return true;
+    if (str === "false")
+        return false;
+    return str;
+}
+function createDOMTemplate(template) {
+    if (!template)
+        return;
+    const div = document.createElement("div");
+    div.innerHTML = template;
+    return div.firstElementChild;
+}
+
 function isObjectFormat(str) {
     const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
     return regex.test(str);
@@ -34,67 +79,6 @@ const isIncludeText = (node) => {
         return;
     return Array.from(attrs).some((v) => v.name === "v-text");
 };
-
-function extractPath(obj, path) {
-    path = path.trim();
-    return path.split(".").reduce((target, key) => {
-        if (target && Object.hasOwn(target, key))
-            return target[key];
-        return null;
-    }, obj);
-}
-function assignPath(obj, path, value) {
-    path = path.trim();
-    let target = obj;
-    path.split(".").forEach((key, index, arr) => {
-        if (index === arr.length - 1)
-            target[key] = value;
-        else {
-            if (!Object.hasOwn(target, key))
-                return;
-            target = target[key];
-        }
-    });
-}
-function normalizeToJson(str) {
-    return str
-        .replace(/(\w+):/g, '"$1":')
-        .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
-        if (/^".*"$/.test(p1))
-            return match;
-        return `: "${p1}"`;
-    });
-}
-function evaluateBoolean(str) {
-    return str === "true" ? true : str === "false" ? false : str;
-}
-function evaluateValue(vm, exp) {
-    let result;
-    if (isObjectFormat(exp)) {
-        const json = JSON.parse(normalizeToJson(exp));
-        result = Object.entries(json).reduce((acc, [key, value]) => {
-            if (isQuotedString(value)) {
-                acc[key] = evaluateBoolean(value.slice(1, -1));
-            }
-            else {
-                acc[key] = extractPath(vm, value);
-            }
-            return acc;
-        }, json);
-    }
-    else {
-        const match = isFunctionFormat(exp);
-        result = match ? extractPath(vm, match).call(vm) : extractPath(vm, exp);
-    }
-    return result;
-}
-function createDOMTemplate(template) {
-    if (!template)
-        return;
-    const div = document.createElement("div");
-    div.innerHTML = template;
-    return div.firstElementChild;
-}
 
 class Dep {
     constructor() {
@@ -278,23 +262,10 @@ const isReactiveNode = (node) => {
         return extractTemplate(textContent) ? true : false;
     }
 };
-function escapeParentheses(string) {
-    return string.replace(/[()]/g, "\\$&");
-}
-const replaceTemplate = (template, key, value) => {
-    const regex = new RegExp(`{{\\s*${escapeParentheses(key)}\\s*}}`, "g");
-    return template.replace(regex, value);
-};
 
 const updaters = {
     text(node, value) {
-        let template = this.template;
-        const templateValues = extractTemplate(template);
-        const filtered = templateValues.filter((v) => v !== this.exp);
-        filtered.forEach((exp) => {
-            template = replaceTemplate(template, exp, evaluateValue(this.vm, exp));
-        });
-        node.textContent = replaceTemplate(template, this.exp, value);
+        node.textContent = value;
     },
     class(el, value) {
         if (isObject(value)) {
@@ -344,13 +315,61 @@ const updaters = {
     },
 };
 
+function safeEvaluate(vm, exp) {
+    let result;
+    if (isObjectFormat(exp)) {
+        const json = JSON.parse(normalizeToJson(exp));
+        result = Object.entries(json).reduce((acc, [key, value]) => {
+            if (isQuotedString(value)) {
+                acc[key] = boolean2String(value.slice(1, -1));
+            }
+            else {
+                acc[key] = extractPath(vm, value);
+            }
+            return acc;
+        }, json);
+    }
+    else {
+        const match = isFunctionFormat(exp);
+        result = match ? extractPath(vm, match).call(vm) : extractPath(vm, exp);
+    }
+    return result;
+}
+function unsafeEvaluate(context, expression) {
+    try {
+        const fn = new Function(`
+      with (this) {
+        return ${expression};
+      }
+    `);
+        return fn.call(context);
+    }
+    catch (error) {
+        return undefined;
+    }
+}
+function evaluteTemplate(vm, exp) {
+    const templates = extractTemplate(exp);
+    const evaluatedValues = templates.reduce((acc, template) => {
+        const value = unsafeEvaluate(vm, template);
+        acc[template] = value;
+        return acc;
+    }, {});
+    const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
+        return evaluatedValues[key] || "";
+    });
+    return result;
+}
+
 class Observer {
-    constructor(vm, exp, onUpdate) {
+    constructor(vm, exp, directiveName, onUpdate) {
         this.vm = vm;
         this.exp = exp;
+        this.directiveName = directiveName;
         this.onUpdate = onUpdate;
         this.deps = new Set();
         this.value = this.getterTrigger();
+        onUpdate(this.value);
     }
     addDep(dep) {
         dep.subscribe(this);
@@ -358,7 +377,9 @@ class Observer {
     }
     getterTrigger() {
         Dep.activated = this;
-        const value = evaluateValue(this.vm, this.exp);
+        const value = this.directiveName === "text"
+            ? evaluteTemplate(this.vm, this.exp)
+            : safeEvaluate(this.vm, this.exp);
         Dep.activated = null;
         return value;
     }
@@ -378,11 +399,8 @@ class Directive {
         this.node = node;
         this.exp = exp;
         const { key, modifier } = extractDirective(name);
+        this.directiveName = key;
         this.modifier = modifier;
-        if (!Directive.nodes.has(node)) {
-            Directive.nodes.set(node, node.textContent);
-        }
-        this.template = Directive.nodes.get(node);
         if (isEventDirective(name))
             this.eventHandler();
         else
@@ -398,9 +416,7 @@ class Directive {
         if (!updater) {
             updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
         }
-        const value = evaluateValue(this.vm, this.exp);
-        updater && updater(this.node, value);
-        new Observer(this.vm, this.exp, (value) => {
+        new Observer(this.vm, this.exp, this.directiveName, (value) => {
             updater && updater(this.node, value);
         });
     }
@@ -483,7 +499,6 @@ class Directive {
             this.node.addEventListener(this.modifier, fn);
     }
 }
-Directive.nodes = new Map();
 
 class Observable {
     constructor(vm, node) {
@@ -506,9 +521,7 @@ class Observable {
         });
     }
     templateBind(node) {
-        extractTemplate(node.textContent).forEach((value) => {
-            new Directive("v-text", this.vm, node, value);
-        });
+        new Directive("v-text", this.vm, node, node.textContent);
     }
 }
 

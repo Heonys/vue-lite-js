@@ -4,9 +4,8 @@ export declare class Directive {
     vm: Vuelite;
     node: Node;
     exp: any;
-    static nodes: Map<Node, string>;
+    directiveName: string;
     modifier: string;
-    template: string;
     constructor(name: string, vm: Vuelite, node: Node, exp: any);
     bind(updater?: Updater): void;
     model(): void;

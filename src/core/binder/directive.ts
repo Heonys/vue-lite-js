@@ -3,7 +3,6 @@ import { extractPath, assignPath } from "@utils/common";
 import { extractDirective, isEventDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
-import { safeEvaluate, unsafeEvaluate } from "@/utils/evaluate";
 
 /* 
   하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며
@@ -14,10 +13,8 @@ import { safeEvaluate, unsafeEvaluate } from "@/utils/evaluate";
   이후에 Observer의 updater에 의해서 반응형값의 변화가 실제 DOM에 반영됨 
 */
 export class Directive {
-  static nodes = new Map<Node, string>();
   directiveName: string;
   modifier: string;
-  template: string;
   constructor(
     name: string,
     public vm: Vuelite,
@@ -25,14 +22,9 @@ export class Directive {
     public exp: any,
   ) {
     const { key, modifier } = extractDirective(name);
-
     this.directiveName = key;
     this.modifier = modifier;
 
-    if (!Directive.nodes.has(node)) {
-      Directive.nodes.set(node, node.textContent);
-    }
-    this.template = Directive.nodes.get(node);
     if (isEventDirective(name)) this.eventHandler();
     else this[key]();
 
