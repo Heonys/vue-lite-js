@@ -46,12 +46,15 @@ export function unsafeEvaluate(context: object, expression: string) {
   }
 }
 
-export function evaluteTemplate(vm: Vuelite, exp: string) {
+/* 
+템플릿 문법에서 각각 {{ key }} 포맷의 key 값을 뽑아내서 그 표현식에 해당하는 값을 vm에서 가져오고 
+원래 표현식의 key 값으로 대체하여 결과적으로 템플릿 문법을 계산된 값으로 대체하는 함수 
+*/
+export function templateEvaluate(vm: Vuelite, exp: string) {
   const templates = extractTemplate(exp);
   const evaluatedValues = templates.reduce(
     (acc, template) => {
-      const value = unsafeEvaluate(vm, template);
-      acc[template] = value;
+      acc[template] = unsafeEvaluate(vm, template);
       return acc;
     },
     {} as Record<string, any>,

@@ -14,6 +14,8 @@ const vm = new Vuelite({
     return {
       title: "",
       hello: true,
+      // condition: true,
+      visible: true,
       objectBind: {
         id: "testId",
         class: "testClass",
@@ -41,6 +43,9 @@ const vm = new Vuelite({
   computed: {
     isChecked() {
       return this.checked ? "checked" : "unchecked";
+    },
+    isVisible() {
+      return this.visible ? "truthy" : "falsy";
     },
     fullName() {
       return this.firstName + " + " + this.lastName;

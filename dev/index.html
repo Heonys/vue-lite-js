@@ -8,12 +8,25 @@
   <body>
     <div id="app">
       <!-- <input type="text" v-model="message" />
-      <p :style="textStyle">{{ message }}</p>
-      <button @click="handleClick">change vuelite</button>
+      <p :style="{color: textStyle.color, textDecoration: 'line-through' }">{{ message }}</p>
+      <button @click="handleClick">change vuelite</button> -->
+
       <div>
-        <input type="checkbox" v-model="checked" />
-        <span>{{ isChecked }}</span>
-      </div> -->
+        <input type="checkbox" v-model="visible" />
+        <span>{{ isVisible }}</span>
+      </div>
+
+      <div v-show="visible">{{ firstName }}</div>
+
+      <div v-if="visible">{{ firstName }}</div>
+      <div v-else>{{ firstName }}</div>
+
+      
+      <ul>
+        <li>1</li>
+        <li v-if="visible">2</li>
+        <li>3</li>
+      </ul>
 
     <!-- <input 
       type="text" 
@@ -41,7 +54,7 @@
     <div>{{ selectedOption }}</div>
 -->
 
-    <input type="text" v-model="firstName">
+    <!-- <input type="text" v-model="firstName">
     <input type="text" v-model="lastName">
 
     <div>{{ firstName }}, {{ lastName }} {{ gender }}</div>
@@ -55,11 +68,13 @@
       <input type="checkbox" v-model="checked" />
       <span>{{ isChecked }}</span>
     </div> 
-      <div>{{ checked ? "체크o" : "체크x" }}</div>
-      <div>{{ checked ? "체크o" : "체크x" }} {{ 5 + 6 }}</div>
-      <div>{{ 5 + 6 }}</div>
-      <div>{{ items[2] }}</div>
-      <div>color :: {{ textStyle.color }}</div>
-    </div>
+
+    <div>{{ checked ? "체크o" : "체크x" }}</div>
+    <div>{{ checked ? "체크o" : "체크x" }} {{ 5 + 6 }}</div>
+    <div>{{ 5 + 6 }}</div>
+    <div>{{ items[2] }}</div>
+    <div>color :: {{ textStyle.color }}</div> -->
+  
+
   </body>
 </html>

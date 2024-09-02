@@ -1,6 +1,6 @@
 import { Updater, updaters } from "./updaters";
 import { extractPath, assignPath } from "@utils/common";
-import { extractDirective, isEventDirective } from "@utils/directive";
+import { extractDirective, isEventDirective, isValidDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 
@@ -25,6 +25,7 @@ export class Directive {
     this.directiveName = key;
     this.modifier = modifier;
 
+    if (!isValidDirective(key)) return;
     if (isEventDirective(name)) this.eventHandler();
     else this[key]();
 
@@ -124,7 +125,11 @@ export class Directive {
   html() {
     this.bind(updaters.html);
   }
-
+  if() {}
+  else() {}
+  show() {
+    this.bind(updaters.show);
+  }
   eventHandler() {
     const fn = extractPath(this.vm, this.exp);
     if (typeof fn === "function") this.node.addEventListener(this.modifier, fn);

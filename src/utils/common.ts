@@ -18,10 +18,6 @@ export function assignPath(obj: Record<PropertyKey, any>, path: string, value: a
   });
 }
 
-/* 
-인라인 스타일에서 따옴표를 사용한 즉, 반응형 데이터가 아닌 실제 css 프로퍼티 값을 사용한 경우 
-구분할 수 있게 #을 붙여서 JSON으로 변환 
-*/
 export function normalizeToJson(str: string) {
   return str
     .replace(/(\w+):/g, '"$1":') //

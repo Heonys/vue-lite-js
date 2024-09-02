@@ -1,4 +1,4 @@
-import type { DirectiveKey } from "../types/directive";
+import { directiveNames, type DirectiveKey } from "../types/directive";
 import { isElementNode, isTextNode } from "./format";
 
 export function extractDirective(attr: string) {
@@ -56,4 +56,8 @@ const escapeRegExp = (str: string) => {
 export const replaceTemplate = (template: string, key: string, value: string) => {
   const regex = new RegExp(`{{\\s*${escapeRegExp(key)}\\s*}}`, "g");
   return template.replace(regex, value);
+};
+
+export const isValidDirective = (name: string): name is DirectiveKey => {
+  return (directiveNames as readonly string[]).includes(name);
 };

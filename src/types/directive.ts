@@ -1,7 +1,18 @@
 import Vuelite from "../core/viewmodel/vuelite";
 
-type DirectiveNames = ["bind", "model", "text", "style", "class", "html", "eventHandler"];
-export type DirectiveKey = DirectiveNames[number];
+export const directiveNames = [
+  "bind",
+  "model",
+  "text",
+  "style",
+  "class",
+  "html",
+  "eventHandler",
+  "if",
+  "else",
+  "show",
+] as const;
+export type DirectiveKey = (typeof directiveNames)[number];
 
 export type DirectiveTypes = {
   [Method in Exclude<DirectiveKey, "bind">]: (
