@@ -6,9 +6,11 @@ export declare class Condition {
     exp: any;
     parent: HTMLElement;
     childIndex: number;
-    isVisible: boolean;
-    fragment: DocumentFragment;
+    ifFragment: DocumentFragment;
+    elseFragment?: DocumentFragment;
+    elseElement?: HTMLElement;
     constructor(vm: Vuelite, el: HTMLElement, name: string, exp: any);
     render(): void;
+    checkForElse(): void;
     updater(value: any): void;
 }

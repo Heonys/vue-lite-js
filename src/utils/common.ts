@@ -39,3 +39,7 @@ export function createDOMTemplate(template: string) {
   div.innerHTML = template;
   return div.firstElementChild;
 }
+
+export const isCondition = (name: string) => {
+  return name === "if" || name === "else";
+};

@@ -48,6 +48,9 @@
         div.innerHTML = template;
         return div.firstElementChild;
     }
+    const isCondition = (name) => {
+        return name === "if" || name === "else";
+    };
 
     function isObjectFormat(str) {
         const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
@@ -433,7 +436,8 @@
             this.exp = exp;
             this.parent = el.parentElement || vm.el;
             this.childIndex = Array.from(this.parent.children).indexOf(el);
-            this.fragment = document.createDocumentFragment();
+            this.ifFragment = document.createDocumentFragment();
+            this.checkForElse();
             this.render();
         }
         render() {
@@ -441,21 +445,25 @@
                 this.updater(value);
             });
         }
+        checkForElse() {
+            const silbling = this.el.nextElementSibling;
+            if (silbling === null || silbling === void 0 ? void 0 : silbling.hasAttribute("v-else")) {
+                this.elseElement = silbling;
+                this.elseFragment = document.createDocumentFragment();
+            }
+        }
         updater(value) {
-            if (!this.isVisible) {
-                if (value) {
-                    this.isVisible = true;
-                    const ref = Array.from(this.parent.children)[this.childIndex];
-                    this.parent.insertBefore(this.fragment, ref);
-                }
-                else {
-                    this.fragment.appendChild(this.el);
-                }
+            if (value) {
+                const ref = Array.from(this.parent.children)[this.childIndex];
+                this.parent.insertBefore(this.ifFragment, ref);
+                if (this.elseElement)
+                    this.elseFragment.appendChild(this.elseElement);
             }
             else {
-                if (!value) {
-                    this.isVisible = false;
-                    this.fragment.appendChild(this.el);
+                this.ifFragment.appendChild(this.el);
+                if (this.elseElement) {
+                    const ref = Array.from(this.parent.children)[this.childIndex];
+                    this.parent.insertBefore(this.elseFragment, ref);
                 }
             }
         }
@@ -471,8 +479,10 @@
             this.modifier = modifier;
             if (!isValidDirective(key))
                 return;
-            if (key === "if") {
-                vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
+            if (isCondition(key)) {
+                if (key === "if") {
+                    vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
+                }
             }
             else {
                 if (isEventDirective(name))
@@ -568,8 +578,6 @@
         html() {
             this.bind(updaters.html);
         }
-        if() { }
-        else() { }
         show() {
             this.bind(updaters.show);
         }

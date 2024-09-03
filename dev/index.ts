@@ -14,7 +14,8 @@ const vm = new Vuelite({
     return {
       title: "",
       hello: true,
-      visible: false,
+      visible: true,
+      visible2: true,
       objectBind: {
         id: "testId",
         class: "testClass",

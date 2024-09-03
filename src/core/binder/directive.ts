@@ -1,18 +1,10 @@
 import { Updater, updaters } from "./updaters";
-import { extractPath, assignPath } from "@utils/common";
+import { extractPath, assignPath, isCondition } from "@utils/common";
 import { extractDirective, isEventDirective, isValidDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 import { Condition } from "./condition";
 
-/* 
-  하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며
-  모든 반응형 데이터들은 변화를 감지하면 Dep에 의해서 변화를 알리기 때문에
-  이후에 notify를 통해 모든 구독자들의 update를 실행시킨다 
-
-  하지만 초기 렌더링인 마운트 단계에서 한번은 update가 되어야 하기때문에 updater를 초기에 한번은 수동으로 호출하고 
-  이후에 Observer의 updater에 의해서 반응형값의 변화가 실제 DOM에 반영됨 
-*/
 export class Directive {
   directiveName: string;
   modifier: string;
@@ -27,8 +19,10 @@ export class Directive {
     this.modifier = modifier;
 
     if (!isValidDirective(key)) return;
-    if (key === "if") {
-      vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
+    if (isCondition(key)) {
+      if (key === "if") {
+        vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
+      }
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
@@ -121,8 +115,6 @@ export class Directive {
   html() {
     this.bind(updaters.html);
   }
-  if() {}
-  else() {}
   show() {
     this.bind(updaters.show);
   }
