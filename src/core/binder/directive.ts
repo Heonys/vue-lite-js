@@ -3,6 +3,7 @@ import { extractPath, assignPath } from "@utils/common";
 import { extractDirective, isEventDirective, isValidDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
+import { Condition } from "./condition";
 
 /* 
   하나의 디렉티브당 하나의 옵저버를 생성하고 updater 함수를 옵저버에 등록하며
@@ -26,10 +27,14 @@ export class Directive {
     this.modifier = modifier;
 
     if (!isValidDirective(key)) return;
-    if (isEventDirective(name)) this.eventHandler();
-    else this[key]();
+    if (key === "if") {
+      // new Condition(vm, node as HTMLElement, key, exp);
+    } else {
+      if (isEventDirective(name)) this.eventHandler();
+      else this[key]();
 
-    if (node instanceof HTMLElement) node.removeAttribute(name);
+      if (node instanceof HTMLElement) node.removeAttribute(name);
+    }
   }
 
   bind(updater?: Updater) {
@@ -46,14 +51,7 @@ export class Directive {
       updater && updater(this.node, value);
     });
   }
-  /* 
-    양방향 바인딩 (input, textarea, select 지원)
-    input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게해서 일관되게 바인딩하게 해준다 
 
-    date, month, time, week 등 날짜나 시간관련된 속성 및 레거시 속성들을 제외  
-    file의 경우는 논외로 v-model이 아닌 change 이벤트를 통해 수동으로 파일관리를 해야함 
-    지원되는 input 타입 (text, number, url, tel, search, ragnge, radio, password, email, color, checkbox)
-  */
   model() {
     const el = this.node as HTMLElement;
     switch (el.tagName) {

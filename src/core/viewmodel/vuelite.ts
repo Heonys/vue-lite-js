@@ -9,6 +9,7 @@ export default class Vuelite<Data = {}, Methods = {}, Computed = {}> {
   el: HTMLElement;
   template?: Element;
   options: Options<Data, Methods, Computed>;
+  // container: DocumentFragment;
   [customKey: string]: any;
 
   constructor(options: Options<Data, Methods, Computed>) {

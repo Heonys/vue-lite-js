@@ -45,7 +45,7 @@ export const isReactiveNode = (node: Node) => {
     return Array.from(attributes).some((attr) => isDirective(attr.name));
   } else if (isTextNode(node)) {
     const textContent = node.textContent || "";
-    return extractTemplate(textContent) ? true : false;
+    return extractTemplate(textContent).length > 0 ? true : false;
   }
 };
 
