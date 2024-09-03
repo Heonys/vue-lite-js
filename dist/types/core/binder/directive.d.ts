@@ -13,5 +13,8 @@ export declare class Directive {
     style(): void;
     class(): void;
     html(): void;
+    if(): void;
+    else(): void;
+    show(): void;
     eventHandler(): void;
 }

@@ -7,16 +7,26 @@
   </head>
   <body>
     <div id="app">
-      <div v-if="visible">{{ firstName }}</div>
+
+      <div v-if="visible">{{ message }}</div>
+      <div> {{ 2  }}</div>
+      <div v-if="visible">{{ 3 }}</div>
+      <div> {{ 4  }}</div>
+      
+
       <div>
         <input type="checkbox" v-model="visible" />
         <span>{{ isVisible }}</span>
       </div>
+
+      <input type="text" v-model="message" />
+      <p :style="{color: textStyle.color, textDecoration: 'line-through' }">{{ message }}</p>
+      <button @click="handleClick">change vuelite</button>
+
+
+    </div>
   </body>
 </html>
-      <!-- <input type="text" v-model="message" />
-      <p :style="{color: textStyle.color, textDecoration: 'line-through' }">{{ message }}</p>
-      <button @click="handleClick">change vuelite</button> -->
 
 
 

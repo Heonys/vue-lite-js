@@ -28,11 +28,10 @@ export class Directive {
 
     if (!isValidDirective(key)) return;
     if (key === "if") {
-      // new Condition(vm, node as HTMLElement, key, exp);
+      vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
-
       if (node instanceof HTMLElement) node.removeAttribute(name);
     }
   }
@@ -46,7 +45,6 @@ export class Directive {
     if (!updater) {
       updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
-
     new Observer(this.vm, this.exp, this.directiveName, (value) => {
       updater && updater(this.node, value);
     });

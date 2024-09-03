@@ -11,4 +11,7 @@ export declare const updaters: {
     inputMultiple(el: HTMLSelectElement, value: any): void;
     customBind(this: Directive, el: HTMLElement, value: any): void;
     objectBind(this: Directive, el: HTMLInputElement, value: any): void;
+    if(el: HTMLElement, condition: any): void;
+    else(el: HTMLElement): void;
+    show(el: HTMLElement, condition: any): void;
 };

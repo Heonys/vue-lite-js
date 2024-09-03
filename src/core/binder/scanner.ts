@@ -36,5 +36,6 @@ export class VueScanner extends Scanner {
     action(this.fragment);
     this.visit(action, this.fragment);
     vm.el.appendChild(this.fragment);
+    vm.deferredTasks.forEach((fn) => fn());
   }
 }

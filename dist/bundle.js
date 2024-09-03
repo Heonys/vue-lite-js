@@ -223,6 +223,19 @@
         });
     }
 
+    const directiveNames = [
+        "bind",
+        "model",
+        "text",
+        "style",
+        "class",
+        "html",
+        "eventHandler",
+        "if",
+        "else",
+        "show",
+    ];
+
     function extractDirective(attr) {
         if (isShortcut(attr)) {
             if (attr.slice(0, 1) === ":") {
@@ -263,8 +276,11 @@
         }
         else if (isTextNode(node)) {
             const textContent = node.textContent || "";
-            return extractTemplate(textContent) ? true : false;
+            return extractTemplate(textContent).length > 0 ? true : false;
         }
+    };
+    const isValidDirective = (name) => {
+        return directiveNames.includes(name);
     };
 
     const updaters = {
@@ -317,6 +333,19 @@
                 Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
             }
         },
+        if(el, condition) { },
+        else(el) { },
+        show(el, condition) {
+            if (!el._originalDisplay) {
+                el._originalDisplay = window.getComputedStyle(el).display;
+            }
+            if (condition) {
+                el.style.display = el._originalDisplay || "block";
+            }
+            else {
+                el.style.display = "none";
+            }
+        },
     };
 
     function safeEvaluate(vm, exp) {
@@ -352,11 +381,10 @@
             return undefined;
         }
     }
-    function evaluteTemplate(vm, exp) {
+    function templateEvaluate(vm, exp) {
         const templates = extractTemplate(exp);
         const evaluatedValues = templates.reduce((acc, template) => {
-            const value = unsafeEvaluate(vm, template);
-            acc[template] = value;
+            acc[template] = unsafeEvaluate(vm, template);
             return acc;
         }, {});
         const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
@@ -382,7 +410,7 @@
         getterTrigger() {
             Dep.activated = this;
             const value = this.directiveName === "text"
-                ? evaluteTemplate(this.vm, this.exp)
+                ? templateEvaluate(this.vm, this.exp)
                 : safeEvaluate(this.vm, this.exp);
             Dep.activated = null;
             return value;
@@ -397,6 +425,42 @@
         }
     }
 
+    class Condition {
+        constructor(vm, el, name, exp) {
+            this.vm = vm;
+            this.el = el;
+            this.name = name;
+            this.exp = exp;
+            this.parent = el.parentElement || vm.el;
+            this.childIndex = Array.from(this.parent.children).indexOf(el);
+            this.fragment = document.createDocumentFragment();
+            this.render();
+        }
+        render() {
+            new Observer(this.vm, this.exp, this.name, (value) => {
+                this.updater(value);
+            });
+        }
+        updater(value) {
+            if (!this.isVisible) {
+                if (value) {
+                    this.isVisible = true;
+                    const ref = Array.from(this.parent.children)[this.childIndex];
+                    this.parent.insertBefore(this.fragment, ref);
+                }
+                else {
+                    this.fragment.appendChild(this.el);
+                }
+            }
+            else {
+                if (!value) {
+                    this.isVisible = false;
+                    this.fragment.appendChild(this.el);
+                }
+            }
+        }
+    }
+
     class Directive {
         constructor(name, vm, node, exp) {
             this.vm = vm;
@@ -405,12 +469,19 @@
             const { key, modifier } = extractDirective(name);
             this.directiveName = key;
             this.modifier = modifier;
-            if (isEventDirective(name))
-                this.eventHandler();
-            else
-                this[key]();
-            if (node instanceof HTMLElement)
-                node.removeAttribute(name);
+            if (!isValidDirective(key))
+                return;
+            if (key === "if") {
+                vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
+            }
+            else {
+                if (isEventDirective(name))
+                    this.eventHandler();
+                else
+                    this[key]();
+                if (node instanceof HTMLElement)
+                    node.removeAttribute(name);
+            }
         }
         bind(updater) {
             const mod = this.modifier;
@@ -497,6 +568,11 @@
         html() {
             this.bind(updaters.html);
         }
+        if() { }
+        else() { }
+        show() {
+            this.bind(updaters.show);
+        }
         eventHandler() {
             const fn = extractPath(this.vm, this.exp);
             if (typeof fn === "function")
@@ -559,6 +635,7 @@
             action(this.fragment);
             this.visit(action, this.fragment);
             vm.el.appendChild(this.fragment);
+            vm.deferredTasks.forEach((fn) => fn());
         }
     }
 
@@ -580,6 +657,7 @@
 
     class Vuelite {
         constructor(options) {
+            this.deferredTasks = [];
             this.el = document.querySelector(options.el);
             this.options = options;
             this.template = createDOMTemplate(options.template);
