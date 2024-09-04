@@ -57,13 +57,7 @@ export const updaters = {
   if(el: HTMLElement, condition: any) {},
   else(el: HTMLElement) {},
   show(el: HTMLElement, condition: any) {
-    if (!el._originalDisplay) {
-      el._originalDisplay = window.getComputedStyle(el).display;
-    }
-    if (condition) {
-      el.style.display = el._originalDisplay || "block";
-    } else {
-      el.style.display = "none";
-    }
+    if (condition) el.style.display = "";
+    else el.style.display = "none";
   },
 };

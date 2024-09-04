@@ -335,15 +335,10 @@ const updaters = {
     if(el, condition) { },
     else(el) { },
     show(el, condition) {
-        if (!el._originalDisplay) {
-            el._originalDisplay = window.getComputedStyle(el).display;
-        }
-        if (condition) {
-            el.style.display = el._originalDisplay || "block";
-        }
-        else {
+        if (condition)
+            el.style.display = "";
+        else
             el.style.display = "none";
-        }
     },
 };
 

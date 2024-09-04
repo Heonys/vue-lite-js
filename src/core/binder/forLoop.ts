@@ -1,6 +1,6 @@
 import Vuelite from "../viewmodel/vuelite";
 
-class Repeater {
+class ForLoop {
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
