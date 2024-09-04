@@ -7,7 +7,6 @@ const template = `
             <p>{{ fullNameMethod() }}</p>
           </div>`;
 
-// 💡 this로 반응형 데이터 타입 자동으로 추론되게
 const vm = new Vuelite({
   el: "#app",
   data() {
@@ -16,11 +15,18 @@ const vm = new Vuelite({
       hello: true,
       visible: true,
       visible2: true,
+      inputValue: "",
       objectBind: {
         id: "testId",
         class: "testClass",
         customKey: "customValue",
       },
+      items: [
+        { id: 1, message: "Item 1" },
+        { id: 2, message: "Item 2" },
+        { id: 3, message: "Item 3" },
+        { id: 4, message: "Item 4" },
+      ],
       message: "",
       firstName: "Jiheon",
       lastName: "Kim",
@@ -37,7 +43,6 @@ const vm = new Vuelite({
       world: "<div>hello world</div>",
       selectedValue: "male",
       selectedOption: "Vue",
-      items: [1, 2, 3, 4, 5],
     };
   },
   computed: {

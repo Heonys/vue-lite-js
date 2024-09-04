@@ -9,8 +9,8 @@ export const directiveNames = [
   "html",
   "eventHandler",
   "if",
-  "else",
   "show",
+  "for",
 ] as const;
 export type DirectiveKey = (typeof directiveNames)[number];
 

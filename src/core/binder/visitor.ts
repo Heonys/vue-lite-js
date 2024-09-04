@@ -1,3 +1,5 @@
+import { shouldSkipChildren } from "@/utils/directive";
+
 export interface Visitor<T = any> {
   visit(action: Function, target: T): void;
 }
@@ -21,6 +23,11 @@ export class NodeVisitor implements Visitor {
 
     while ((current = stack.pop())) {
       if (current) {
+        if (shouldSkipChildren(current)) {
+          action(current);
+          current = current.nextSibling;
+          continue;
+        }
         action(current);
         if (current.firstChild) stack.push(current.firstChild);
         if (current.nextSibling) stack.push(current.nextSibling);

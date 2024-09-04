@@ -44,8 +44,8 @@ function createDOMTemplate(template) {
     div.innerHTML = template;
     return div.firstElementChild;
 }
-const isCondition = (name) => {
-    return name === "if" || name === "else";
+const isNonObserver = (name, modifier) => {
+    return name.startsWith("else") || (name === "bind" && modifier === "key");
 };
 
 function isObjectFormat(str) {
@@ -231,8 +231,8 @@ const directiveNames = [
     "html",
     "eventHandler",
     "if",
-    "else",
     "show",
+    "for",
 ];
 
 function extractDirective(attr) {
@@ -245,7 +245,7 @@ function extractDirective(attr) {
         }
     }
     else {
-        const regExp = /^v-(\w+)(:(\w+))?$/;
+        const regExp = /^v-([\w-]+)(:(\w+))?$/;
         const match = attr.match(regExp);
         return { key: match[1], modifier: match[3] || null };
     }
@@ -281,6 +281,9 @@ const isReactiveNode = (node) => {
 const isValidDirective = (name) => {
     return directiveNames.includes(name);
 };
+function shouldSkipChildren(node) {
+    return node instanceof HTMLElement && node.hasAttribute("v-for");
+}
 
 const updaters = {
     text(node, value) {
@@ -375,7 +378,7 @@ function unsafeEvaluate(context, expression) {
         return undefined;
     }
 }
-function templateEvaluate(vm, exp) {
+function evaluateTemplate(vm, exp) {
     const templates = extractTemplate(exp);
     const evaluatedValues = templates.reduce((acc, template) => {
         acc[template] = unsafeEvaluate(vm, template);
@@ -385,6 +388,19 @@ function templateEvaluate(vm, exp) {
         return evaluatedValues[key] || "";
     });
     return result;
+}
+function evaluateValue(name, vm, exp) {
+    switch (name) {
+        case "text": {
+            return evaluateTemplate(vm, exp);
+        }
+        case "if": {
+            return unsafeEvaluate(vm, exp);
+        }
+        default: {
+            return safeEvaluate(vm, exp);
+        }
+    }
 }
 
 class Observer {
@@ -403,9 +419,7 @@ class Observer {
     }
     getterTrigger() {
         Dep.activated = this;
-        const value = this.directiveName === "text"
-            ? templateEvaluate(this.vm, this.exp)
-            : safeEvaluate(this.vm, this.exp);
+        const value = evaluateValue(this.directiveName, this.vm, this.exp);
         Dep.activated = null;
         return value;
     }
@@ -470,11 +484,12 @@ class Directive {
         this.modifier = modifier;
         if (!isValidDirective(key))
             return;
-        if (isCondition(key)) {
-            if (key === "if") {
-                vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
-            }
+        if (isNonObserver(key, modifier))
+            return;
+        if (key === "if") {
+            vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
         }
+        else if (key === "for") ;
         else {
             if (isEventDirective(name))
                 this.eventHandler();
@@ -644,6 +659,11 @@ class NodeVisitor {
         const stack = [target.firstChild];
         while ((current = stack.pop())) {
             if (current) {
+                if (shouldSkipChildren(current)) {
+                    action(current);
+                    current = current.nextSibling;
+                    continue;
+                }
                 action(current);
                 if (current.firstChild)
                     stack.push(current.firstChild);

@@ -1,9 +1,10 @@
 import { Updater, updaters } from "./updaters";
-import { extractPath, assignPath, isCondition } from "@utils/common";
+import { extractPath, assignPath, isNonObserver } from "@utils/common";
 import { extractDirective, isEventDirective, isValidDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 import { Condition } from "./condition";
+// import { ForLoop } from "./forloop";
 
 export class Directive {
   directiveName: string;
@@ -19,10 +20,13 @@ export class Directive {
     this.modifier = modifier;
 
     if (!isValidDirective(key)) return;
-    if (isCondition(key)) {
-      if (key === "if") {
-        vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
-      }
+    if (isNonObserver(key, modifier)) return;
+
+    //  switch문으로 바꾸는거 고려
+    if (key === "if") {
+      vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
+    } else if (key === "for") {
+      // new ForLoop(vm, node as HTMLElement, exp);
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();

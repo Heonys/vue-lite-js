@@ -40,6 +40,6 @@ export function createDOMTemplate(template: string) {
   return div.firstElementChild;
 }
 
-export const isCondition = (name: string) => {
-  return name === "if" || name === "else";
+export const isNonObserver = (name: string, modifier: string) => {
+  return name.startsWith("else") || (name === "bind" && modifier === "key");
 };

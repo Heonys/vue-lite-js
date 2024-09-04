@@ -139,7 +139,7 @@ new Vuelite({
   },
 })
 ```
-- v-if/else와 v-show를 통한 조건부 렌더링을 지원하지만, `<template>`에서의 v-if를 지원하지 않아서 단일 엘리먼트에서만 사용가능하며 v-else-if 디렉티브를 지원하지 않습니다. 
+- `v-if/else`와 `v-show`를 통한 조건부 렌더링을 지원하지만, `<template>`에서의 `v-if`를 지원하지 않아서 단일 엘리먼트에서만 사용가능하며 `v-else-if` 디렉티브를 지원하지 않습니다. 
 
 
 
@@ -342,7 +342,7 @@ depend() {
 결과적으로 `getterTrigger`는 반응형 데이터의 `get 트랩`을 발생시켜서 `Dep` 객체를 생성하며, 값을 가져옴과 동시에 이렇게 만들어진 `Dep`객체가 `Observer`와의 관계를 맺어주는 중요한 역할을 합니다. 즉, `Obserber`는 `Dep`을 구독하여 기다리고 `Dep`은 `Obserber`에게 감시당하다가 `Dep`이 자신의 변화가 발생했을 때 구독자(Observer)들에게 변화를 통지하는 관계를 형성합니다.
 
 
-### 6. 조건부 렌더링 `<1.4.2>`
+### 6. 조건부 렌더링 `<1.4.3>`
 
 <p align="center">
   <img src="./img/Animation2.gif" alt="Description of GIF" width="300" />
@@ -370,7 +370,6 @@ new Vuelite({
 
 #### 핵심 아이디어  
 
-
 1) **v-show와 v-if의 차이** <br />
 `v-show` 디렉티브는 요소의 가시성을 제어하기 때문에 단순히 값에 따라서 `display: none`의 여부를 결정해 주면 되지만, `v-if`는 매핑된 데이터가 `false`일 때 `DOM`에서 사라지고 `true`가 될 때 다시 `DOM`에 삽입됩니다. 즉, `v-show`는 항상 렌더링되고 값에 따라서 스타일만 변경해 주면 되기 때문에 기존의 디렉티브 처럼 처리할 수 있고 아주 단순한 반면, `v-if`는 조건부로 요소가 삭제되거나 삽입되야하는데 여기서 삭제하는 건 어렵지 않지만, 다시 삽입될 때 어떻게 이전의 위치를 기억하고 원래 자리에 삽입할지 고민해 봐야합니다. 
 
@@ -390,12 +389,35 @@ new Vuelite({
 
 
 
+### 7. 리스트 렌더링 `<1.5.x>`
+
+```html
+<ul>
+  <li v-for="item in items" :key="item.id">
+    {{ item.message }}
+  </li>
+</ul>
+```
+```js
+data() {
+  return {
+    items: [
+      { id: 1, message: "Item 1" },
+      { id: 2, message: "Item 2" },
+      { id: 3, message: "Item 3" },
+      { id: 4, message: "Item 4" },
+    ],
+  }
+},
+```
+
+
 
 ## 📝 Todos
 - [x] ~~***methods, computed 내부에서 this의 타입추론 및 자동완성 개선***~~ `<1.1.0>`
 - [x] ~~***디렉티브 축약 형태 지원하기***~~ `<1.2.1>`
 - [x] ~~***템플릿 문법에서 표현식 지원하기***~~ `<1.3.0>`
-- [x] ~~***조건부 렌더링 추가 (v-if/else, v-show 디렉티브)***~~ `<1.4.2>`
+- [x] ~~***조건부 렌더링 추가 (v-if/else, v-show 디렉티브)***~~ `<1.4.3>`
 - [ ] 리스트 렌더링 추가 (v-for 디렉티브)
 - [ ] created, mounted, updated 등의 라이프사이클 훅 지원하기 
 - [ ] watch 지원하기 

@@ -50,7 +50,7 @@ export function unsafeEvaluate(context: object, expression: string) {
 템플릿 문법에서 각각 {{ key }} 포맷의 key 값을 뽑아내서 그 표현식에 해당하는 값을 vm에서 가져오고 
 원래 표현식의 key 값으로 대체하여 결과적으로 템플릿 문법을 계산된 값으로 대체하는 함수 
 */
-export function templateEvaluate(vm: Vuelite, exp: string) {
+export function evaluateTemplate(vm: Vuelite, exp: string) {
   const templates = extractTemplate(exp);
   const evaluatedValues = templates.reduce(
     (acc, template) => {
@@ -63,6 +63,19 @@ export function templateEvaluate(vm: Vuelite, exp: string) {
   const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
     return evaluatedValues[key] || "";
   });
-
   return result;
+}
+
+export function evaluateValue(name: string, vm: Vuelite, exp: string) {
+  switch (name) {
+    case "text": {
+      return evaluateTemplate(vm, exp);
+    }
+    case "if": {
+      return unsafeEvaluate(vm, exp);
+    }
+    default: {
+      return safeEvaluate(vm, exp);
+    }
+  }
 }

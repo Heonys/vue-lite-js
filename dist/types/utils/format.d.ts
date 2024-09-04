@@ -7,3 +7,7 @@ export declare function isHtmlFormat(str: string): boolean;
 export declare const isElementNode: (node: Node) => node is HTMLElement;
 export declare const isTextNode: (node: Node) => boolean;
 export declare const isIncludeText: (node: HTMLElement) => boolean;
+export declare function extractKeywords(str: string): {
+    value: string;
+    list: string;
+};

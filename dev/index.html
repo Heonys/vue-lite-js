@@ -8,27 +8,50 @@
   <body>
     <div id="app">
 
-      <!-- <div v-if="visible">
-        <div>{{ firstName }}</div>
-        <div>{{ lastName }}</div>
-        <div>{{ fullName }}</div>
-      </div>
-      <div v-else> {{ "falsy" }}</div>
-      <div>
-        <input type="checkbox" v-model="visible" />
-        <span>{{ isVisible }}</span>
-      </div>
-       -->
+      <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
+      <div v-else> {{ "10 + 20 = " }}</div>
+
+      <input type="text" v-model="inputValue">
 
 
 
-       <!-- v-show 버그 있음: 초기값 false면 게속 none 적용됨 -->
-       <div >
+      <!-- <div >
         <input type="checkbox" v-model="visible" />
         <span>{{ visible ? "🔓🔓" : "🔒🔒" }}</span>
         <div v-show="visible">{{ "👻" }}</div>
-      </div>
+      </div> -->
 
+      <!-- <ul>
+        <li v-for="item in items" :key="item.id">
+          {{ item.message }}
+        </li>
+      </ul>
+
+      <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+        <li>Item 4</li>
+      </ul> -->
+
+
+
+
+      
+
+      <!-- Object v-for  -->
+      <!-- <li v-for="(value, key) in object" :key="key">
+        {{ key }}: {{ value }}
+      </li> -->
+
+      <!-- Range v-for -->
+      <!-- <span v-for="n in 10">{{ n }}</span> -->
+
+
+      <!-- v-for 내부에서도 바인딩이 가능해야함 -->
+      <!-- <li v-for="item in items" :key="item.id">
+        <span :style="itemStyle">{{ item.message }}</span>
+      </li> -->
 
 
 

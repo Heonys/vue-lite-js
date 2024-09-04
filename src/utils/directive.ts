@@ -9,7 +9,7 @@ export function extractDirective(attr: string) {
       return { key: "eventHandler" as DirectiveKey, modifier: attr.slice(1) };
     }
   } else {
-    const regExp = /^v-(\w+)(:(\w+))?$/;
+    const regExp = /^v-([\w-]+)(:(\w+))?$/;
     const match = attr.match(regExp);
     return { key: match[1] as DirectiveKey, modifier: match[3] || null };
   }
@@ -61,3 +61,7 @@ export const replaceTemplate = (template: string, key: string, value: string) =>
 export const isValidDirective = (name: string): name is DirectiveKey => {
   return (directiveNames as readonly string[]).includes(name);
 };
+
+export function shouldSkipChildren(node: Node) {
+  return node instanceof HTMLElement && node.hasAttribute("v-for");
+}

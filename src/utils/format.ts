@@ -52,3 +52,20 @@ export const isIncludeText = (node: HTMLElement) => {
   if (!attrs) return;
   return Array.from(attrs).some((v) => v.name === "v-text");
 };
+
+// Regular expressions to match "x in y" and "x of y" formats
+export function extractKeywords(str: string) {
+  const regexIn = /^(.+?)\s+in\s+(.+)$/;
+  const regexOf = /^(.+?)\s+of\s+(.+)$/;
+
+  let match = str.match(regexIn);
+  if (match) {
+    return { value: match[1], list: match[2] };
+  }
+
+  match = str.match(regexOf);
+  if (match) {
+    return { value: match[1], list: match[2] };
+  }
+  return null;
+}
