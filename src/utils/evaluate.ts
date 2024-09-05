@@ -2,6 +2,7 @@ import Vuelite from "@/core/viewmodel/vuelite";
 import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 import { boolean2String, extractPath, normalizeToJson } from "./common";
 import { extractTemplate } from "./directive";
+import { LoopContext } from "@/core/binder/forLoop";
 
 /*
 safeEvaluate 함수는 viewmodel에서 exp라는 속성에 접근해서 값을 가져오는 동작을 하며

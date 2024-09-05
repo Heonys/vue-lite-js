@@ -25,7 +25,7 @@ export class NodeVisitor implements Visitor {
       if (current) {
         if (shouldSkipChildren(current)) {
           action(current);
-          current = current.nextSibling;
+          if (current.nextSibling) stack.push(current.nextSibling);
           continue;
         }
         action(current);

@@ -4,7 +4,7 @@ import { extractDirective, isEventDirective, isValidDirective } from "@utils/dir
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 import { Condition } from "./condition";
-// import { ForLoop } from "./forloop";
+import { ForLoop } from "./forLoop";
 
 export class Directive {
   directiveName: string;
@@ -26,7 +26,7 @@ export class Directive {
     if (key === "if") {
       vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
     } else if (key === "for") {
-      // new ForLoop(vm, node as HTMLElement, exp);
+      vm.deferredTasks.push(() => new ForLoop(vm, node as HTMLElement, exp));
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
@@ -39,7 +39,6 @@ export class Directive {
     if (mod === "text" || mod === "class" || mod === "style") {
       updater = updaters[mod].bind(this);
     }
-
     if (!updater) {
       updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }

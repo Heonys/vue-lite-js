@@ -8,12 +8,10 @@
   <body>
     <div id="app">
 
-      <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
+      <!-- <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
       <div v-else> {{ "10 + 20 = " }}</div>
 
-      <input type="text" v-model="inputValue">
-
-
+      <input type="text" v-model="inputValue"> -->
 
       <!-- <div >
         <input type="checkbox" v-model="visible" />
@@ -21,19 +19,18 @@
         <div v-show="visible">{{ "👻" }}</div>
       </div> -->
 
-      <!-- <ul>
-        <li v-for="item in items" :key="item.id">
-          {{ item.message }}
-        </li>
-      </ul>
 
       <ul>
-        <li>Item 1</li>
-        <li>Item 2</li>
-        <li>Item 3</li>
-        <li>Item 4</li>
-      </ul> -->
-
+        <div v-for="item in items" :key="item.id">
+          {{ item.message }}
+        </div>
+        <!-- <li v-for="(item, index) in items" :key="item.id">
+          {{ item.message1 }}
+        </li>
+        <li v-for="(item) in items" :key="item.id">
+          {{ item.message2 }}
+        </li> -->
+      </ul>
 
 
 

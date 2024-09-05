@@ -9,7 +9,7 @@ export function isFunctionFormat(str: string) {
   return match ? match[1] : null;
 }
 
-function typeOf(value: any): string {
+export function typeOf(value: any): string {
   return Object.prototype.toString //
     .call(value)
     .slice(8, -1)
@@ -60,12 +60,24 @@ export function extractKeywords(str: string) {
 
   let match = str.match(regexIn);
   if (match) {
-    return { value: match[1], list: match[2] };
+    return { alias: match[1], list: match[2] };
   }
 
   match = str.match(regexOf);
   if (match) {
-    return { value: match[1], list: match[2] };
+    return { alias: match[1], list: match[2] };
   }
   return null;
+}
+
+export function extractAlias(str: string) {
+  const match = str.match(/\(([^)]+)\)/);
+  if (!match) return null;
+
+  const variables = match[1]
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item); // 빈 문자열을 필터링
+
+  return variables;
 }
