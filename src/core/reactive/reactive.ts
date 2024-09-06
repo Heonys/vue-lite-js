@@ -32,7 +32,6 @@ export class Reactivity {
       },
       set(target: Target, key: string, value: any, receiver: Target) {
         const result = Reflect.set(target, key, value, receiver);
-
         if (deps.has(key)) {
           deps.get(key).notify();
         }

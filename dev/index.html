@@ -21,29 +21,38 @@
 
 
       
+      <!-- <input type="text" v-model="items[1].message">
+      <div>{{ items[1].message }}</div> -->
+
+      <!-- <input type="text" v-model="myObject.title">
+      <div>{{ items[0].message }}</div> -->
+
+      
+
+
       <ul>
-        <!-- <div v-for="item in items" :key="item.id">
+        <div v-for="item in items" :key="item.id">
           <div>{{ item.message }}</div>
-          <input type="text" v-model="title">
-        </div> -->
+          <input type="text" v-model="item.message">
+        </div>
 
 
-        <li v-for="(item, index) in items" :key="item.id">
+        <!-- <li v-for="(item, index) in items" :key="item.id">
           {{ item.message }}
-        </li>
-        <li v-for="(value, key) in myObject">
+        </li> -->
+
+
+        <!-- <li v-for="(value, key) in myObject">
           {{ value }}
         </li>
         <li v-for="(value, index) in 3">
           {{ value}}
-        </li>
-        <!-- <div :key="items[1].id">{{ items[1].message }}</div> -->
+        </li> -->
       </ul>
 
 
 
 
-      
 
       <!-- Object v-for  -->
       <!-- <li v-for="(value, key) in object" :key="key">

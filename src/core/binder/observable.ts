@@ -21,11 +21,20 @@ export class Observable {
   directiveBind(el: Element) {
     Array.from(el.attributes).forEach(({ name, value }) => {
       if (isDirective(name)) {
+        const global = Vuelite.context || {};
+        for (const key in global) {
+          value = value.replace(key, (global as any)[key]);
+        }
         new Directive(name, this.vm, el, value);
       }
     });
   }
   templateBind(node: Node) {
-    new Directive("v-text", this.vm, node, node.textContent);
+    let exp = node.textContent;
+    const global = Vuelite.context || {};
+    for (const key in global) {
+      exp = exp.replace(key, (global as any)[key]);
+    }
+    new Directive("v-text", this.vm, node, exp);
   }
 }

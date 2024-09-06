@@ -65,3 +65,9 @@ export const isValidDirective = (name: string): name is DirectiveKey => {
 export function shouldSkipChildren(node: Node) {
   return node instanceof HTMLElement && node.hasAttribute("v-for");
 }
+
+export function removeLoopDirective(el: HTMLElement) {
+  el.removeAttribute("v-for");
+  el.removeAttribute(":key");
+  el.removeAttribute("v-bind:key");
+}

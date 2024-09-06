@@ -17,7 +17,7 @@ export function typeOf(value: any): string {
 }
 
 export const isObject = (data: any): data is object => {
-  return typeOf(data) === "object";
+  return typeOf(data) === "object" || typeOf(data) === "array";
 };
 
 export const isFunction = (data: any): data is Function => {

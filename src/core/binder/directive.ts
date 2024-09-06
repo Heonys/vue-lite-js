@@ -21,7 +21,6 @@ export class Directive {
 
     if (!isValidDirective(key)) return;
     if (isNonObserver(key, modifier)) return;
-
     //  switch문으로 바꾸는거 고려
     if (key === "if") {
       vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
@@ -30,6 +29,7 @@ export class Directive {
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
+
       if (node instanceof HTMLElement) node.removeAttribute(name);
     }
   }
@@ -42,6 +42,7 @@ export class Directive {
     if (!updater) {
       updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
+
     new Observer(this.vm, this.exp, this.directiveName, (value) => {
       updater && updater(this.node, value);
     });

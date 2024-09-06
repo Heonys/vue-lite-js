@@ -6,12 +6,22 @@ export function extractPath(obj: Record<PropertyKey, any>, path: string) {
   }, obj);
 }
 
+function isValidInteger(str: string) {
+  return /^\d+$/.test(str);
+}
+
 export function assignPath(obj: Record<PropertyKey, any>, path: string, value: any) {
   path = path.trim();
   let target = obj;
-  path.split(".").forEach((key, index, arr) => {
-    if (index === arr.length - 1) target[key] = value;
-    else {
+  const splited = path.split(/[.[\]]/).filter(Boolean);
+
+  splited.forEach((key, index, arr) => {
+    if (index === arr.length - 1) {
+      target[key] = value;
+    } else if (isValidInteger(key)) {
+      if (!Array.isArray(target)) return;
+      target = target[+key];
+    } else {
       if (!Object.hasOwn(target, key)) return;
       target = target[key];
     }
@@ -41,6 +51,5 @@ export function createDOMTemplate(template: string) {
 }
 
 export const isNonObserver = (name: string, modifier: string) => {
-  // return name.startsWith("else");
   return name.startsWith("else") || (name === "bind" && modifier === "key");
 };

@@ -18,7 +18,7 @@ export class VueScanner extends Scanner {
     const fragment = document.createDocumentFragment();
     let child: Node;
     while ((child = el.firstChild)) fragment.appendChild(child);
-    this.fragment = fragment;
+    return fragment;
   }
 
   scan(vm: Vuelite) {
@@ -27,10 +27,10 @@ export class VueScanner extends Scanner {
     };
 
     if (vm.template) {
-      this.node2Fragment(vm.template);
+      this.fragment = this.node2Fragment(vm.template);
       vm.el.innerHTML = "";
     } else {
-      this.node2Fragment(vm.el);
+      this.fragment = this.node2Fragment(vm.el);
     }
 
     action(this.fragment);
@@ -40,10 +40,13 @@ export class VueScanner extends Scanner {
   }
 
   scanPartial(vm: Vuelite, el: HTMLElement) {
+    const container = this.node2Fragment(el);
     const action = (node: Node) => {
       isReactiveNode(node) && new Observable(vm, node);
     };
-    action(el);
-    this.visit(action, el);
+    action(container);
+    this.visit(action, container);
+    el.appendChild(container);
+    return el;
   }
 }
