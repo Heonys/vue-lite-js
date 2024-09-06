@@ -39,6 +39,7 @@ declare class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     template?: Element;
     options: Options<Data, Methods, Computed>;
     deferredTasks: Function[];
+    static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<Data, Methods, Computed>);
 }
@@ -85,6 +86,7 @@ declare class VueScanner extends Scanner {
     private fragment;
     private node2Fragment;
     scan(vm: Vuelite): void;
+    scanPartial(vm: Vuelite, el: HTMLElement): HTMLElement;
 }
 
 declare class Observer {

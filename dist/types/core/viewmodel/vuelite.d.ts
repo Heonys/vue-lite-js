@@ -4,6 +4,7 @@ export default class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     template?: Element;
     options: Options<Data, Methods, Computed>;
     deferredTasks: Function[];
+    static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<Data, Methods, Computed>);
 }

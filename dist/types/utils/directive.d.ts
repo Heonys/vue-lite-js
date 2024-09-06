@@ -10,3 +10,4 @@ export declare const isReactiveNode: (node: Node) => boolean;
 export declare const replaceTemplate: (template: string, key: string, value: string) => string;
 export declare const isValidDirective: (name: string) => name is DirectiveKey;
 export declare function shouldSkipChildren(node: Node): boolean;
+export declare function removeLoopDirective(el: HTMLElement): void;

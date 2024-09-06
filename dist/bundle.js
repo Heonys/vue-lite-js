@@ -12,34 +12,28 @@
             return null;
         }, obj);
     }
+    function isValidInteger(str) {
+        return /^\d+$/.test(str);
+    }
     function assignPath(obj, path, value) {
         path = path.trim();
         let target = obj;
-        path.split(".").forEach((key, index, arr) => {
-            if (index === arr.length - 1)
+        const splited = path.split(/[.[\]]/).filter(Boolean);
+        splited.forEach((key, index, arr) => {
+            if (index === arr.length - 1) {
                 target[key] = value;
+            }
+            else if (isValidInteger(key)) {
+                if (!Array.isArray(target))
+                    return;
+                target = target[+key];
+            }
             else {
                 if (!Object.hasOwn(target, key))
                     return;
                 target = target[key];
             }
         });
-    }
-    function normalizeToJson(str) {
-        return str
-            .replace(/(\w+):/g, '"$1":')
-            .replace(/:\s*([^,\s{}]+)/g, (match, p1) => {
-            if (/^".*"$/.test(p1))
-                return match;
-            return `: "${p1}"`;
-        });
-    }
-    function boolean2String(str) {
-        if (str === "true")
-            return true;
-        if (str === "false")
-            return false;
-        return str;
     }
     function createDOMTemplate(template) {
         if (!template)
@@ -52,15 +46,6 @@
         return name.startsWith("else") || (name === "bind" && modifier === "key");
     };
 
-    function isObjectFormat(str) {
-        const regex = /^\{(\s*[a-zA-Z_$][a-zA-Z_$0-9]*\s*:\s*[^{}]+\s*,?\s*)+\}$/;
-        return regex.test(str);
-    }
-    function isFunctionFormat(str) {
-        const regex = /^\s*(\w+(\.\w+)*)\(\)\s*$/;
-        const match = str.match(regex);
-        return match ? match[1] : null;
-    }
     function typeOf(value) {
         return Object.prototype.toString
             .call(value)
@@ -68,7 +53,7 @@
             .toLowerCase();
     }
     const isObject = (data) => {
-        return typeOf(data) === "object";
+        return typeOf(data) === "object" || typeOf(data) === "array";
     };
     function isQuotedString(str) {
         const regex = /^["'].*["']$/;
@@ -86,6 +71,29 @@
             return;
         return Array.from(attrs).some((v) => v.name === "v-text");
     };
+    function extractKeywords(str) {
+        const regexIn = /^(.+?)\s+in\s+(.+)$/;
+        const regexOf = /^(.+?)\s+of\s+(.+)$/;
+        let match = str.match(regexIn);
+        if (match) {
+            return { key: match[1], list: match[2] };
+        }
+        match = str.match(regexOf);
+        if (match) {
+            return { key: match[1], list: match[2] };
+        }
+        return null;
+    }
+    function extractAlias(str) {
+        const match = str.match(/\(([^)]+)\)/);
+        if (!match)
+            return [str];
+        const variables = match[1]
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item);
+        return variables;
+    }
 
     class Dep {
         constructor() {
@@ -288,6 +296,11 @@
     function shouldSkipChildren(node) {
         return node instanceof HTMLElement && node.hasAttribute("v-for");
     }
+    function removeLoopDirective(el) {
+        el.removeAttribute("v-for");
+        el.removeAttribute(":key");
+        el.removeAttribute("v-bind:key");
+    }
 
     const updaters = {
         text(node, value) {
@@ -332,7 +345,7 @@
             });
         },
         customBind(el, value) {
-            el.setAttribute(this.modifier, value);
+            value && el.setAttribute(this.modifier, value);
         },
         objectBind(el, value) {
             if (isObject(value)) {
@@ -349,26 +362,6 @@
         },
     };
 
-    function safeEvaluate(vm, exp) {
-        let result;
-        if (isObjectFormat(exp)) {
-            const json = JSON.parse(normalizeToJson(exp));
-            result = Object.entries(json).reduce((acc, [key, value]) => {
-                if (isQuotedString(value)) {
-                    acc[key] = boolean2String(value.slice(1, -1));
-                }
-                else {
-                    acc[key] = extractPath(vm, value);
-                }
-                return acc;
-            }, json);
-        }
-        else {
-            const match = isFunctionFormat(exp);
-            result = match ? extractPath(vm, match).call(vm) : extractPath(vm, exp);
-        }
-        return result;
-    }
     function unsafeEvaluate(context, expression) {
         try {
             const fn = new Function(`
@@ -398,11 +391,8 @@
             case "text": {
                 return evaluateTemplate(vm, exp);
             }
-            case "if": {
-                return unsafeEvaluate(vm, exp);
-            }
             default: {
-                return safeEvaluate(vm, exp);
+                return unsafeEvaluate(vm, exp);
             }
         }
     }
@@ -478,6 +468,131 @@
         }
     }
 
+    class NodeVisitor {
+        visit(action, target) {
+            let current;
+            const stack = [target.firstChild];
+            while ((current = stack.pop())) {
+                if (current) {
+                    if (shouldSkipChildren(current)) {
+                        action(current);
+                        if (current.nextSibling)
+                            stack.push(current.nextSibling);
+                        continue;
+                    }
+                    action(current);
+                    if (current.firstChild)
+                        stack.push(current.firstChild);
+                    if (current.nextSibling)
+                        stack.push(current.nextSibling);
+                }
+            }
+        }
+    }
+
+    function createContext(alias, exp, index, data) {
+        if (typeOf(data) === "object") {
+            const key = Object.keys(data)[index];
+            switch (alias.length) {
+                case 1: {
+                    return { [alias[0]]: `${exp}.${key}` };
+                }
+                case 2: {
+                    return { [alias[0]]: `${exp}.${key}`, [alias[1]]: `${key}` };
+                }
+                case 3: {
+                    return {
+                        [alias[0]]: `${exp}.${key}`,
+                        [alias[1]]: `${key}`,
+                        [alias[2]]: index,
+                    };
+                }
+                default: {
+                    return {};
+                }
+            }
+        }
+        else if (typeOf(data) === "number") {
+            switch (alias.length) {
+                case 1: {
+                    return { [alias[0]]: index + 1 };
+                }
+                case 2: {
+                    return { [alias[0]]: index + 1, [alias[1]]: index };
+                }
+                default: {
+                    return {};
+                }
+            }
+        }
+        else {
+            switch (alias.length) {
+                case 1: {
+                    return { [alias[0]]: `${exp}[${index}]` };
+                }
+                case 2: {
+                    return { [alias[0]]: `${exp}[${index}]`, [alias[1]]: index };
+                }
+                default: {
+                    return {};
+                }
+            }
+        }
+    }
+    function loopSize(value) {
+        switch (typeOf(value)) {
+            case "string":
+            case "array": {
+                return value.length;
+            }
+            case "object": {
+                return Object.values(value).length;
+            }
+            case "number": {
+                return Math.max(0, Number(value));
+            }
+            default: {
+                return 0;
+            }
+        }
+    }
+
+    function bindContext(loop, el, listExp, index) {
+        const { alias, data, vm } = loop;
+        const context = createContext(alias, listExp, index, data);
+        Vuelite.context = context;
+        const scanner = new VueScanner(new NodeVisitor());
+        const container = scanner.scanPartial(vm, el);
+        Vuelite.context = null;
+        return container;
+    }
+
+    class ForLoop {
+        constructor(vm, el, exp) {
+            this.vm = vm;
+            this.el = el;
+            this.exp = exp;
+            this.parent = el.parentElement || vm.el;
+            const keywords = extractKeywords(this.exp);
+            if (!keywords)
+                return;
+            const { key, list } = keywords;
+            this.data = unsafeEvaluate(vm, list);
+            this.alias = extractAlias(key);
+            this.render(this.el, list);
+        }
+        render(el, listExp) {
+            const fragment = document.createDocumentFragment();
+            Array.from({ length: loopSize(this.data) }).forEach((_, index) => {
+                const clone = el.cloneNode(true);
+                removeLoopDirective(clone);
+                const boundEl = bindContext(this, clone, listExp, index);
+                fragment.appendChild(boundEl);
+            });
+            this.parent.replaceChild(fragment, el);
+        }
+    }
+
     class Directive {
         constructor(name, vm, node, exp) {
             this.vm = vm;
@@ -493,7 +608,9 @@
             if (key === "if") {
                 vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
             }
-            else if (key === "for") ;
+            else if (key === "for") {
+                vm.deferredTasks.push(() => new ForLoop(vm, node, exp));
+            }
             else {
                 if (isEventDirective(name))
                     this.eventHandler();
@@ -614,12 +731,21 @@
         directiveBind(el) {
             Array.from(el.attributes).forEach(({ name, value }) => {
                 if (isDirective(name)) {
+                    const global = Vuelite.context || {};
+                    for (const key in global) {
+                        value = value.replace(key, global[key]);
+                    }
                     new Directive(name, this.vm, el, value);
                 }
             });
         }
         templateBind(node) {
-            new Directive("v-text", this.vm, node, node.textContent);
+            let exp = node.textContent;
+            const global = Vuelite.context || {};
+            for (const key in global) {
+                exp = exp.replace(key, global[key]);
+            }
+            new Directive("v-text", this.vm, node, exp);
         }
     }
 
@@ -637,44 +763,33 @@
             let child;
             while ((child = el.firstChild))
                 fragment.appendChild(child);
-            this.fragment = fragment;
+            return fragment;
         }
         scan(vm) {
             const action = (node) => {
                 isReactiveNode(node) && new Observable(vm, node);
             };
             if (vm.template) {
-                this.node2Fragment(vm.template);
+                this.fragment = this.node2Fragment(vm.template);
                 vm.el.innerHTML = "";
             }
             else {
-                this.node2Fragment(vm.el);
+                this.fragment = this.node2Fragment(vm.el);
             }
             action(this.fragment);
             this.visit(action, this.fragment);
             vm.el.appendChild(this.fragment);
             vm.deferredTasks.forEach((fn) => fn());
         }
-    }
-
-    class NodeVisitor {
-        visit(action, target) {
-            let current;
-            const stack = [target.firstChild];
-            while ((current = stack.pop())) {
-                if (current) {
-                    if (shouldSkipChildren(current)) {
-                        action(current);
-                        current = current.nextSibling;
-                        continue;
-                    }
-                    action(current);
-                    if (current.firstChild)
-                        stack.push(current.firstChild);
-                    if (current.nextSibling)
-                        stack.push(current.nextSibling);
-                }
-            }
+        scanPartial(vm, el) {
+            const container = this.node2Fragment(el);
+            const action = (node) => {
+                isReactiveNode(node) && new Observable(vm, node);
+            };
+            action(container);
+            this.visit(action, container);
+            el.appendChild(container);
+            return el;
         }
     }
 

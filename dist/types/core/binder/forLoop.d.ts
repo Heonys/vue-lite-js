@@ -3,6 +3,9 @@ export declare class ForLoop {
     vm: Vuelite;
     el: HTMLElement;
     exp: any;
-    hasKey: boolean;
+    alias: string[];
+    parent: HTMLElement;
+    data: any;
     constructor(vm: Vuelite, el: HTMLElement, exp: any);
+    render(el: HTMLElement, listExp: string): void;
 }
