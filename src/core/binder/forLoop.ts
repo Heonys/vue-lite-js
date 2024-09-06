@@ -1,7 +1,7 @@
-import { extractAlias, extractKeywords, typeOf } from "@/utils/format";
+import { extractAlias, extractKeywords } from "@/utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { unsafeEvaluate } from "@/utils/evaluate";
-import { assignContext } from "@/utils/context";
+import { assignContext, calculateLoopSize } from "./context";
 
 /* 
 일단 v-else 처럼 v-bind:key 의 경우 디렉티브 생성을 하지 않도록 해야할듯
@@ -12,12 +12,19 @@ import { assignContext } from "@/utils/context";
 이때, 자식에 디렉티브가 존재하면 이 시점에 새로운 Directive를 생성해줘야하는 파싱단계가 추가됨
 */
 
-export type LoopContext = Record<string, any>;
+/*  
+v-for은 현재 원래 dom에서 그자리에 컬렌션을 순회하면서 dom을 추가하는 역할을 하고 있기때문에
+f-if와 마찬가지로 필연적으로 dom의 구조를 바꾸기 때문에 파싱할때 다른 디렉티브 처리에 영향을 줄 수 있다
+따라서 조건부 렌더링과 마찬가지로 defferdTask에서 lazy하게 후처리하고 있으며 
+둘다 디렉티브 생성을 미루고 있어서 v-if와 v-for중에 뭐를 먼저 렌더링하는게 영향을 줄 수 있을 것 같은데
+따라서 v-if와 v-for를 중첩해서 사용하는 것은 정상적인 동작을 보장하지 못한다 (공식문서도 안티패턴이라고 설명)
+*/
 
 export class ForLoop {
   hasKey: boolean;
-  loopContexts: LoopContext[] = [];
+  alias: string[];
   parent: HTMLElement;
+  data: any;
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
@@ -28,14 +35,41 @@ export class ForLoop {
     const keywords = extractKeywords(this.exp);
     if (!keywords) return;
 
-    const { alias, list } = keywords;
-    const isWrapped = extractAlias(alias);
-    const data = unsafeEvaluate(vm, list);
+    const { key, list } = keywords;
+    this.data = unsafeEvaluate(vm, list);
+    this.alias = extractAlias(key);
 
-    this.processByType(data, alias, isWrapped);
-    this.renderForLoop(this.el);
+    this.renderForLoop(this.el, list);
+  }
 
-    /* 
+  /* 
+
+
+
+
+
+*/
+
+  renderForLoop(el: HTMLElement, listExp: string) {
+    const fragment = document.createDocumentFragment();
+    const clone = el.cloneNode(true) as HTMLElement;
+    clone.removeAttribute("v-for");
+
+    Array.from({ length: calculateLoopSize(this.data) }).forEach((_, index) => {
+      const computedEl = assignContext(this, clone, listExp, index);
+      fragment.appendChild(computedEl);
+    });
+    this.parent.replaceChild(fragment, el);
+  }
+
+  render() {
+    // 옵저버 생성
+  }
+
+  updater(value: any) {}
+}
+
+/* 
     일단은 안쪽에 디렉티브가 없는것부터 해결하자
     item in items 이렇게 들어오면 
 
@@ -53,62 +87,3 @@ export class ForLoop {
     -> key 적용 
 
     */
-  }
-  renderForLoop(el: HTMLElement) {
-    const fragment = document.createDocumentFragment();
-    const clone = el.cloneNode(true) as HTMLElement;
-    clone.removeAttribute("v-for");
-
-    this.loopContexts.forEach((context) => {
-      const computedEl = assignContext(context, clone);
-      fragment.appendChild(computedEl);
-    });
-    this.parent.replaceChild(fragment, el);
-  }
-
-  render() {
-    // 옵저버 생성
-  }
-
-  updater(value: any) {}
-
-  processByType(value: any, alias: string, isWrapped: string[]) {
-    switch (typeOf(value)) {
-      case "array": {
-        const array = value as any[];
-        array.forEach((v, i) => {
-          const context: LoopContext = {};
-          if (isWrapped) {
-            isWrapped[0] && (context[isWrapped[0]] = v);
-            isWrapped[1] && (context[isWrapped[1]] = i);
-          } else {
-            context[alias] = v;
-          }
-          this.loopContexts.push(context);
-        });
-        break;
-      }
-      /* 
-        items의 종류에 따라 달라짐 
-        배열 -> (item, index) 형태로 반환 
-        객체 -> (value, key, index) 형태로 반환 
-        숫자 -> 그 숫자만 큼 반복하며 인덱스 반한
-        문자열 -> 문자열도 이터레이터 순환하며 배열과 같이 반환 
-        그외의 경우는 렌더링 되지않음 
-      */
-      case "object": {
-        const obj = value as object;
-        break;
-      }
-      case "number": {
-        break;
-      }
-      case "string": {
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-  }
-}

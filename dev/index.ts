@@ -27,6 +27,11 @@ const vm = new Vuelite({
         { id: 3, message: "Item 3" },
         { id: 4, message: "Item 4" },
       ],
+      myObject: {
+        title: "Vue에서 목록을 작성하는 방법",
+        author: "홍길동",
+        publishedAt: "2016-04-10",
+      },
       message: "",
       firstName: "Jiheon",
       lastName: "Kim",

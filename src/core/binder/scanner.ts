@@ -38,4 +38,12 @@ export class VueScanner extends Scanner {
     vm.el.appendChild(this.fragment);
     vm.deferredTasks.forEach((fn) => fn());
   }
+
+  scanPartial(vm: Vuelite, el: HTMLElement) {
+    const action = (node: Node) => {
+      isReactiveNode(node) && new Observable(vm, node);
+    };
+    action(el);
+    this.visit(action, el);
+  }
 }

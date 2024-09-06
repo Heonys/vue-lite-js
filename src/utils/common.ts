@@ -41,5 +41,6 @@ export function createDOMTemplate(template: string) {
 }
 
 export const isNonObserver = (name: string, modifier: string) => {
+  // return name.startsWith("else");
   return name.startsWith("else") || (name === "bind" && modifier === "key");
 };

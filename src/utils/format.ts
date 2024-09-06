@@ -60,24 +60,24 @@ export function extractKeywords(str: string) {
 
   let match = str.match(regexIn);
   if (match) {
-    return { alias: match[1], list: match[2] };
+    return { key: match[1], list: match[2] };
   }
 
   match = str.match(regexOf);
   if (match) {
-    return { alias: match[1], list: match[2] };
+    return { key: match[1], list: match[2] };
   }
   return null;
 }
 
 export function extractAlias(str: string) {
   const match = str.match(/\(([^)]+)\)/);
-  if (!match) return null;
+  if (!match) return [str];
 
   const variables = match[1]
     .split(",")
     .map((item) => item.trim())
-    .filter((item) => item); // 빈 문자열을 필터링
+    .filter((item) => item);
 
   return variables;
 }
