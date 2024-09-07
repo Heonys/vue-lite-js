@@ -29,18 +29,28 @@
 
       
       
+
+      <div>객체 루프</div>
+
+      <div v-for="(value, key, index) in myObject" :key="index">
+        <div>{{ `${index} 번째 값 ${value}` }}</div>
+      </div>
+
+      <div>객체 루프</div>
       
-      <ul>
-        <div v-for="item in items" :key="item.id">
-          <div>{{ item.message }}</div>
-          <input type="text" v-model="item.message">
-        </div>
-      </ul>
+      <!-- <div>배열 루프</div>
+      <div v-for="(item, index) in items" :key="item.id">
+        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
+      </div> -->
 
-
-      <input type="text" v-model="itemCount">
-      <div>{{ itemCount }}</div>
       <button @click="addItem">add</button>
+
+
+
+
+<!-- 
+      <input type="text" v-model="itemCount">
+      <div>{{ itemCount }}</div> -->
 
 
 

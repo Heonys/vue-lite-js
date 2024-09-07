@@ -2,12 +2,12 @@ import { isObject, typeOf } from "@utils/format";
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
+import { Store } from "./store";
 
 type Target = { [k: string]: any };
 
 export class Reactivity {
   public proxy: Target;
-
   constructor(data: object) {
     this.proxy = this.define(data);
   }
@@ -16,6 +16,7 @@ export class Reactivity {
     const me = this;
     const caches = new Map<string, Target>();
     const deps = new Map<string, Dep>();
+    Store.addStore(deps);
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
@@ -36,6 +37,10 @@ export class Reactivity {
         const result = Reflect.set(target, key, value, receiver);
         if (deps.has(key)) {
           deps.get(key).notify();
+        } else {
+          // 초기에 주입된 반응형 데이터가 아닌 동적으로 추가된 데이터 처리
+          deps.set(key, new Dep(key));
+          Store.notifyAll();
         }
 
         return result;

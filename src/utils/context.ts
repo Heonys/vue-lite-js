@@ -8,12 +8,12 @@ export function createContext(alias: string[], exp: string, index: number, data:
         return { [alias[0]]: `${exp}.${key}` };
       }
       case 2: {
-        return { [alias[0]]: `${exp}.${key}`, [alias[1]]: `${key}` };
+        return { [alias[0]]: `${exp}.${key}`, [alias[1]]: `"${key}"` };
       }
       case 3: {
         return {
           [alias[0]]: `${exp}.${key}`,
-          [alias[1]]: `${key}`,
+          [alias[1]]: `"${key}"`,
           [alias[2]]: index,
         };
       }

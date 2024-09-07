@@ -23,7 +23,7 @@ export class Observer {
     this.deps.add(dep);
   }
 
-  // this.value -> 의도적으로 "length" 속성에 대한 set trap 발동하기 위함
+  // this.length-> 의도적으로 "length" 속성에 대한 get trap 발동하기 위함
   getterTrigger() {
     Dep.activated = this;
     const value = evaluateValue(this.directiveName, this.vm, this.exp);
