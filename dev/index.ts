@@ -21,11 +21,12 @@ const vm = new Vuelite({
         class: "testClass",
         customKey: "customValue",
       },
+      itemCount: "",
       items: [
         { id: 1, message: "Item 1" },
         { id: 2, message: "Item 2" },
         { id: 3, message: "Item 3" },
-        { id: 4, message: "Item 4" },
+        // { id: 4, message: "Item 4" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -82,6 +83,14 @@ const vm = new Vuelite({
     },
     fullNameMethod() {
       return this.firstName + " + " + this.lastName;
+    },
+    addItem(value: any) {
+      /* 
+      배열을 새로 할당하면 기존에 Reactity를 주입해놓은 기존의 배열이 
+      새로 할당되면서 참조가 바뀌기 때문에 변경된 배열을 감지하지 못하는것 같다
+      */
+      this.items.push({ id: 1, message: `Item ${this.itemCount}` });
+      this.itemCount = "";
     },
   },
   styles: {

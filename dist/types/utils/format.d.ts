@@ -13,3 +13,4 @@ export declare function extractKeywords(str: string): {
     list: string;
 };
 export declare function extractAlias(str: string): string[];
+export declare function isPrimitive(value: any): boolean;

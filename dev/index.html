@@ -28,29 +28,19 @@
       <div>{{ items[0].message }}</div> -->
 
       
-
-
+      
+      
       <ul>
         <div v-for="item in items" :key="item.id">
           <div>{{ item.message }}</div>
           <input type="text" v-model="item.message">
         </div>
-
-
-        <!-- <li v-for="(item, index) in items" :key="item.id">
-          {{ item.message }}
-        </li> -->
-
-
-        <!-- <li v-for="(value, key) in myObject">
-          {{ value }}
-        </li>
-        <li v-for="(value, index) in 3">
-          {{ value}}
-        </li> -->
       </ul>
 
 
+      <input type="text" v-model="itemCount">
+      <div>{{ itemCount }}</div>
+      <button @click="addItem">add</button>
 
 
 

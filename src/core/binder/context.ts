@@ -4,8 +4,14 @@ import { VueScanner } from "./scanner";
 import { NodeVisitor } from "./visitor";
 import { createContext } from "@/utils/context";
 
-export function bindContext(loop: ForLoop, el: HTMLElement, listExp: string, index: number) {
-  const { alias, data, vm } = loop;
+export function bindContext(
+  loop: ForLoop,
+  el: HTMLElement,
+  listExp: string,
+  index: number,
+  data: any,
+) {
+  const { alias, vm } = loop;
   const context = createContext(alias, listExp, index, data);
 
   Vuelite.context = context;

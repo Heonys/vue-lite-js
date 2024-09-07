@@ -88,9 +88,13 @@ function extractAlias(str) {
         .filter((item) => item);
     return variables;
 }
+function isPrimitive(value) {
+    return value !== Object(value);
+}
 
 class Dep {
-    constructor() {
+    constructor(key) {
+        this.key = key;
         this.listener = new Set();
     }
     subscribe(observer) {
@@ -127,9 +131,11 @@ class Reactivity {
         const deps = new Map();
         const handler = {
             get(target, key, receiver) {
-                if (!deps.has(key))
-                    deps.set(key, new Dep());
-                deps.get(key).depend();
+                if (typeOf(key) !== "symbol") {
+                    if (!deps.has(key))
+                        deps.set(key, new Dep(key));
+                    deps.get(key).depend();
+                }
                 const child = target[key];
                 if (isObject(child)) {
                     if (!caches.has(key))
@@ -408,16 +414,17 @@ class Observer {
     getterTrigger() {
         Dep.activated = this;
         const value = evaluateValue(this.directiveName, this.vm, this.exp);
+        value.length;
         Dep.activated = null;
         return value;
     }
     update() {
         const oldValue = this.value;
         const newValue = this.getterTrigger();
-        if (oldValue !== newValue) {
-            this.value = newValue;
-            this.onUpdate.call(this.vm, newValue);
-        }
+        if (isPrimitive(newValue) && oldValue === newValue)
+            return;
+        this.value = newValue;
+        this.onUpdate.call(this.vm, newValue);
     }
 }
 
@@ -551,8 +558,8 @@ function loopSize(value) {
     }
 }
 
-function bindContext(loop, el, listExp, index) {
-    const { alias, data, vm } = loop;
+function bindContext(loop, el, listExp, index, data) {
+    const { alias, vm } = loop;
     const context = createContext(alias, listExp, index, data);
     Vuelite.context = context;
     const scanner = new VueScanner(new NodeVisitor());
@@ -571,19 +578,25 @@ class ForLoop {
         if (!keywords)
             return;
         const { key, list } = keywords;
-        this.data = unsafeEvaluate(vm, list);
+        this.listExp = list;
         this.alias = extractAlias(key);
-        this.render(this.el, list);
+        this.render();
     }
-    render(el, listExp) {
+    render() {
+        new Observer(this.vm, this.listExp, "for", (value) => {
+            this.updater(value);
+        });
+    }
+    updater(value) {
         const fragment = document.createDocumentFragment();
-        Array.from({ length: loopSize(this.data) }).forEach((_, index) => {
-            const clone = el.cloneNode(true);
+        Array.from({ length: loopSize(value) }).forEach((_, index) => {
+            const clone = this.el.cloneNode(true);
             removeLoopDirective(clone);
-            const boundEl = bindContext(this, clone, listExp, index);
+            const boundEl = bindContext(this, clone, this.listExp, index, value);
             fragment.appendChild(boundEl);
         });
-        this.parent.replaceChild(fragment, el);
+        this.parent.innerHTML = "";
+        this.parent.appendChild(fragment);
     }
 }
 

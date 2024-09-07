@@ -1,4 +1,4 @@
-import { isObject } from "@utils/format";
+import { isObject, typeOf } from "@utils/format";
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
@@ -19,15 +19,17 @@ export class Reactivity {
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
-        if (!deps.has(key)) deps.set(key, new Dep());
-        deps.get(key).depend();
+        if (typeOf(key) !== "symbol") {
+          if (!deps.has(key)) deps.set(key, new Dep(key));
+          deps.get(key).depend();
+        }
 
         const child = target[key];
-
         if (isObject(child)) {
           if (!caches.has(key)) caches.set(key, me.define(child));
           return caches.get(key);
         }
+
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
@@ -35,6 +37,7 @@ export class Reactivity {
         if (deps.has(key)) {
           deps.get(key).notify();
         }
+
         return result;
       },
     };

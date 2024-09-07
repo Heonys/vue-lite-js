@@ -1,6 +1,7 @@
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { evaluateValue } from "@/utils/evaluate";
+import { isPrimitive } from "@/utils/format";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {
@@ -22,9 +23,11 @@ export class Observer {
     this.deps.add(dep);
   }
 
+  // this.value -> 의도적으로 "length" 속성에 대한 set trap 발동하기 위함
   getterTrigger() {
     Dep.activated = this;
     const value = evaluateValue(this.directiveName, this.vm, this.exp);
+    value.length;
     Dep.activated = null;
     return value;
   }
@@ -32,10 +35,8 @@ export class Observer {
   update() {
     const oldValue = this.value;
     const newValue = this.getterTrigger();
-
-    if (oldValue !== newValue) {
-      this.value = newValue;
-      this.onUpdate.call(this.vm, newValue);
-    }
+    if (isPrimitive(newValue) && oldValue === newValue) return;
+    this.value = newValue;
+    this.onUpdate.call(this.vm, newValue);
   }
 }

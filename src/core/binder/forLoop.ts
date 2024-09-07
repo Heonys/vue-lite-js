@@ -1,9 +1,9 @@
 import { extractAlias, extractKeywords } from "@/utils/format";
 import Vuelite from "../viewmodel/vuelite";
-import { unsafeEvaluate } from "@/utils/evaluate";
 import { bindContext } from "./context";
 import { loopSize } from "@/utils/context";
 import { removeLoopDirective } from "@/utils/directive";
+import { Observer } from "../reactive/observer";
 
 /*  
 v-for은 현재 원래 dom에서 그자리에 컬렌션을 순회하면서 dom을 추가하는 역할을 하고 있기때문에
@@ -16,7 +16,7 @@ f-if와 마찬가지로 필연적으로 dom의 구조를 바꾸기 때문에 파
 export class ForLoop {
   alias: string[];
   parent: HTMLElement;
-  data: any;
+  listExp: string;
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
@@ -27,20 +27,36 @@ export class ForLoop {
     if (!keywords) return;
 
     const { key, list } = keywords;
-    this.data = unsafeEvaluate(vm, list);
+    this.listExp = list;
     this.alias = extractAlias(key);
-    this.render(this.el, list);
+    this.render();
   }
 
-  render(el: HTMLElement, listExp: string) {
+  render() {
+    new Observer(this.vm, this.listExp, "for", (value) => {
+      this.updater(value);
+    });
+  }
+
+  updater(value: any) {
     const fragment = document.createDocumentFragment();
 
-    Array.from({ length: loopSize(this.data) }).forEach((_, index) => {
-      const clone = el.cloneNode(true) as HTMLElement;
+    Array.from({ length: loopSize(value) }).forEach((_, index) => {
+      const clone = this.el.cloneNode(true) as HTMLElement;
       removeLoopDirective(clone);
-      const boundEl = bindContext(this, clone, listExp, index);
+      const boundEl = bindContext(this, clone, this.listExp, index, value);
       fragment.appendChild(boundEl);
     });
-    this.parent.replaceChild(fragment, el);
+    this.parent.innerHTML = "";
+    this.parent.appendChild(fragment);
+
+    /* 
+    this.parent.replaceChild(fragment, this.el);
+    초기에 replaceChild 메소드를 사용해서 교체하력 했으나 
+    replaceChild는 oldChild와 부모와의 관계를 완전히 끊어버리는 특징이 있었다
+    그래서 this.el에 대한 참조는 유지한채 게속 복사하면서 동적으로 생성해야 하기때문에
+    부모자식 관계가 끊어지는 replaceChild를 반복적으로 사용할 수 없었고,
+    결과적으로 innerHTML으로 초기화하는 방식을 택했다
+    */
   }
 }

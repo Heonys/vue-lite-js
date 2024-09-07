@@ -81,3 +81,7 @@ export function extractAlias(str: string) {
 
   return variables;
 }
+
+export function isPrimitive(value: any) {
+  return value !== Object(value);
+}
