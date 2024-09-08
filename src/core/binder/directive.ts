@@ -14,22 +14,25 @@ export class Directive {
     public vm: Vuelite,
     public node: Node,
     public exp: any,
+    task?: Function[],
   ) {
     const { key, modifier } = extractDirective(name);
     this.directiveName = key;
     this.modifier = modifier;
-
     if (!isValidDirective(key)) return;
     if (isNonObserver(key, modifier)) return;
     //  switch문으로 바꾸는거 고려
     if (key === "if") {
-      vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
+      task
+        ? task.push(() => new Condition(vm, node as HTMLElement, key, exp))
+        : vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
     } else if (key === "for") {
-      vm.deferredTasks.push(() => new ForLoop(vm, node as HTMLElement, exp));
+      task
+        ? task.push(() => new ForLoop(vm, node as HTMLElement, exp))
+        : vm.deferredTasks.push(() => new ForLoop(vm, node as HTMLElement, exp));
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
-
       if (node instanceof HTMLElement) node.removeAttribute(name);
     }
   }
@@ -42,7 +45,6 @@ export class Directive {
     if (!updater) {
       updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
-
     new Observer(this.vm, this.exp, this.directiveName, (value) => {
       updater && updater(this.node, value);
     });

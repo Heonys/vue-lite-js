@@ -24,4 +24,8 @@ export default class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     const scanner = new VueScanner(new NodeVisitor());
     scanner.scan(this);
   }
+  clearTasks() {
+    this.deferredTasks.forEach((fn) => fn());
+    this.deferredTasks = [];
+  }
 }

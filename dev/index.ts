@@ -23,10 +23,39 @@ const vm = new Vuelite({
       },
       itemCount: "",
       items: [
-        { id: 1, message: "Item 1" },
-        { id: 2, message: "Item 2" },
-        { id: 3, message: "Item 3" },
-        // { id: 4, message: "Item 4" },
+        {
+          id: 1,
+          children: [
+            { id: 5, message: "Item 5" },
+            { id: 6, message: "Item 6" },
+            { id: 7, message: "Item 7" },
+            { id: 8, message: "Item 8" },
+          ],
+        },
+        {
+          id: 2,
+          children: [
+            { id: 9, message: "Item 9" },
+            { id: 10, message: "Item 10" },
+            { id: 11, message: "Item 11" },
+            { id: 12, message: "Item 12" },
+          ],
+        },
+        {
+          id: 3,
+          children: [
+            { id: 13, message: "Item 13" },
+            { id: 14, message: "Item 14" },
+            { id: 15, message: "Item 15" },
+            { id: 16, message: "Item 16" },
+          ],
+        },
+      ],
+      items2: [
+        { id: 13, message: "Item 13" },
+        { id: 14, message: "Item 14" },
+        { id: 15, message: "Item 15" },
+        { id: 16, message: "Item 16" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -89,11 +118,15 @@ const vm = new Vuelite({
       배열을 새로 할당하면 기존에 Reactity를 주입해놓은 기존의 배열이 
       새로 할당되면서 참조가 바뀌기 때문에 변경된 배열을 감지하지 못하는것 같다
       */
-      this.objectBind["newKey"] = "newValue";
+
+      this.myObject["newValue"] = "newValue";
       // this.myObject.title = "change Title";
 
       // this.items.push({ id: 1, message: `Item ${this.title}` });
       // this.title = "";
+    },
+    addArrayItem() {
+      this.items.push({ id: 10, message: `Item 10` });
     },
   },
   styles: {

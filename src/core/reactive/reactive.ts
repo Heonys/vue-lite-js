@@ -19,23 +19,31 @@ export class Reactivity {
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
-        if (typeOf(key) !== "symbol") {
-          if (!deps.has(key)) deps.set(key, new Dep(key));
-          deps.get(key).depend();
-        }
+        if (typeOf(key) === "symbol") return Reflect.get(target, key, receiver);
+        if (!deps.has(key)) deps.set(key, new Dep(key));
+        deps.get(key).depend();
 
         const child = target[key];
         if (isObject(child)) {
           if (!caches.has(key)) caches.set(key, me.define(child));
           return caches.get(key);
         }
-
         return Reflect.get(target, key, receiver);
       },
       set(target: Target, key: string, value: any, receiver: Target) {
         const result = Reflect.set(target, key, value, receiver);
+
         if (deps.has(key)) {
           deps.get(key).notify();
+        } else {
+          /* 
+            기존에 반응성이 주입된 객체에 동적으로 속성을 추가하면 해당속성은
+            get트랩을 거치지 않았기 때문에 Dep <-> Observer의 관계를 갖지않는다 
+            따라서 비효율적이지만, 등록된 Dep 전체를 업데이트 한다 
+            예외적으로 배열은 length 속성의 변화가 배열을 update를 해주기 때문에 강제로 업데이트하지 않는다. 
+          */
+          if (Array.isArray(target)) return result;
+          Store.forceUpdate();
         }
         return result;
       },
@@ -52,7 +60,6 @@ export function injectReactive(vm: Vuelite) {
 
   for (const key in returned) {
     Object.defineProperty(vm, key, {
-      // enumerable: true,
       configurable: false,
       get: () => proxy[key],
       set: (value) => {

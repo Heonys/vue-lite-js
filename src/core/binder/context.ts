@@ -11,12 +11,11 @@ export function bindContext(
   index: number,
   data: any,
 ) {
-  const { alias, vm } = loop;
+  const { alias, vm, contextTask } = loop;
   const context = createContext(alias, listExp, index, data);
-
   Vuelite.context = context;
   const scanner = new VueScanner(new NodeVisitor());
-  const container = scanner.scanPartial(vm, el);
+  const container = scanner.scanPartial(vm, el, contextTask);
   Vuelite.context = null;
 
   return container;

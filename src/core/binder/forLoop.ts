@@ -11,10 +11,8 @@ import { Observer } from "../reactive/observer";
   따라서 조건부 렌더링과 마찬가지로 defferdTask에서 lazy하게 후처리하고 있으며 
   둘다 디렉티브 생성을 미루고 있어서 v-if와 v-for중에 뭐를 먼저 렌더링하는게 영향을 줄 수 있을 것 같은데
   따라서 v-if와 v-for를 중첩해서 사용하는 것은 정상적인 동작을 보장하지 못한다 (공식문서도 안티패턴이라고 설명)
-*/
 
-/* 
-  startIndex와 endIndex로 이전 렌더링에 그려진 요소들을 추적하고 그 위치에 새로운 요소들로 교체할 수 있게 설계
+  +startIndex와 endIndex로 이전 렌더링에 그려진 요소들을 추적하고 그 위치에 새로운 요소들로 교체할 수 있게 설계
 */
 
 export class ForLoop {
@@ -23,6 +21,7 @@ export class ForLoop {
   listExp: string;
   startIndex: number;
   endIndex: number;
+  contextTask: Function[] = [];
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
@@ -34,6 +33,7 @@ export class ForLoop {
     if (!keywords) return;
 
     const { key, list } = keywords;
+
     this.listExp = list;
     this.alias = extractAlias(key);
     this.render();
@@ -43,6 +43,10 @@ export class ForLoop {
     new Observer(this.vm, this.listExp, "for", (value) => {
       this.updater(value);
     });
+  }
+
+  clearTask() {
+    this.contextTask.forEach((fn) => fn());
   }
 
   updater(value: any) {
@@ -77,5 +81,6 @@ export class ForLoop {
       this.parent.insertBefore(fragment, ref);
       this.endIndex = this.startIndex + length - 1;
     }
+    this.clearTask();
   }
 }

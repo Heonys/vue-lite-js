@@ -7,6 +7,7 @@ export class Observable {
   constructor(
     public vm: Vuelite,
     public node: Node,
+    public contextTask?: Function[],
   ) {
     const patten: RegExp = /{{\s*(.*?)\s*}}/;
     const text = node.textContent;
@@ -25,7 +26,7 @@ export class Observable {
         for (const key in global) {
           value = value.replace(key, (global as any)[key]);
         }
-        new Directive(name, this.vm, el, value);
+        new Directive(name, this.vm, el, value, this.contextTask);
       }
     });
   }
@@ -33,7 +34,7 @@ export class Observable {
     let exp = node.textContent;
     const global = Vuelite.context || {};
     for (const key in global) {
-      exp = exp.replace(key, (global as any)[key]);
+      exp = exp.replaceAll(key, (global as any)[key]);
     }
     new Directive("v-text", this.vm, node, exp);
   }

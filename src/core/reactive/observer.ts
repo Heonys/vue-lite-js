@@ -27,7 +27,7 @@ export class Observer {
   getterTrigger() {
     Dep.activated = this;
     const value = evaluateValue(this.directiveName, this.vm, this.exp);
-    value.length;
+    if (Array.isArray(value)) value.length;
     Dep.activated = null;
     return value;
   }
@@ -36,7 +36,6 @@ export class Observer {
     const oldValue = this.value;
     const newValue = this.getterTrigger();
     if (isPrimitive(newValue) && oldValue === newValue) return;
-    // if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) return;
     this.value = newValue;
     this.onUpdate.call(this.vm, newValue);
   }

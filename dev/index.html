@@ -8,83 +8,20 @@
   <body>
     <div id="app">
 
-      <!-- <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
-      <div v-else> {{ "10 + 20 = " }}</div>
+      <input type="checkbox" v-model="hello"> 
 
-      <input type="text" v-model="inputValue">
-
-      <div >
-        <input type="checkbox" v-model="visible" />
-        <span>{{ visible ? "🔓🔓" : "🔒🔒" }}</span>
-        <div v-show="visible">{{ "👻" }}</div>
-      </div> -->
-
-
-      
-      <!-- <input type="text" v-model="items[1].message">
-      <div>{{ items[1].message }}</div> -->
-
-      <!-- <input type="text" v-model="myObject.title">
-      <div>{{ items[0].message }}</div> -->
-
-      
-      
-
-      <div>객체 루프</div>
-
-      <div v-for="(value, key, index) in myObject" :key="index">
-        <div>{{ `${index} 번째 값 ${value}` }}</div>
+      <div v-if="hello">
+        <input type="text" v-model="itemCount">
+        <div>{{ itemCount }}</div>
+      </div> 
+      <div v-else>
+        <div v-for="(item, index) in items2" :key="item.id">
+          <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
+        </div>
       </div>
 
 
-      <button @click="addItem">add</button>
 
-
-      <br />
-
-      
-      <div>배열 루프1</div>
-      <div v-for="(item, index) in items" :key="item.id">
-        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
-      </div>
-      
-      
-    
-
-      
-
-
-<!-- 
-      <input type="text" v-model="itemCount">
-      <div>{{ itemCount }}</div> -->
-
-
-
-      <!-- Object v-for  -->
-      <!-- <li v-for="(value, key) in object" :key="key">
-        {{ key }}: {{ value }}
-      </li> -->
-
-      <!-- Range v-for -->
-      <!-- <span v-for="n in 10">{{ n }}</span> -->
-
-
-      <!-- v-for 내부에서도 바인딩이 가능해야함 -->
-      <!-- <li v-for="item in items" :key="item.id">
-        <span :style="itemStyle">{{ item.message }}</span>
-      </li> -->
-
-
-
-      
-      
-
-
-
-      <!-- <input type="text" v-model="message" />
-      <p :style="{color: textStyle.color, textDecoration: 'line-through' }">{{ message }}</p>
-      <button @click="handleClick">change vuelite</button>
- -->
 
     </div>
   </body>
