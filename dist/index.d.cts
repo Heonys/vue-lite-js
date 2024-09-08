@@ -42,6 +42,7 @@ declare class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<Data, Methods, Computed>);
+    clearTasks(): void;
 }
 
 declare class Directive {
@@ -50,7 +51,7 @@ declare class Directive {
     exp: any;
     directiveName: string;
     modifier: string;
-    constructor(name: string, vm: Vuelite, node: Node, exp: any);
+    constructor(name: string, vm: Vuelite, node: Node, exp: any, task?: Function[]);
     bind(updater?: Updater): void;
     model(): void;
     text(): void;
@@ -64,7 +65,8 @@ declare class Directive {
 declare class Observable {
     vm: Vuelite;
     node: Node;
-    constructor(vm: Vuelite, node: Node);
+    contextTask?: Function[];
+    constructor(vm: Vuelite, node: Node, contextTask?: Function[]);
     directiveBind(el: Element): void;
     templateBind(node: Node): void;
 }
@@ -86,7 +88,7 @@ declare class VueScanner extends Scanner {
     private fragment;
     private node2Fragment;
     scan(vm: Vuelite): void;
-    scanPartial(vm: Vuelite, el: HTMLElement): HTMLElement;
+    scanPartial(vm: Vuelite, el: HTMLElement, contextTask: Function[]): HTMLElement;
 }
 
 declare class Observer {

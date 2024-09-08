@@ -120,6 +120,22 @@
         }
     }
     Dep.activated = null;
+    class Store {
+        static getStore() {
+            return this.globalDeps;
+        }
+        static addStore(deps) {
+            this.globalDeps.push(deps);
+        }
+        static forceUpdate() {
+            this.globalDeps.forEach((deps) => {
+                for (const dep of deps.values()) {
+                    dep.notify();
+                }
+            });
+        }
+    }
+    Store.globalDeps = [];
 
     function isAccessor(data) {
         if (typeof data !== "function")
@@ -135,13 +151,14 @@
             const me = this;
             const caches = new Map();
             const deps = new Map();
+            Store.addStore(deps);
             const handler = {
                 get(target, key, receiver) {
-                    if (typeOf(key) !== "symbol") {
-                        if (!deps.has(key))
-                            deps.set(key, new Dep(key));
-                        deps.get(key).depend();
-                    }
+                    if (typeOf(key) === "symbol")
+                        return Reflect.get(target, key, receiver);
+                    if (!deps.has(key))
+                        deps.set(key, new Dep(key));
+                    deps.get(key).depend();
                     const child = target[key];
                     if (isObject(child)) {
                         if (!caches.has(key))
@@ -154,6 +171,11 @@
                     const result = Reflect.set(target, key, value, receiver);
                     if (deps.has(key)) {
                         deps.get(key).notify();
+                    }
+                    else {
+                        if (Array.isArray(target))
+                            return result;
+                        Store.forceUpdate();
                     }
                     return result;
                 },
@@ -420,7 +442,8 @@
         getterTrigger() {
             Dep.activated = this;
             const value = evaluateValue(this.directiveName, this.vm, this.exp);
-            value.length;
+            if (Array.isArray(value))
+                value.length;
             Dep.activated = null;
             return value;
         }
@@ -460,7 +483,7 @@
         }
         updater(value) {
             if (value) {
-                const ref = Array.from(this.parent.children)[this.childIndex];
+                const ref = this.parent.children[this.childIndex];
                 this.parent.insertBefore(this.ifFragment, ref);
                 if (this.elseElement)
                     this.elseFragment.appendChild(this.elseElement);
@@ -468,7 +491,7 @@
             else {
                 this.ifFragment.appendChild(this.el);
                 if (this.elseElement) {
-                    const ref = Array.from(this.parent.children)[this.childIndex];
+                    const ref = this.parent.children[this.childIndex];
                     this.parent.insertBefore(this.elseFragment, ref);
                 }
             }
@@ -505,12 +528,12 @@
                     return { [alias[0]]: `${exp}.${key}` };
                 }
                 case 2: {
-                    return { [alias[0]]: `${exp}.${key}`, [alias[1]]: `${key}` };
+                    return { [alias[0]]: `${exp}.${key}`, [alias[1]]: `"${key}"` };
                 }
                 case 3: {
                     return {
                         [alias[0]]: `${exp}.${key}`,
-                        [alias[1]]: `${key}`,
+                        [alias[1]]: `"${key}"`,
                         [alias[2]]: index,
                     };
                 }
@@ -565,11 +588,11 @@
     }
 
     function bindContext(loop, el, listExp, index, data) {
-        const { alias, vm } = loop;
+        const { alias, vm, contextTask } = loop;
         const context = createContext(alias, listExp, index, data);
         Vuelite.context = context;
         const scanner = new VueScanner(new NodeVisitor());
-        const container = scanner.scanPartial(vm, el);
+        const container = scanner.scanPartial(vm, el, contextTask);
         Vuelite.context = null;
         return container;
     }
@@ -579,7 +602,9 @@
             this.vm = vm;
             this.el = el;
             this.exp = exp;
+            this.contextTask = [];
             this.parent = el.parentElement || vm.el;
+            this.startIndex = Array.from(this.parent.children).indexOf(el);
             const keywords = extractKeywords(this.exp);
             if (!keywords)
                 return;
@@ -593,21 +618,40 @@
                 this.updater(value);
             });
         }
+        clearTask() {
+            this.contextTask.forEach((fn) => fn());
+        }
         updater(value) {
             const fragment = document.createDocumentFragment();
-            Array.from({ length: loopSize(value) }).forEach((_, index) => {
+            const length = loopSize(value);
+            const endPoint = this.startIndex + length - 1;
+            Array.from({ length }).forEach((_, index) => {
                 const clone = this.el.cloneNode(true);
                 removeLoopDirective(clone);
                 const boundEl = bindContext(this, clone, this.listExp, index, value);
                 fragment.appendChild(boundEl);
             });
-            this.parent.innerHTML = "";
-            this.parent.appendChild(fragment);
+            if (this.el.isConnected) {
+                this.parent.replaceChild(fragment, this.el);
+                this.endIndex = endPoint;
+            }
+            else {
+                for (let i = this.endIndex; i >= this.startIndex; i--) {
+                    const child = this.parent.children[i];
+                    if (child) {
+                        this.parent.removeChild(child);
+                    }
+                }
+                const ref = this.parent.children[this.startIndex];
+                this.parent.insertBefore(fragment, ref);
+                this.endIndex = this.startIndex + length - 1;
+            }
+            this.clearTask();
         }
     }
 
     class Directive {
-        constructor(name, vm, node, exp) {
+        constructor(name, vm, node, exp, task) {
             this.vm = vm;
             this.node = node;
             this.exp = exp;
@@ -619,10 +663,14 @@
             if (isNonObserver(key, modifier))
                 return;
             if (key === "if") {
-                vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
+                task
+                    ? task.push(() => new Condition(vm, node, key, exp))
+                    : vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
             }
             else if (key === "for") {
-                vm.deferredTasks.push(() => new ForLoop(vm, node, exp));
+                task
+                    ? task.push(() => new ForLoop(vm, node, exp))
+                    : vm.deferredTasks.push(() => new ForLoop(vm, node, exp));
             }
             else {
                 if (isEventDirective(name))
@@ -729,9 +777,10 @@
     }
 
     class Observable {
-        constructor(vm, node) {
+        constructor(vm, node, contextTask) {
             this.vm = vm;
             this.node = node;
+            this.contextTask = contextTask;
             const patten = /{{\s*(.*?)\s*}}/;
             const text = node.textContent;
             if (isElementNode(node)) {
@@ -748,7 +797,7 @@
                     for (const key in global) {
                         value = value.replace(key, global[key]);
                     }
-                    new Directive(name, this.vm, el, value);
+                    new Directive(name, this.vm, el, value, this.contextTask);
                 }
             });
         }
@@ -756,7 +805,7 @@
             let exp = node.textContent;
             const global = Vuelite.context || {};
             for (const key in global) {
-                exp = exp.replace(key, global[key]);
+                exp = exp.replaceAll(key, global[key]);
             }
             new Directive("v-text", this.vm, node, exp);
         }
@@ -792,12 +841,12 @@
             action(this.fragment);
             this.visit(action, this.fragment);
             vm.el.appendChild(this.fragment);
-            vm.deferredTasks.forEach((fn) => fn());
+            vm.clearTasks();
         }
-        scanPartial(vm, el) {
+        scanPartial(vm, el, contextTask) {
             const container = this.node2Fragment(el);
             const action = (node) => {
-                isReactiveNode(node) && new Observable(vm, node);
+                isReactiveNode(node) && new Observable(vm, node, contextTask);
             };
             action(container);
             this.visit(action, container);
@@ -816,6 +865,10 @@
             injectStyleSheet(this);
             const scanner = new VueScanner(new NodeVisitor());
             scanner.scan(this);
+        }
+        clearTasks() {
+            this.deferredTasks.forEach((fn) => fn());
+            this.deferredTasks = [];
         }
     }
 

@@ -7,4 +7,5 @@ export default class Vuelite<Data = {}, Methods = {}, Computed = {}> {
     static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<Data, Methods, Computed>);
+    clearTasks(): void;
 }
