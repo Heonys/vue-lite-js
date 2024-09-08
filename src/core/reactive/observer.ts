@@ -36,6 +36,7 @@ export class Observer {
     const oldValue = this.value;
     const newValue = this.getterTrigger();
     if (isPrimitive(newValue) && oldValue === newValue) return;
+    // if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) return;
     this.value = newValue;
     this.onUpdate.call(this.vm, newValue);
   }

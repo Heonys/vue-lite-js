@@ -11,9 +11,9 @@
       <!-- <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
       <div v-else> {{ "10 + 20 = " }}</div>
 
-      <input type="text" v-model="inputValue"> -->
+      <input type="text" v-model="inputValue">
 
-      <!-- <div >
+      <div >
         <input type="checkbox" v-model="visible" />
         <span>{{ visible ? "🔓🔓" : "🔒🔒" }}</span>
         <div v-show="visible">{{ "👻" }}</div>
@@ -36,16 +36,22 @@
         <div>{{ `${index} 번째 값 ${value}` }}</div>
       </div>
 
-      <div>객체 루프</div>
-      
-      <!-- <div>배열 루프</div>
-      <div v-for="(item, index) in items" :key="item.id">
-        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
-      </div> -->
 
       <button @click="addItem">add</button>
 
 
+      <br />
+
+      
+      <div>배열 루프1</div>
+      <div v-for="(item, index) in items" :key="item.id">
+        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
+      </div>
+      
+      
+    
+
+      
 
 
 <!-- 

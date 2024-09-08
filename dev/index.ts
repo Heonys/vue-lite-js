@@ -89,14 +89,11 @@ const vm = new Vuelite({
       배열을 새로 할당하면 기존에 Reactity를 주입해놓은 기존의 배열이 
       새로 할당되면서 참조가 바뀌기 때문에 변경된 배열을 감지하지 못하는것 같다
       */
+      this.objectBind["newKey"] = "newValue";
+      // this.myObject.title = "change Title";
 
-      // this.objectBind["newKey"] = "newValue";
-
-      this.items.pop();
-
-      // this.items[2].message = "Item 10";
-      // this.items.push({ id: 1, message: `Item ${this.itemCount}` });
-      // this.itemCount = "";
+      // this.items.push({ id: 1, message: `Item ${this.title}` });
+      // this.title = "";
     },
   },
   styles: {
