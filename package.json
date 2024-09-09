@@ -1,6 +1,6 @@
 {
   "name": "vue-lite-js",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "Clones Vue.js to implement a basic MVVM framework using TypeScript",
   "main": "dist/bundle.js",
   "types": "./dist/index.d.ts",
