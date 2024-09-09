@@ -7,45 +7,13 @@
   </head>
   <body>
     <div id="app">
+      
 
       
+
       <div v-for="(item, index) in items" :key="item.id">
-        <div>1 :: {{ items[index].message }}</div>
-        <div>2 :: {{ items[0].message }}</div>
-        <div>3 :: {{ item.message }}</div>
-        <br />
+        <div>{{ item.message }}</div>
       </div>
-
-
-    <!-- <div
-      class="static"
-      :class="{ active: isActive, 'text-danger': hasError }"
-    ></div>
-    <div :class="classData"></div> -->
-
-    <!-- <div :style="{ 'font-size': fontSize + 'px', backgroundColor: '#FF0000' }">hello</div> -->
-    <!-- <div :style="textStyle">hello</div> -->
-
-    <!-- 2가지 방법 모두 테스트  -->
-    <!-- <div :style="{}"></div>
-    <div :style="styleObject"></div> -->
-
-    <!-- <div v-bind="objectBind"></div>
-    <div v-bind="{ id: 'testId', class: 'tesdtClass', customKey: 'customValue' }"></div> -->
-
-
-
-    
-
-      <!-- 
-      클래스 바인딩 v 
-      스타일 바인딩
-      객체 바인딩
-
-      인라인 포맷 바인딩
-
-      -->
-
 
 
     </div>
@@ -54,68 +22,15 @@
 
 
 
-      <!-- <div v-show="visible">{{ firstName }}</div>
 
-      <div v-if="visible">{{ firstName }}</div>
-      <div v-else>{{ firstName }}</div>  -->
 
 
       
 
-      <!-- <div>
-        <div v-if="visible">{{ firstName }}</div>
-      </div> -->
+
 
       
-      <!-- <ul>
-        <li>1</li>
-        <li v-if="visible">2</li>
-        <li>3</li>
-      </ul> -->
-
-    <!-- <input 
-      type="text" 
-      v-bind:value="title" 
-      v-on:input="handleInput"
-    >
-    <div>{{ title }}</div>
-
-    <div v-class="classData" v-html="world"></div>
 
 
-    <label>
-      male<input type="radio" value="male" v-model="selectedValue">
-    </label>
-    <label>
-      female<input type="radio" value="female" v-model="selectedValue">
-    </label>
-    <div>{{ selectedValue }}</div>
 
-    <select v-model="selectedOption">
-      <option value="React">React</option>
-      <option value="Vue">Vue</option>
-      <option value="Angular">Angular</option>
-    </select>
-    <div>{{ selectedOption }}</div>
--->
 
-    <!-- <input type="text" v-model="firstName">
-    <input type="text" v-model="lastName">
-
-    <div>{{ firstName }}, {{ lastName }} {{ gender }}</div>
-    <div>fullName : {{ fullName }}, first: {{ firstName }}, last: {{ lastName }} </div>
-
-    <div>fullName method : {{ fullNameMethod() }}</div>
-    <div>{{ `Welcome, ${firstName}` }}</div>
-
-    
-    <div>
-      <input type="checkbox" v-model="checked" />
-      <span>{{ isChecked }}</span>
-    </div> 
-
-    <div>{{ checked ? "체크o" : "체크x" }}</div>
-    <div>{{ checked ? "체크o" : "체크x" }} {{ 5 + 6 }}</div>
-    <div>{{ 5 + 6 }}</div>
-    <div>{{ items[2] }}</div>
-    <div>color :: {{ textStyle.color }}</div> -->

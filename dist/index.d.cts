@@ -10,8 +10,6 @@ declare const updaters: {
     inputMultiple(el: HTMLSelectElement, value: any): void;
     customBind(this: Directive, el: HTMLElement, value: any): void;
     objectBind(this: Directive, el: HTMLInputElement, value: any): void;
-    if(el: HTMLElement, condition: any): void;
-    else(el: HTMLElement): void;
     show(el: HTMLElement, condition: any): void;
 };
 
@@ -59,7 +57,9 @@ declare class Directive {
     class(): void;
     html(): void;
     show(): void;
-    eventHandler(): void;
+    on(): void;
+    scheduleTask(key: string, task?: Function[]): void;
+    selectUpdater(updater: Updater): Updater;
 }
 
 declare class Observable {

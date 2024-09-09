@@ -4,3 +4,4 @@ export declare function normalizeToJson(str: string): string;
 export declare function boolean2String(str: string): string | boolean;
 export declare function createDOMTemplate(template: string): Element;
 export declare const isNonObserver: (name: string, modifier: string) => boolean;
+export declare function isDeferred(key: string): key is "if" | "for";

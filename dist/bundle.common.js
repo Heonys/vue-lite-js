@@ -41,6 +41,9 @@ function createDOMTemplate(template) {
 const isNonObserver = (name, modifier) => {
     return name.startsWith("else") || (name === "bind" && modifier === "key");
 };
+function isDeferred(key) {
+    return key === "if" || key === "for";
+}
 
 function typeOf(value) {
     return Object.prototype.toString
@@ -265,7 +268,7 @@ const directiveNames = [
     "style",
     "class",
     "html",
-    "eventHandler",
+    "on",
     "if",
     "show",
     "for",
@@ -277,7 +280,7 @@ function extractDirective(attr) {
             return { key: "bind", modifier: attr.slice(1) };
         }
         else {
-            return { key: "eventHandler", modifier: attr.slice(1) };
+            return { key: "on", modifier: attr.slice(1) };
         }
     }
     else {
@@ -376,8 +379,6 @@ const updaters = {
             Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
         }
     },
-    if(el, condition) { },
-    else(el) { },
     show(el, condition) {
         if (condition)
             el.style.display = "";
@@ -454,10 +455,9 @@ class Observer {
 }
 
 class Condition {
-    constructor(vm, el, name, exp) {
+    constructor(vm, el, exp) {
         this.vm = vm;
         this.el = el;
-        this.name = name;
         this.exp = exp;
         this.parent = el.parentElement || vm.el;
         this.childIndex = Array.from(this.parent.children).indexOf(el);
@@ -466,7 +466,7 @@ class Condition {
         this.render();
     }
     render() {
-        new Observer(this.vm, this.exp, this.name, (value) => {
+        new Observer(this.vm, this.exp, "if", (value) => {
             this.updater(value);
         });
     }
@@ -582,15 +582,27 @@ function loopSize(value) {
         }
     }
 }
+function replaceAlias(context, expression) {
+    Object.keys(context).forEach((alias) => {
+        const pattern = new RegExp(`\\b${alias}\\b`, "g");
+        expression = expression.replace(pattern, context[alias]);
+    });
+    return expression;
+}
 
-function bindContext(loop, el, listExp, index, data) {
-    const { alias, vm, contextTask } = loop;
-    const context = createContext(alias, listExp, index, data);
-    Vuelite.context = context;
-    const scanner = new VueScanner(new NodeVisitor());
-    const container = scanner.scanPartial(vm, el, contextTask);
-    Vuelite.context = null;
-    return container;
+class Context {
+    constructor(loop) {
+        this.loop = loop;
+        this.scanner = new VueScanner(new NodeVisitor());
+    }
+    bind(el, index, data) {
+        const { alias, vm, contextTask, listExp } = this.loop;
+        const context = createContext(alias, listExp, index, data);
+        Vuelite.context = context;
+        const container = this.scanner.scanPartial(vm, el, contextTask);
+        Vuelite.context = null;
+        return container;
+    }
 }
 
 class ForLoop {
@@ -614,17 +626,15 @@ class ForLoop {
             this.updater(value);
         });
     }
-    clearTask() {
-        this.contextTask.forEach((fn) => fn());
-    }
     updater(value) {
         const fragment = document.createDocumentFragment();
         const length = loopSize(value);
         const endPoint = this.startIndex + length - 1;
+        const context = new Context(this);
         Array.from({ length }).forEach((_, index) => {
             const clone = this.el.cloneNode(true);
             removeLoopDirective(clone);
-            const boundEl = bindContext(this, clone, this.listExp, index, value);
+            const boundEl = context.bind(clone, index, value);
             fragment.appendChild(boundEl);
         });
         if (this.el.isConnected) {
@@ -644,6 +654,10 @@ class ForLoop {
         }
         this.clearTask();
     }
+    clearTask() {
+        this.contextTask.forEach((fn) => fn());
+        this.contextTask = [];
+    }
 }
 
 class Directive {
@@ -658,19 +672,12 @@ class Directive {
             return;
         if (isNonObserver(key, modifier))
             return;
-        if (key === "if") {
-            task
-                ? task.push(() => new Condition(vm, node, key, exp))
-                : vm.deferredTasks.push(() => new Condition(vm, node, key, exp));
-        }
-        else if (key === "for") {
-            task
-                ? task.push(() => new ForLoop(vm, node, exp))
-                : vm.deferredTasks.push(() => new ForLoop(vm, node, exp));
+        if (isDeferred(key)) {
+            this.scheduleTask(key, task);
         }
         else {
             if (isEventDirective(name))
-                this.eventHandler();
+                this.on();
             else
                 this[key]();
             if (node instanceof HTMLElement)
@@ -678,15 +685,9 @@ class Directive {
         }
     }
     bind(updater) {
-        const mod = this.modifier;
-        if (mod === "text" || mod === "class" || mod === "style") {
-            updater = updaters[mod].bind(this);
-        }
-        if (!updater) {
-            updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
-        }
+        updater = this.selectUpdater(updater);
         new Observer(this.vm, this.exp, this.directiveName, (value) => {
-            updater && updater(this.node, value);
+            updater(this.node, value);
         });
     }
     model() {
@@ -765,10 +766,33 @@ class Directive {
     show() {
         this.bind(updaters.show);
     }
-    eventHandler() {
+    on() {
         const fn = extractPath(this.vm, this.exp);
-        if (typeof fn === "function")
+        if (typeof fn === "function") {
             this.node.addEventListener(this.modifier, fn);
+        }
+        else {
+            const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
+            this.node.addEventListener(this.modifier, unsafeFn);
+        }
+    }
+    scheduleTask(key, task) {
+        const constructor = key === "if" ? Condition : ForLoop;
+        const directiveFn = () => new constructor(this.vm, this.node, this.exp);
+        if (task)
+            task.push(directiveFn);
+        else
+            this.vm.deferredTasks.push(directiveFn);
+    }
+    selectUpdater(updater) {
+        const mod = this.modifier;
+        if (mod === "text" || mod === "class" || mod === "style") {
+            return updaters[mod].bind(this);
+        }
+        if (updater)
+            return updater;
+        else
+            return mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
     }
 }
 
@@ -790,9 +814,7 @@ class Observable {
         Array.from(el.attributes).forEach(({ name, value }) => {
             if (isDirective(name)) {
                 const global = Vuelite.context || {};
-                for (const key in global) {
-                    value = value.replace(key, global[key]);
-                }
+                value = replaceAlias(global, value);
                 new Directive(name, this.vm, el, value, this.contextTask);
             }
         });
@@ -800,9 +822,7 @@ class Observable {
     templateBind(node) {
         let exp = node.textContent;
         const global = Vuelite.context || {};
-        for (const key in global) {
-            exp = exp.replaceAll(key, global[key]);
-        }
+        exp = replaceAlias(global, exp);
         new Directive("v-text", this.vm, node, exp);
     }
 }

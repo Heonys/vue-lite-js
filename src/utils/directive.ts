@@ -6,7 +6,7 @@ export function extractDirective(attr: string) {
     if (attr.slice(0, 1) === ":") {
       return { key: "bind" as DirectiveKey, modifier: attr.slice(1) };
     } else {
-      return { key: "eventHandler" as DirectiveKey, modifier: attr.slice(1) };
+      return { key: "on" as DirectiveKey, modifier: attr.slice(1) };
     }
   } else {
     const regExp = /^v-([\w-]+)(:(\w+))?$/;

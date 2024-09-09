@@ -13,7 +13,7 @@ const vm = new Vuelite({
     return {
       title: "",
       hello: true,
-      visible: true,
+      visible: false,
       visible2: false,
       inputValue: "",
       objectBind: {
@@ -107,6 +107,8 @@ const vm = new Vuelite({
 
   methods: {
     handleInput(e: Event) {
+      // console.log(e.target.value);
+
       this.title = (e.target as HTMLInputElement).value;
     },
     handleCheck() {

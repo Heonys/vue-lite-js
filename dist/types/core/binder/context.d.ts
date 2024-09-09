@@ -1,2 +1,8 @@
 import { ForLoop } from "./forLoop";
-export declare function bindContext(loop: ForLoop, el: HTMLElement, listExp: string, index: number, data: any): HTMLElement;
+import { VueScanner } from "./scanner";
+export declare class Context {
+    loop: ForLoop;
+    scanner: VueScanner;
+    constructor(loop: ForLoop);
+    bind(el: HTMLElement, index: number, data: any): HTMLElement;
+}

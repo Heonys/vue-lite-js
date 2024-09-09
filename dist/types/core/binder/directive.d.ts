@@ -14,5 +14,7 @@ export declare class Directive {
     class(): void;
     html(): void;
     show(): void;
-    eventHandler(): void;
+    on(): void;
+    scheduleTask(key: string, task?: Function[]): void;
+    selectUpdater(updater: Updater): Updater;
 }

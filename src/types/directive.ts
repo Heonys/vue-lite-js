@@ -7,7 +7,7 @@ export const directiveNames = [
   "style",
   "class",
   "html",
-  "eventHandler",
+  "on",
   "if",
   "show",
   "for",

@@ -5,6 +5,7 @@ import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 import { Condition } from "./condition";
 import { ForLoop } from "./forLoop";
+import { unsafeEvaluate } from "@/utils/evaluate";
 
 export class Directive {
   directiveName: string;
@@ -22,11 +23,10 @@ export class Directive {
 
     if (!isValidDirective(key)) return;
     if (isNonObserver(key, modifier)) return;
-
     if (isDeferred(key)) {
       this.scheduleTask(key, task);
     } else {
-      if (isEventDirective(name)) this.eventHandler();
+      if (isEventDirective(name)) this.on();
       else this[key]();
 
       if (node instanceof HTMLElement) node.removeAttribute(name);
@@ -114,9 +114,14 @@ export class Directive {
   show() {
     this.bind(updaters.show);
   }
-  eventHandler() {
+  on() {
     const fn = extractPath(this.vm, this.exp);
-    if (typeof fn === "function") this.node.addEventListener(this.modifier, fn);
+    if (typeof fn === "function") {
+      this.node.addEventListener(this.modifier, fn);
+    } else {
+      const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
+      this.node.addEventListener(this.modifier, unsafeFn);
+    }
   }
 
   scheduleTask(key: string, task?: Function[]) {
