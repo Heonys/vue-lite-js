@@ -10,7 +10,6 @@ export class Condition {
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
-    public name: string,
     public exp: any,
   ) {
     this.parent = el.parentElement || vm.el;
@@ -21,7 +20,7 @@ export class Condition {
   }
 
   render() {
-    new Observer(this.vm, this.exp, this.name, (value) => {
+    new Observer(this.vm, this.exp, "if", (value) => {
       this.updater(value);
     });
   }

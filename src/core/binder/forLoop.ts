@@ -1,6 +1,6 @@
 import { extractAlias, extractKeywords } from "@/utils/format";
 import Vuelite from "../viewmodel/vuelite";
-import { bindContext } from "./context";
+import { Context } from "./context";
 import { loopSize } from "@/utils/context";
 import { removeLoopDirective } from "@/utils/directive";
 import { Observer } from "../reactive/observer";
@@ -33,7 +33,6 @@ export class ForLoop {
     if (!keywords) return;
 
     const { key, list } = keywords;
-
     this.listExp = list;
     this.alias = extractAlias(key);
     this.render();
@@ -45,19 +44,16 @@ export class ForLoop {
     });
   }
 
-  clearTask() {
-    this.contextTask.forEach((fn) => fn());
-  }
-
   updater(value: any) {
     const fragment = document.createDocumentFragment();
     const length = loopSize(value);
     const endPoint = this.startIndex + length - 1;
+    const context = new Context(this);
 
     Array.from({ length }).forEach((_, index) => {
       const clone = this.el.cloneNode(true) as HTMLElement;
       removeLoopDirective(clone);
-      const boundEl = bindContext(this, clone, this.listExp, index, value);
+      const boundEl = context.bind(clone, index, value);
       fragment.appendChild(boundEl);
     });
 
@@ -82,5 +78,10 @@ export class ForLoop {
       this.endIndex = this.startIndex + length - 1;
     }
     this.clearTask();
+  }
+
+  clearTask() {
+    this.contextTask.forEach((fn) => fn());
+    this.contextTask = [];
   }
 }

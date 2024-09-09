@@ -71,9 +71,6 @@ export function evaluateValue(name: string, vm: Vuelite, exp: string) {
     case "text": {
       return evaluateTemplate(vm, exp);
     }
-    // case "if": {
-    //   return unsafeEvaluate(vm, exp);
-    // }
     default: {
       return unsafeEvaluate(vm, exp);
     }

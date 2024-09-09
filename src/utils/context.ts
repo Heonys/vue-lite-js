@@ -65,3 +65,11 @@ export function loopSize(value: any) {
     }
   }
 }
+
+export function replaceAlias(context: any, expression: string) {
+  Object.keys(context).forEach((alias) => {
+    const pattern = new RegExp(`\\b${alias}\\b`, "g");
+    expression = expression.replace(pattern, context[alias]);
+  });
+  return expression;
+}

@@ -53,3 +53,7 @@ export function createDOMTemplate(template: string) {
 export const isNonObserver = (name: string, modifier: string) => {
   return name.startsWith("else") || (name === "bind" && modifier === "key");
 };
+
+export function isDeferred(key: string) {
+  return key === "if" || key === "for";
+}

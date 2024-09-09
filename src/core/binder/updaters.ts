@@ -54,8 +54,6 @@ export const updaters = {
       Object.entries(value).forEach(([k, v]) => el.setAttribute(k, v));
     }
   },
-  if(el: HTMLElement, condition: any) {},
-  else(el: HTMLElement) {},
   show(el: HTMLElement, condition: any) {
     if (condition) el.style.display = "";
     else el.style.display = "none";

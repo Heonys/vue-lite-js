@@ -4,19 +4,20 @@ import { VueScanner } from "./scanner";
 import { NodeVisitor } from "./visitor";
 import { createContext } from "@/utils/context";
 
-export function bindContext(
-  loop: ForLoop,
-  el: HTMLElement,
-  listExp: string,
-  index: number,
-  data: any,
-) {
-  const { alias, vm, contextTask } = loop;
-  const context = createContext(alias, listExp, index, data);
-  Vuelite.context = context;
-  const scanner = new VueScanner(new NodeVisitor());
-  const container = scanner.scanPartial(vm, el, contextTask);
-  Vuelite.context = null;
+export class Context {
+  scanner: VueScanner;
+  constructor(public loop: ForLoop) {
+    this.scanner = new VueScanner(new NodeVisitor());
+  }
 
-  return container;
+  bind(el: HTMLElement, index: number, data: any) {
+    const { alias, vm, contextTask, listExp } = this.loop;
+    const context = createContext(alias, listExp, index, data);
+
+    Vuelite.context = context;
+    const container = this.scanner.scanPartial(vm, el, contextTask);
+    Vuelite.context = null;
+
+    return container;
+  }
 }

@@ -1,5 +1,5 @@
 import { Updater, updaters } from "./updaters";
-import { extractPath, assignPath, isNonObserver } from "@utils/common";
+import { extractPath, assignPath, isNonObserver, isDeferred } from "@utils/common";
 import { extractDirective, isEventDirective, isValidDirective } from "@utils/directive";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
@@ -19,34 +19,24 @@ export class Directive {
     const { key, modifier } = extractDirective(name);
     this.directiveName = key;
     this.modifier = modifier;
+
     if (!isValidDirective(key)) return;
     if (isNonObserver(key, modifier)) return;
-    //  switch문으로 바꾸는거 고려
-    if (key === "if") {
-      task
-        ? task.push(() => new Condition(vm, node as HTMLElement, key, exp))
-        : vm.deferredTasks.push(() => new Condition(vm, node as HTMLElement, key, exp));
-    } else if (key === "for") {
-      task
-        ? task.push(() => new ForLoop(vm, node as HTMLElement, exp))
-        : vm.deferredTasks.push(() => new ForLoop(vm, node as HTMLElement, exp));
+
+    if (isDeferred(key)) {
+      this.scheduleTask(key, task);
     } else {
       if (isEventDirective(name)) this.eventHandler();
       else this[key]();
+
       if (node instanceof HTMLElement) node.removeAttribute(name);
     }
   }
 
   bind(updater?: Updater) {
-    const mod = this.modifier;
-    if (mod === "text" || mod === "class" || mod === "style") {
-      updater = updaters[mod].bind(this);
-    }
-    if (!updater) {
-      updater = mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
-    }
+    updater = this.selectUpdater(updater);
     new Observer(this.vm, this.exp, this.directiveName, (value) => {
-      updater && updater(this.node, value);
+      updater(this.node, value);
     });
   }
 
@@ -127,5 +117,22 @@ export class Directive {
   eventHandler() {
     const fn = extractPath(this.vm, this.exp);
     if (typeof fn === "function") this.node.addEventListener(this.modifier, fn);
+  }
+
+  scheduleTask(key: string, task?: Function[]) {
+    const constructor = key === "if" ? Condition : ForLoop;
+    const directiveFn = () => new constructor(this.vm, this.node as HTMLElement, this.exp);
+
+    if (task) task.push(directiveFn);
+    else this.vm.deferredTasks.push(directiveFn);
+  }
+
+  selectUpdater(updater: Updater): Updater {
+    const mod = this.modifier;
+    if (mod === "text" || mod === "class" || mod === "style") {
+      return updaters[mod].bind(this);
+    }
+    if (updater) return updater;
+    else return mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
   }
 }

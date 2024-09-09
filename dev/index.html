@@ -8,18 +8,43 @@
   <body>
     <div id="app">
 
-      <input type="checkbox" v-model="hello"> 
-
-      <div v-if="hello">
-        <input type="text" v-model="itemCount">
-        <div>{{ itemCount }}</div>
-      </div> 
-      <div v-else>
-        <div v-for="(item, index) in items2" :key="item.id">
-          <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
-        </div>
+      
+      <div v-for="(item, index) in items" :key="item.id">
+        <div>1 :: {{ items[index].message }}</div>
+        <div>2 :: {{ items[0].message }}</div>
+        <div>3 :: {{ item.message }}</div>
+        <br />
       </div>
 
+
+    <!-- <div
+      class="static"
+      :class="{ active: isActive, 'text-danger': hasError }"
+    ></div>
+    <div :class="classData"></div> -->
+
+    <!-- <div :style="{ 'font-size': fontSize + 'px', backgroundColor: '#FF0000' }">hello</div> -->
+    <!-- <div :style="textStyle">hello</div> -->
+
+    <!-- 2가지 방법 모두 테스트  -->
+    <!-- <div :style="{}"></div>
+    <div :style="styleObject"></div> -->
+
+    <!-- <div v-bind="objectBind"></div>
+    <div v-bind="{ id: 'testId', class: 'tesdtClass', customKey: 'customValue' }"></div> -->
+
+
+
+    
+
+      <!-- 
+      클래스 바인딩 v 
+      스타일 바인딩
+      객체 바인딩
+
+      인라인 포맷 바인딩
+
+      -->
 
 
 

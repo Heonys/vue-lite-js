@@ -2,6 +2,7 @@ import { isDirective } from "@utils/directive";
 import { isElementNode, isIncludeText, isTextNode } from "@utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { Directive } from "./directive";
+import { replaceAlias } from "@/utils/context";
 
 export class Observable {
   constructor(
@@ -23,9 +24,7 @@ export class Observable {
     Array.from(el.attributes).forEach(({ name, value }) => {
       if (isDirective(name)) {
         const global = Vuelite.context || {};
-        for (const key in global) {
-          value = value.replace(key, (global as any)[key]);
-        }
+        value = replaceAlias(global, value);
         new Directive(name, this.vm, el, value, this.contextTask);
       }
     });
@@ -33,9 +32,7 @@ export class Observable {
   templateBind(node: Node) {
     let exp = node.textContent;
     const global = Vuelite.context || {};
-    for (const key in global) {
-      exp = exp.replaceAll(key, (global as any)[key]);
-    }
+    exp = replaceAlias(global, exp);
     new Directive("v-text", this.vm, node, exp);
   }
 }

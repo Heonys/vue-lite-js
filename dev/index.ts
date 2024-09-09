@@ -14,15 +14,17 @@ const vm = new Vuelite({
       title: "",
       hello: true,
       visible: true,
-      visible2: true,
+      visible2: false,
       inputValue: "",
       objectBind: {
         id: "testId",
         class: "testClass",
         customKey: "customValue",
       },
+      isDisabled: true,
+      count: 0,
       itemCount: "",
-      items: [
+      items2: [
         {
           id: 1,
           children: [
@@ -51,11 +53,11 @@ const vm = new Vuelite({
           ],
         },
       ],
-      items2: [
-        { id: 13, message: "Item 13" },
-        { id: 14, message: "Item 14" },
-        { id: 15, message: "Item 15" },
-        { id: 16, message: "Item 16" },
+      items: [
+        { id: 1, message: "Item 1" },
+        { id: 2, message: "Item 2" },
+        { id: 3, message: "Item 3" },
+        { id: 4, message: "Item 4" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -65,11 +67,14 @@ const vm = new Vuelite({
       message: "",
       firstName: "Jiheon",
       lastName: "Kim",
-      count: 0,
       textStyle: {
         color: "#FF0000",
+        fontSize: 30,
       },
+      fontSize: 30,
       checked: true,
+      hasError: false,
+      isActive: true,
       classData: {
         isActive: true,
         myclass: false,
