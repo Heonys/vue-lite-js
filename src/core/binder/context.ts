@@ -11,11 +11,11 @@ export class Context {
   }
 
   bind(el: HTMLElement, index: number, data: any) {
-    const { alias, vm, contextTask, listExp } = this.loop;
-    const context = createContext(alias, listExp, index, data);
+    const { alias, vm, loopEffects, listExp, parentContext } = this.loop;
+    const context = { ...parentContext, ...createContext(alias, listExp, index, data) };
 
     Vuelite.context = context;
-    const container = this.scanner.scanPartial(vm, el, contextTask);
+    const container = this.scanner.scanPartial(vm, el, loopEffects);
     Vuelite.context = null;
 
     return container;

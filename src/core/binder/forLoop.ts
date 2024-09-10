@@ -21,11 +21,12 @@ export class ForLoop {
   listExp: string;
   startIndex: number;
   endIndex: number;
-  contextTask: Function[] = [];
+  loopEffects: Function[] = [];
   constructor(
     public vm: Vuelite,
     public el: HTMLElement,
     public exp: any,
+    public parentContext: Record<string, any>,
   ) {
     this.parent = el.parentElement || vm.el;
     this.startIndex = Array.from(this.parent.children).indexOf(el);
@@ -77,11 +78,11 @@ export class ForLoop {
       this.parent.insertBefore(fragment, ref);
       this.endIndex = this.startIndex + length - 1;
     }
-    this.clearTask();
+    this.clearEffects();
   }
 
-  clearTask() {
-    this.contextTask.forEach((fn) => fn());
-    this.contextTask = [];
+  clearEffects() {
+    this.loopEffects.forEach((fn) => fn());
+    this.loopEffects = [];
   }
 }

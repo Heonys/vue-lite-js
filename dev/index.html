@@ -21,15 +21,11 @@
 
 
 
-        <ul>
-          <li v-for="(item, index) in items">
-            <span v-for="child in children">{{ `row ${child.name}` }}</span>
-          </li>
-        </ul>
+
       
       
 
-        <!-- <div v-if="visible">
+        <div v-if="visible">
           <li v-for="(item, index) in items">
             {{ item.message }}
           </li>
@@ -38,7 +34,9 @@
           <li v-for="(item, index) in items">
             {{ item.message }}
           </li>
-        </div> -->
+        </div>
+
+        <input type="checkbox" v-model="visible">
 
       
 

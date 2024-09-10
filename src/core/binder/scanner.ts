@@ -39,10 +39,10 @@ export class VueScanner extends Scanner {
     vm.clearTasks();
   }
 
-  scanPartial(vm: Vuelite, el: HTMLElement, contextTask: Function[]) {
+  scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]) {
     const container = this.node2Fragment(el);
     const action = (node: Node) => {
-      isReactiveNode(node) && new Observable(vm, node, contextTask);
+      isReactiveNode(node) && new Observable(vm, node, loopEffects);
     };
     action(container);
     this.visit(action, container);

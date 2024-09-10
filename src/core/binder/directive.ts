@@ -15,7 +15,7 @@ export class Directive {
     public vm: Vuelite,
     public node: Node,
     public exp: any,
-    task?: Function[],
+    loopEffects?: Function[],
   ) {
     const { key, modifier } = extractDirective(name);
     this.directiveName = key;
@@ -24,7 +24,7 @@ export class Directive {
     if (!isValidDirective(key)) return;
     if (isNonObserver(key, modifier)) return;
     if (isDeferred(key)) {
-      this.scheduleTask(key, task);
+      this.scheduleTask(key, loopEffects);
     } else {
       if (isEventDirective(name)) this.on();
       else this[key]();
@@ -125,9 +125,11 @@ export class Directive {
   }
 
   scheduleTask(key: string, task?: Function[]) {
+    const context = { ...Vuelite.context };
     const constructor = key === "if" ? Condition : ForLoop;
-    const directiveFn = () => new constructor(this.vm, this.node as HTMLElement, this.exp);
-
+    const directiveFn = () => {
+      return new constructor(this.vm, this.node as HTMLElement, this.exp, context);
+    };
     if (task) task.push(directiveFn);
     else this.vm.deferredTasks.push(directiveFn);
   }

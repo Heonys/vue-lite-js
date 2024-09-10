@@ -8,7 +8,7 @@ export class Observable {
   constructor(
     public vm: Vuelite,
     public node: Node,
-    public contextTask?: Function[],
+    public loopEffects?: Function[],
   ) {
     const patten: RegExp = /{{\s*(.*?)\s*}}/;
     const text = node.textContent;
@@ -23,15 +23,15 @@ export class Observable {
   directiveBind(el: Element) {
     Array.from(el.attributes).forEach(({ name, value }) => {
       if (isDirective(name)) {
-        const global = Vuelite.context || {};
+        const global = Vuelite.context;
         value = replaceAlias(global, value);
-        new Directive(name, this.vm, el, value, this.contextTask);
+        new Directive(name, this.vm, el, value, this.loopEffects);
       }
     });
   }
   templateBind(node: Node) {
     let exp = node.textContent;
-    const global = Vuelite.context || {};
+    const global = Vuelite.context;
     exp = replaceAlias(global, exp);
     new Directive("v-text", this.vm, node, exp);
   }

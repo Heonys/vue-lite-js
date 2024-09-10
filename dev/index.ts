@@ -57,13 +57,12 @@ const vm = new Vuelite({
         { id: 1, message: "Item 1" },
         { id: 2, message: "Item 2" },
         { id: 3, message: "Item 3" },
-        { id: 4, message: "Item 4" },
       ],
       children: [
         { id: 1, name: "children 1" },
         { id: 2, name: "children 2" },
-        { id: 3, name: "children 3" },
-        { id: 4, name: "children 4" },
+        // { id: 3, name: "children 3" },
+        // { id: 4, name: "children 4" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
