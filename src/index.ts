@@ -7,6 +7,15 @@ import { Dep } from "./core/reactive/dep";
 import { Observer } from "./core/reactive/observer";
 import { Reactivity } from "./core/reactive/reactive";
 import Vuelite from "./core/viewmodel/vuelite";
+import { typeOf } from "./utils/format";
+
+Object.defineProperty(Object.prototype, "_length", {
+  get: function () {
+    if (typeOf(this) === "array") return this.length;
+    return Object.keys(this).length;
+  },
+  enumerable: false,
+});
 
 export default Vuelite;
 export { Directive, Observable, VueScanner, updaters, NodeVisitor, Dep, Observer, Reactivity };

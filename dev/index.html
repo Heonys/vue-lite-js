@@ -11,9 +11,36 @@
 
       
 
-      <div v-for="(item, index) in items" :key="item.id">
-        <div>{{ item.message }}</div>
-      </div>
+      <!-- <ul>
+        <li v-for="(item, index) in items">
+          <input type="text" v-model="item.message">
+          <div>{{ item.message }}</div>
+        </li>
+      </ul>
+ -->
+
+
+
+        <ul>
+          <li v-for="(item, index) in items">
+            <span v-for="child in children">{{ `row ${child.name}` }}</span>
+          </li>
+        </ul>
+      
+      
+
+        <!-- <div v-if="visible">
+          <li v-for="(item, index) in items">
+            {{ item.message }}
+          </li>
+        </div>
+        <div v-else>
+          <li v-for="(item, index) in items">
+            {{ item.message }}
+          </li>
+        </div> -->
+
+      
 
 
     </div>

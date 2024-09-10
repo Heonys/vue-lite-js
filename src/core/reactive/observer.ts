@@ -1,7 +1,7 @@
 import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { evaluateValue } from "@/utils/evaluate";
-import { isPrimitive } from "@/utils/format";
+import { isObject, isPrimitive } from "@/utils/format";
 
 //  데이터의 변화를 추적하고 이를 적절히 처리하는 역할
 export class Observer {
@@ -27,7 +27,7 @@ export class Observer {
   getterTrigger() {
     Dep.activated = this;
     const value = evaluateValue(this.directiveName, this.vm, this.exp);
-    if (Array.isArray(value)) value.length;
+    if (isObject(value)) value._length;
     Dep.activated = null;
     return value;
   }

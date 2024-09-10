@@ -59,6 +59,12 @@ const vm = new Vuelite({
         { id: 3, message: "Item 3" },
         { id: 4, message: "Item 4" },
       ],
+      children: [
+        { id: 1, name: "children 1" },
+        { id: 2, name: "children 2" },
+        { id: 3, name: "children 3" },
+        { id: 4, name: "children 4" },
+      ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
         author: "홍길동",
@@ -125,15 +131,26 @@ const vm = new Vuelite({
       배열을 새로 할당하면 기존에 Reactity를 주입해놓은 기존의 배열이 
       새로 할당되면서 참조가 바뀌기 때문에 변경된 배열을 감지하지 못하는것 같다
       */
-
-      this.myObject["newValue"] = "newValue";
+      // const arr = [
+      //   { id: 1, message: "Item 1" },
+      //   { id: 2, message: "Item 2" },
+      //   { id: 3, message: "Item 3" },
+      //   { id: 4, message: "Item 4" },
+      //   { id: 5, message: "Item 5" },
+      //   { id: 6, message: "Item 6" },
+      // ];
+      // this.items = arr;
+      // console.log("index.ts", this.items);
+      // this.items.splice(0, this.items.length);
+      // this.items.push({ id: 10, message: `Item ${this.title}` });
       // this.myObject.title = "change Title";
 
-      // this.items.push({ id: 1, message: `Item ${this.title}` });
-      // this.title = "";
+      this.myObject.newKey = "newValue";
+      // this.title = "hello";
     },
-    addArrayItem() {
-      this.items.push({ id: 10, message: `Item 10` });
+    change() {
+      this.myObject.newKey = "newValue2";
+      // this.items[this.items.length - 1].message = "change";
     },
   },
   styles: {
