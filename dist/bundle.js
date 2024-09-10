@@ -171,14 +171,14 @@
                     return Reflect.get(target, key, receiver);
                 },
                 set(target, key, value, receiver) {
+                    const oldLength = target._length;
                     const result = Reflect.set(target, key, value, receiver);
+                    const newLength = target._length;
+                    if (oldLength !== newLength && deps.has("_length")) {
+                        deps.get("_length").notify();
+                    }
                     if (deps.has(key)) {
                         deps.get(key).notify();
-                    }
-                    else {
-                        if (Array.isArray(target))
-                            return result;
-                        Store.forceUpdate();
                     }
                     return result;
                 },
@@ -443,8 +443,8 @@
         getterTrigger() {
             Dep.activated = this;
             const value = evaluateValue(this.directiveName, this.vm, this.exp);
-            if (Array.isArray(value))
-                value.length;
+            if (isObject(value))
+                value._length;
             Dep.activated = null;
             return value;
         }
@@ -587,6 +587,8 @@
         }
     }
     function replaceAlias(context, expression) {
+        if (!context)
+            return expression;
         Object.keys(context).forEach((alias) => {
             const pattern = new RegExp(`\\b${alias}\\b`, "g");
             expression = expression.replace(pattern, context[alias]);
@@ -600,21 +602,22 @@
             this.scanner = new VueScanner(new NodeVisitor());
         }
         bind(el, index, data) {
-            const { alias, vm, contextTask, listExp } = this.loop;
-            const context = createContext(alias, listExp, index, data);
+            const { alias, vm, loopEffects, listExp, parentContext } = this.loop;
+            const context = { ...parentContext, ...createContext(alias, listExp, index, data) };
             Vuelite.context = context;
-            const container = this.scanner.scanPartial(vm, el, contextTask);
+            const container = this.scanner.scanPartial(vm, el, loopEffects);
             Vuelite.context = null;
             return container;
         }
     }
 
     class ForLoop {
-        constructor(vm, el, exp) {
+        constructor(vm, el, exp, parentContext) {
             this.vm = vm;
             this.el = el;
             this.exp = exp;
-            this.contextTask = [];
+            this.parentContext = parentContext;
+            this.loopEffects = [];
             this.parent = el.parentElement || vm.el;
             this.startIndex = Array.from(this.parent.children).indexOf(el);
             const keywords = extractKeywords(this.exp);
@@ -652,20 +655,21 @@
                         this.parent.removeChild(child);
                     }
                 }
+                this.el.remove();
                 const ref = this.parent.children[this.startIndex];
                 this.parent.insertBefore(fragment, ref);
                 this.endIndex = this.startIndex + length - 1;
             }
-            this.clearTask();
+            this.clearEffects();
         }
-        clearTask() {
-            this.contextTask.forEach((fn) => fn());
-            this.contextTask = [];
+        clearEffects() {
+            this.loopEffects.forEach((fn) => fn());
+            this.loopEffects = [];
         }
     }
 
     class Directive {
-        constructor(name, vm, node, exp, task) {
+        constructor(name, vm, node, exp, loopEffects) {
             this.vm = vm;
             this.node = node;
             this.exp = exp;
@@ -677,7 +681,7 @@
             if (isNonObserver(key, modifier))
                 return;
             if (isDeferred(key)) {
-                this.scheduleTask(key, task);
+                this.scheduleTask(key, loopEffects);
             }
             else {
                 if (isEventDirective(name))
@@ -781,8 +785,11 @@
             }
         }
         scheduleTask(key, task) {
+            const context = { ...Vuelite.context };
             const constructor = key === "if" ? Condition : ForLoop;
-            const directiveFn = () => new constructor(this.vm, this.node, this.exp);
+            const directiveFn = () => {
+                return new constructor(this.vm, this.node, this.exp, context);
+            };
             if (task)
                 task.push(directiveFn);
             else
@@ -801,10 +808,10 @@
     }
 
     class Observable {
-        constructor(vm, node, contextTask) {
+        constructor(vm, node, loopEffects) {
             this.vm = vm;
             this.node = node;
-            this.contextTask = contextTask;
+            this.loopEffects = loopEffects;
             const patten = /{{\s*(.*?)\s*}}/;
             const text = node.textContent;
             if (isElementNode(node)) {
@@ -817,15 +824,15 @@
         directiveBind(el) {
             Array.from(el.attributes).forEach(({ name, value }) => {
                 if (isDirective(name)) {
-                    const global = Vuelite.context || {};
+                    const global = Vuelite.context;
                     value = replaceAlias(global, value);
-                    new Directive(name, this.vm, el, value, this.contextTask);
+                    new Directive(name, this.vm, el, value, this.loopEffects);
                 }
             });
         }
         templateBind(node) {
             let exp = node.textContent;
-            const global = Vuelite.context || {};
+            const global = Vuelite.context;
             exp = replaceAlias(global, exp);
             new Directive("v-text", this.vm, node, exp);
         }
@@ -863,10 +870,10 @@
             vm.el.appendChild(this.fragment);
             vm.clearTasks();
         }
-        scanPartial(vm, el, contextTask) {
+        scanPartial(vm, el, loopEffects) {
             const container = this.node2Fragment(el);
             const action = (node) => {
-                isReactiveNode(node) && new Observable(vm, node, contextTask);
+                isReactiveNode(node) && new Observable(vm, node, loopEffects);
             };
             action(container);
             this.visit(action, container);

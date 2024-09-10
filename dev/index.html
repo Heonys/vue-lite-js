@@ -22,21 +22,18 @@
 
 
 
-      
-      
+ <ul>
+    <li v-for="(item, index) in items">
+      {{ `${index} 번쨰 ${item.message}` }}
+    </li>
+ </ul>
 
-        <div v-if="visible">
-          <li v-for="(item, index) in items">
-            {{ item.message }}
-          </li>
-        </div>
-        <div v-else>
-          <li v-for="(item, index) in items">
-            {{ item.message }}
-          </li>
-        </div>
+ <button @click="addItem">add</button>
+ <button @click="change">change</button>
 
-        <input type="checkbox" v-model="visible">
+
+   
+
 
       
 

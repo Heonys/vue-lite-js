@@ -74,6 +74,8 @@ export class ForLoop {
           this.parent.removeChild(child);
         }
       }
+
+      this.el.remove(); // if/else랑 중첩해서 사용할때 초기에 렌더링되지않은 경우 템플릿이 남아있어서 제거
       const ref = this.parent.children[this.startIndex];
       this.parent.insertBefore(fragment, ref);
       this.endIndex = this.startIndex + length - 1;

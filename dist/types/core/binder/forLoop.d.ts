@@ -3,14 +3,15 @@ export declare class ForLoop {
     vm: Vuelite;
     el: HTMLElement;
     exp: any;
+    parentContext: Record<string, any>;
     alias: string[];
     parent: HTMLElement;
     listExp: string;
     startIndex: number;
     endIndex: number;
-    contextTask: Function[];
-    constructor(vm: Vuelite, el: HTMLElement, exp: any);
+    loopEffects: Function[];
+    constructor(vm: Vuelite, el: HTMLElement, exp: any, parentContext: Record<string, any>);
     render(): void;
     updater(value: any): void;
-    clearTask(): void;
+    clearEffects(): void;
 }

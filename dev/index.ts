@@ -13,7 +13,7 @@ const vm = new Vuelite({
     return {
       title: "",
       hello: true,
-      visible: false,
+      visible: true,
       visible2: false,
       inputValue: "",
       objectBind: {
@@ -61,8 +61,10 @@ const vm = new Vuelite({
       children: [
         { id: 1, name: "children 1" },
         { id: 2, name: "children 2" },
-        // { id: 3, name: "children 3" },
-        // { id: 4, name: "children 4" },
+      ],
+      lang: [
+        { id: 1, type: "python" },
+        { id: 2, type: "c++" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -141,14 +143,15 @@ const vm = new Vuelite({
       // this.items = arr;
       // console.log("index.ts", this.items);
       // this.items.splice(0, this.items.length);
-      // this.items.push({ id: 10, message: `Item ${this.title}` });
+      this.items.push({ id: 10, message: `Item 10` });
+
       // this.myObject.title = "change Title";
 
-      this.myObject.newKey = "newValue";
+      // this.myObject.newKey = "newValue";
       // this.title = "hello";
     },
     change() {
-      this.myObject.newKey = "newValue2";
+      // this.myObject.newKey = "newValue2";
       // this.items[this.items.length - 1].message = "change";
     },
   },
