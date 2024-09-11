@@ -21,6 +21,37 @@
   <strong>✅ 한국어</strong> | <a href='./README.en.md' target="_blank">English</a> 
 </p>
 
+
+<details>
+  <summary style="font-size: 1.3em;">
+    <strong>🔖 목차 (Table of contents)</strong>
+  </summary>
+
+  + <ins>Introduction</ins>
+  + <ins>Getting Started</ins>
+  + <ins>Basic usage</ins>
+  + <ins>Details</ins>
+  + <ins>Overview</ins>
+  + <ins>Workflow</ins>
+    + viewmodel 생성
+    + 반응성 주입
+    + 디렉티브 및 템플릿 파싱
+    + v-model 바인딩
+    + Observer 생성
+  + <ins>Extended Features</ins>
+    + 표현식 지원
+    + 조건부 렌더링
+    + 리스트 렌더링
+    + 불변성 유지하기?
+  + <ins>Todos</ins>
+  + <ins>Reference</ins>
+
+
+
+</details>
+
+
+
 ## 🚀 Introduction
 
 
@@ -342,7 +373,11 @@ depend() {
 결과적으로 `getterTrigger`는 반응형 데이터의 `get 트랩`을 발생시켜서 `Dep` 객체를 생성하며, 값을 가져옴과 동시에 이렇게 만들어진 `Dep`객체가 `Observer`와의 관계를 맺어주는 중요한 역할을 합니다. 즉, `Obserber`는 `Dep`을 구독하여 기다리고 `Dep`은 `Obserber`에게 감시당하다가 `Dep`이 자신의 변화가 발생했을 때 구독자(Observer)들에게 변화를 통지하는 관계를 형성합니다.
 
 
-### 6. 조건부 렌더링 `<1.4.3>`
+
+## 🌟 Extended Features 
+
+
+### 1. 조건부 렌더링 `<1.4.3>`
 
 <p align="center">
   <img src="./img/Animation2.gif" alt="Description of GIF" width="300" />
@@ -367,15 +402,23 @@ new Vuelite({
   },
 })
 ```
+#### **v-if의 기본동작** <br />
+`v-if` 디렉티브는 조건에 따라 `DOM` 요소를 동적으로 렌더링할지 말지를 결정하는 디렉티브입니다. 주어진 표현식이 `truthy`일 때만 해당 요소가 렌더링되며, `falsy`일 경우 요소가 `DOM`에 포함되지 않습니다. 또한 선택적으로 `v-else`를 통해 추가조건을 처리할 수 있고 `v-if`와 유사한 조건부 렌더링을 하는 `v-show`가 있습니다.
+
+
+```html
+<div v-if="condition">hello vue</div>
+```
+
 
 #### 핵심 아이디어  
 
 1) **v-show와 v-if의 차이** <br />
 `v-show` 디렉티브는 요소의 가시성을 제어하기 때문에 단순히 값에 따라서 `display: none`의 여부를 결정해 주면 되지만, `v-if`는 매핑된 데이터가 `false`일 때 `DOM`에서 사라지고 `true`가 될 때 다시 `DOM`에 삽입됩니다. 즉, `v-show`는 항상 렌더링되고 값에 따라서 스타일만 변경해 주면 되기 때문에 기존의 디렉티브 처럼 처리할 수 있고 아주 단순한 반면, `v-if`는 조건부로 요소가 삭제되거나 삽입되야하는데 여기서 삭제하는 건 어렵지 않지만, 다시 삽입될 때 어떻게 이전의 위치를 기억하고 원래 자리에 삽입할지 고민해 봐야합니다. 
 
-2) **v-if의 동작 흐름** <br />
+2) **v-if의 기본 동작 흐름** <br />
 
->1. `v-if` 디렉티브가 적용된 요소 부모 요소의 `children` 속성을 통해 현재 자식이 몇 번째 인덱스 인지를 기억
+>1. `v-if` 디렉티브가 적용된 요소 부모 요소의 `children` 속성을 통해 현재 자식이 부모로 부터 몇 번째 인덱스 인지를 기억
 >2. 조건이 `false`일때 현재 렌더링되는 `v-if` 속성을 가진 요소를 `fragment`로 이동하여 임시보관 
 >3. 조건이 다시 `true`되면 부모로 부터 아까 구한 인덱스 위치 바로 이전에 `fragment`로 부터 다시 값을 가져와서 삽입
 >4. `v-else` 디렉티브가 존재하면 `v-if`와 쌍을 이루고 이와 반대로 동작함 
@@ -384,72 +427,134 @@ new Vuelite({
 3) **v-if의 렌더링 전략** <br />
 `v-if`의 경우는 `DOM`에 직접적인 영향을 미치기 때문에 중간에 `DOM`의 구조를 변경하고 이로 인해 다른 디렉티브가 전부 파싱되기 전에 다른 디렉티브에 영향을 미칠 수 있었습니다. 그래서 `v-if` 디렉티브 처리를 미뤄놓고 모든 디렉티브를 처리한 후에 `lazy`하게 처리하도록 하였습니다.  또한 `v-if`는 기존의 `Directive`, `Observer`의 관계가 아닌 `Condition`이라는 인스턴스를 새로 생성합니다. 왜냐하면 매핑된 값이 `falsy`일때 `DOM`을 보관해야하며 `v-else` 구문에 대한 쌍을 이뤄야하기 때문에 다른 디렉티브와 다르게 추가적인 상태를 필요로 해서 분리했습니다. 
 
-4) **제한사항** <br />
-`v-else-if`와 `<template v-if>`는 지원하지 않으며, `v-else`는 반드시 `v-if` 바로 뒤에 와서 쌍을 이룰 때만 정상 동작합니다. 그 외의 경우엔 `v-else` 디렉티브가 무시됩니다. 
+#### **v-if의 제한사항**
+- `v-else-if`와 `<template v-if>`는 지원하지 않으며, `v-else`는 반드시 `v-if` 바로 뒤에 와서 쌍을 이룰 때만 정상 동작합니다. 그 외의 경우엔 `v-else` 디렉티브가 무시됩니다. 
+- 중첩된 `v-if`를 제공하며, `v-if/else` 내부에서 `v-for`의 사용도 가능합니다. 하지만 `Vue.js` 공식문서에 따르면 `v-if`와 `v-for`를 같이 사용하는 것을 권장하지 않습니다. 자세한 내용은 [스타일 가이드](https://vuejs.org/style-guide/rules-essential#avoid-v-if-with-v-for)를 참고하세요
+- 실제 `Vue.js`에서는 하나의 엘리먼트에서 `v-if`와 `v-for`를 같이 사용시 `v-if`가 우선순위가 더 높이 평가되어 렌더링되지만 `vuelite`에선 같이 사용할 수 없습니다.
 
 
 
-### 7. 리스트 렌더링 `<1.5.4>`
+### 2. 리스트 렌더링 `<1.5.5>`
 
+<p align="center">
+  <img src="./img/diagram3.png" alt="Description of diagram"  />
+</p>
+
+
+#### **v-for의 기본동작** <br />
+`v-for` 디렉티브는 리스트 데이터를 기반으로 반복적으로 `DOM`요소를 생성 하는 디렉티브입니다. 배열, 객체, 정수값과 같은 리스트를 순회하면서 동적으로 `DOM`을 생성하고 화면에 렌더링합니다. 이 과정에서 `v-for` 디렉티브는 반복될 요소의 템플릿을 정의하며 이러한점에서 실제로 렌더링 되지않고 반복을 정의하는 틀을 제공하는 `HTML`의 `<template>`태그와 유사한 느낌으로 동적으로 요소를 생성하여 렌더링합니다. 
+- `v-for`의 데이터는 배열, 객체, 문자열, 정수 값에 대해서 순회 가능합니다
+- `v-for`의 별칭`(alias)` 값은 괄호를 사용해 인덱스와 같은 선택적 별칭을 지원합니다
 ```html
-<ul>
-  <li v-for="item in items" :key="item.id">
-    {{ item.message }}
-  </li>
-</ul>
+<div v-for="(value, key, index) in myObject"></div>
+<div v-for="(item, index) in myArray"></div>
+<div v-for="(value, index) in 10"></div>
 ```
-```js
-data() {
-  return {
-    items: [
-      { id: 1, message: "Item 1" },
-      { id: 2, message: "Item 2" },
-      { id: 3, message: "Item 3" },
-      { id: 4, message: "Item 4" },
-    ],
-  }
-},
-```
+
+
 #### 핵심 아이디어  
 
+1) **v-if와의 공통점** <br />
+
+기본적으로 `v-for`은 현재 위치에서 데이터의 크기만큼 순회하며 동적으로 `DOM`을 생성하는 역할을 하고있습니다. 그렇기 때문에 `v-if`와 마찬가지로 필연적으로 `DOM`의 구조를 바꾸기 때문에 이후 파싱할때 다른 디렉티브 처리에 영향을 줄 수 있고, 따라서 디렉티브 간의 의존성을 해결하기 위해 디렉티브 처리를 뒤로 미루고 나중에 일괄적으로 후처리를 하고 있습니다
 
 
 
-1) **v-if와의 공통점과 차이점** <br />
 
-2) **컨텍스트의 생성** <br />
+2) **v-for의 기본 동작 흐름** <br />
+
+>1. `v-for`로 전달받은 표현식을 분석하여 리스트의 데이터 타입과 사용된 별칭을 파악합니다. 가령 `(value, key, index) in myObject` 라는 표현식에서는 리스트 데이터가 객체이고, 별칭은 3개를 사용하고있다는 것을 알 수 있습니다.
+>2. 분석한 표현식을 기반으로 `context` 객체를 생성합니다. `context`는 리스트의 데이터 타입, `alias`의 개수에 따라서 달라지며, 각 `alias`와 현재 순회의 `index` 정보를 제공하여 이후에 `context`의 값을 사용해서 내부에서 사용된 별칭들을 계산합니다. 
+>3. 리스트의 크기만큼 순회하면서, `v-for`로 정의된 엘리먼트 자체를 템플릿삼아 매 순회마다 템플릿에 `context`를 주입하여 새로운 `DOM`을 동적으로 생성합니다.
+>4. 이렇게 동적으로 생성된 `DOM`은 내부에 디렉티브 또는 템플릿 문법이 있을 수 있습니다. 따라서 처음에 `Vuelite` 인스턴스를 생성하는 것과 유사하게 `scaaner`에 의해서 다시 디렉티브를 파싱하고 결과적으로 `Observer`를 만드는 절차를 반복하게 됩니다. 
+
+
+
+
+3) **컨텍스트의 역할** <br />
+
+`v-for`는 반복적으로 템플릿에 컨텍스트를 주입하여 동적으로 `DOM`을 생성한 후 스캔한다는 점에서 작은 스코프의 `Vuelite` 인스턴스처럼 동작합니다. 또한 같은 `vm`을 공유하기 때문에 `v-for` 내부에서 생성된 `DOM`의 디렉티브도 기존에 만들어진 반응형 데이터와 관계를 유지 합니다. 
+
+`v-for`디렉티브가 결과적으로 어떻게 만들어져야할지 상상해보면 좀더 쉽게 접근할 수 있습니다. 아래의 코드에서 `Before`의 `v-for` 디렉티브가 `After`처럼 바뀐다고 생각해 보면 `items`라는 리스트의 크기만큼 순회면서 사용된 별칭을 적절하게 바꿔주면 됩니다. 
 
 ```html
+<!-- Before -->
 <ul>
-  <li v-for="item in items" :key="item.id">
+  <li v-for="(item, index) in items" :key="item.id">
     {{ item.message }}
   </li>
 </ul>
-
-<!-- 이렇게 items 사이즈 만큼 반복하도록 바꿔보자 -->
+```
+```html
+<!-- After -->
 <ul>
   <li :key="items[0].id">{{ items[0].message }}</li>
   <li :key="items[1].id">{{ items[1].message }}</li>
   <li :key="items[2].id">{{ items[2].message }}</li>
-  <!--  ....  -->
-</ul>
+  <!--  items 사이즈 만큼 반복 -->
+</ul> 
+```
+하지만 이건 `items`가 배열이라고 가정할때 `item`이 `items[index]` 형태로 바꿔준 것이고 리스트가 객체, 배열 등 타입에 따라서 어떻게 바꿔줘야 할지를 분기처리해서 `context`를 생성해주면 됩니다. 예를 들어 첫번째 순회에서 컨텍스트는 아래와 같이 정의될 수 있습니다.
+```js 
+{ item: items[0], index: 0 } // key는 사용된 alias를 의미
+```
+이렇게 생성된 컨텍스트와 원본 템플릿의 복사본을 가지고 새로운 `DOM`을 생성하며, 순차적으로 만들어진 엘리먼트들을 차곡차곡 `fragment`에 저장되어 마지막으로 `v-for`엘리먼트 즉, 원래 템플릿이 있는 자리와 교체하여 화면에 렌더링합니다.
+
+ 
+
+4) **중첩된 컨텍스트** <br /> 
+
+`v-for` 내부에서 다시 `v-for`를 사용할 경우 각 반복문의 컨텍스트가 중첩되어, 각 단계에서 적절하게 평가되어야 할 필요가 있습니다.
+
+
+```html
+<!-- 독립적인 배열간의 for문 중첩 -->
+<div v-for="(item, index) in items">
+    <div v-for="child in children">
+      <div>{{ child.name }} {{ item.message }}</div>
+    </div>
+</div>
+<!-- 중첩된 구조간의 for문 중첩 -->
+<div v-for="outerItem in outer">
+    <div v-for="value in outerItem.inner">
+      {{ value }}
+    </div>
+</div>
 ```
 
-3) **새로운 스캔** <br />
+디렉티브를 파싱하다가 컨텍스트가 존재하면 표현식을 평가할때 컨텍스트를 비교해서 컨텍스트에 포함된 별칭일 경우 그 부분만 컨텍스트에서 정의한 값으로 바꿔서 평가를 해야합니다. 따라서 현재 활성화된 `Context`를 알 수 있는 방법이 필요한데 이를 위해서 `Observer`와 `Dep`의 관계를 설정하기 위해 사용한 방법이였던 `static` 변수를 생성해서 `scanner`을통해 디렉티브를 파싱하기 전에 앞뒤로 `context`를 적용하여 파싱중에 현재 활성화된 컨텍스트를 추적할 수 있습니다. 
 
-4) **인덱스 계산 및 Key의 의미** <br />
+```js
+const context = { ...parentContext, ...createContext() };
 
-5) **제한사항** <br />
-:key 제공 x
+Vuelite.context = context;
+const container = this.scanner.scanPartial(vm, el, loopEffects);
+Vuelite.context = null;
+```
+이때, 부모 컨텍스트가 존재하는 중첩된 구조의 `v-for`라면 컨텍스트 또한 중첩되어 평가되어야 하기 때문에 두개의 컨텍스트를 합쳐서 정상적으로 평가되고 있습니다. 
 
 
-### 8. 표현식 제공하기 
+5) **loopEffects** <br /> 
+
+`v-if`, `v-for` 디렉티브는 다른 디렉티브 보다 나중에 평가되야하고 `v-for`내부에서 생성되는 디렉티브도  마찬가지로 똑같은 규칙이 적용되어야 합니다. `v-for`디렉티브는 내부적으로 `ForLoop`라는 인스턴스를 만들고 `loopEffects`라는 배열을 인스턴스 변수로 갖고서 이후에 후처리 해야 할 로직들을 추가하고 스캔이 끝나면 일괄적으로 `Effects`들을 처리합니다. `deferredTasks`의 `v-for`버전 이라고 생각하면 됩니다. 
+
+
+#### **v-for의 제한사항**
+- `key` 바인딩 제공하지 않습니다. 내부적으로 인덱스를 사용하며 항상 다시 렌더링 됩니다.
+- 중첩된 `v-for`를 제공하며, `v-for` 내부에서 `v-if`의 사용도 가능합니다. 하지만 `Vue.js` 공식문서에 따르면 `v-if`와 `v-for`를 같이 사용하는 것을 권장하지 않습니다. 자세한 내용은 [스타일 가이드](https://vuejs.org/style-guide/rules-essential#avoid-v-if-with-v-for)를 참고하세요
+- 실제 `Vue.js`에서는 하나의 엘리먼트에서 `v-if`와 `v-for`를 같이 사용시 `v-if`가 우선순위가 더 높이 평가되어 렌더링되지만 `vuelite`에선 같이 사용할 수 없습니다.
+
+
+----
+
+### 1. 표현식 지원 `<1.3.0>`
 
 1) new Function, eval, with 
 2) 디렉티브 (+ 이벤트)
 
 
-### 9. 배열과 객체가 변화에 대응하기
+### 4. 배열과 객체가 변화에 대응하기 `<1.5.x>`
+***제목 고민해보기***
 
 배열의 추가 -> length의 변화감지
 객체의 추가 -> 어쩔 수 없음 (강제 업데이트)
@@ -470,7 +575,7 @@ data() {
 - [x] ~~***디렉티브 축약 형태 지원***~~ `<1.2.1>`
 - [x] ~~***디렉티브와 템플릿에서 표현식 지원***~~ `<1.3.0>`
 - [x] ~~***조건부 렌더링 추가 (v-if/else, v-show 디렉티브)***~~ `<1.4.3>`
-- [x] ~~***리스트 렌더링 추가 (v-for 디렉티브)***~~ `<1.5.4>`
+- [x] ~~***리스트 렌더링 추가 (v-for 디렉티브)***~~ `<1.5.5>`
 - [ ] created, mounted, updated 등의 라이프사이클 훅 지원 
 - [ ] watch 지원
 - [ ] 부분적으로 Composition API 지원 

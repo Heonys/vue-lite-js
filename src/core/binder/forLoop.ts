@@ -9,10 +9,7 @@ import { Observer } from "../reactive/observer";
   v-for은 현재 원래 dom에서 그자리에 컬렌션을 순회하면서 dom을 추가하는 역할을 하고 있기때문에
   f-if와 마찬가지로 필연적으로 dom의 구조를 바꾸기 때문에 파싱할때 다른 디렉티브 처리에 영향을 줄 수 있다
   따라서 조건부 렌더링과 마찬가지로 defferdTask에서 lazy하게 후처리하고 있으며 
-  둘다 디렉티브 생성을 미루고 있어서 v-if와 v-for중에 뭐를 먼저 렌더링하는게 영향을 줄 수 있을 것 같은데
-  따라서 v-if와 v-for를 중첩해서 사용하는 것은 정상적인 동작을 보장하지 못한다 (공식문서도 안티패턴이라고 설명)
-
-  +startIndex와 endIndex로 이전 렌더링에 그려진 요소들을 추적하고 그 위치에 새로운 요소들로 교체할 수 있게 설계
+  startIndex와 endIndex로 이전 렌더링에 그려진 요소들을 추적하고 그 위치에 새로운 요소들로 교체할 수 있게 설계
 */
 
 export class ForLoop {
@@ -49,12 +46,12 @@ export class ForLoop {
     const fragment = document.createDocumentFragment();
     const length = loopSize(value);
     const endPoint = this.startIndex + length - 1;
-    const context = new Context(this);
+    const context = new Context(this, value);
 
     Array.from({ length }).forEach((_, index) => {
       const clone = this.el.cloneNode(true) as HTMLElement;
       removeLoopDirective(clone);
-      const boundEl = context.bind(clone, index, value);
+      const boundEl = context.bind(clone, index);
       fragment.appendChild(boundEl);
     });
 

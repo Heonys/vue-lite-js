@@ -9,27 +9,34 @@
     <div id="app">
       
 
-      
-
-      <!-- <ul>
-        <li v-for="(item, index) in items">
-          <input type="text" v-model="item.message">
-          <div>{{ item.message }}</div>
-        </li>
-      </ul>
- -->
 
 
+        <div v-for="(item, index) in items">
+            <div v-for="child in children">
+              <div>{{ child.name }} {{ item.message }}</div>
+            </div>
+        </div>
+        
+        <div v-for="outerItem in outer">
+          <div v-for="value in outerItem.inner">
+            {{ value }}
+          </div>
+        </div>
 
 
+
+<!-- 
  <ul>
-    <li v-for="(item, index) in items">
+    <li v-if="visible" v-for="(item, index) in items">
       {{ `${index} 번쨰 ${item.message}` }}
     </li>
- </ul>
+ </ul> -->
 
- <button @click="addItem">add</button>
- <button @click="change">change</button>
+ <!-- <input type="checkbox" v-model="visible"> -->
+
+
+ <!-- <button @click="addItem">add</button>
+ <button @click="change">change</button> -->
 
 
    

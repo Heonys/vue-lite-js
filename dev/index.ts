@@ -13,7 +13,7 @@ const vm = new Vuelite({
     return {
       title: "",
       hello: true,
-      visible: true,
+      visible: false,
       visible2: false,
       inputValue: "",
       objectBind: {
@@ -24,34 +24,15 @@ const vm = new Vuelite({
       isDisabled: true,
       count: 0,
       itemCount: "",
-      items2: [
-        {
-          id: 1,
-          children: [
-            { id: 5, message: "Item 5" },
-            { id: 6, message: "Item 6" },
-            { id: 7, message: "Item 7" },
-            { id: 8, message: "Item 8" },
-          ],
-        },
-        {
-          id: 2,
-          children: [
-            { id: 9, message: "Item 9" },
-            { id: 10, message: "Item 10" },
-            { id: 11, message: "Item 11" },
-            { id: 12, message: "Item 12" },
-          ],
-        },
-        {
-          id: 3,
-          children: [
-            { id: 13, message: "Item 13" },
-            { id: 14, message: "Item 14" },
-            { id: 15, message: "Item 15" },
-            { id: 16, message: "Item 16" },
-          ],
-        },
+      outer: [
+        { inner: ["Item 1.1", "Item 1.2", "Item 1.3"] },
+        { inner: ["Item 2.1", "Item 2.2"] },
+        { inner: ["Item 3.1", "Item 3.2", "Item 3.3", "Item 3.4"] },
+      ],
+      outerList: [
+        { innerList: ["Item 1.1", "Item 1.2", "Item 1.3"] },
+        { innerList: ["Item 2.1", "Item 2.2"] },
+        { innerList: ["Item 3.1", "Item 3.2", "Item 3.3", "Item 3.4"] },
       ],
       items: [
         { id: 1, message: "Item 1" },

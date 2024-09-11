@@ -593,13 +593,14 @@ function replaceAlias(context, expression) {
 }
 
 class Context {
-    constructor(loop) {
+    constructor(loop, data) {
         this.loop = loop;
+        this.data = data;
         this.scanner = new VueScanner(new NodeVisitor());
     }
-    bind(el, index, data) {
+    bind(el, index) {
         const { alias, vm, loopEffects, listExp, parentContext } = this.loop;
-        const context = { ...parentContext, ...createContext(alias, listExp, index, data) };
+        const context = { ...parentContext, ...createContext(alias, listExp, index, this.data) };
         Vuelite.context = context;
         const container = this.scanner.scanPartial(vm, el, loopEffects);
         Vuelite.context = null;
@@ -633,11 +634,11 @@ class ForLoop {
         const fragment = document.createDocumentFragment();
         const length = loopSize(value);
         const endPoint = this.startIndex + length - 1;
-        const context = new Context(this);
+        const context = new Context(this, value);
         Array.from({ length }).forEach((_, index) => {
             const clone = this.el.cloneNode(true);
             removeLoopDirective(clone);
-            const boundEl = context.bind(clone, index, value);
+            const boundEl = context.bind(clone, index);
             fragment.appendChild(boundEl);
         });
         if (this.el.isConnected) {
