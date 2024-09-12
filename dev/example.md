@@ -181,3 +181,14 @@
 #### styles 옵션 지원 
 
 
+
+
+
+<!-- 
+  양방향 바인딩 (input, textarea, select 지원)
+  input 요소의 값이나 상태를 통일된 방식으로 접근할 수 있게해서 일관되게 바인딩하게 해준다 
+
+  date, month, time, week 등 날짜나 시간관련된 속성 및 레거시 속성들을 제외  
+  file의 경우는 논외로 v-model이 아닌 change 이벤트를 통해 수동으로 파일관리를 해야함 
+  지원되는 input 타입 (text, number, url, tel, search, ragnge, radio, password, email, color, checkbox)
+ -->

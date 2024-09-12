@@ -11,8 +11,13 @@ import { typeOf } from "./utils/format";
 
 Object.defineProperty(Object.prototype, "_length", {
   get: function () {
-    if (typeOf(this) === "array") return this.length;
-    return Object.keys(this).length;
+    if (Object.hasOwn(this, "length")) {
+      return this.length;
+    } else if (typeOf(this) === "object") {
+      return Object.keys(this).length;
+    } else {
+      return 0;
+    }
   },
   enumerable: false,
 });

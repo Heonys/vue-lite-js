@@ -178,6 +178,15 @@ class Reactivity {
                 }
                 return result;
             },
+            deleteProperty(target, property) {
+                const oldLength = target._length;
+                const result = Reflect.deleteProperty(target, property);
+                const newLength = target._length;
+                if (oldLength !== newLength && deps.has("_length")) {
+                    deps.get("_length").notify();
+                }
+                return result;
+            },
         };
         return new Proxy(data, handler);
     }

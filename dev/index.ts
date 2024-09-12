@@ -96,8 +96,10 @@ const vm = new Vuelite({
   methods: {
     handleInput(e: Event) {
       // console.log(e.target.value);
+      // this.title = (e.target as HTMLInputElement).value;
+      console.log("fullname");
 
-      this.title = (e.target as HTMLInputElement).value;
+      return this.firstName + " + " + this.lastName;
     },
     handleCheck() {
       this.checked = !this.checked;
@@ -126,6 +128,11 @@ const vm = new Vuelite({
       // this.items.splice(0, this.items.length);
       this.items.push({ id: 10, message: `Item 10` });
 
+      this.myObject = {
+        title: "Vue에서 목록을 작성하는 방법",
+        author: "홍길동",
+      };
+
       // this.myObject.title = "change Title";
 
       // this.myObject.newKey = "newValue";
@@ -133,6 +140,11 @@ const vm = new Vuelite({
     },
     change() {
       // this.myObject.newKey = "newValue2";
+
+      // delete this.myObject.publishedAt;
+
+      this.myObject.title = "change Title";
+
       // this.items[this.items.length - 1].message = "change";
     },
   },

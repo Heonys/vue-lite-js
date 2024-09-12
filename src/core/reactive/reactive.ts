@@ -47,11 +47,24 @@ export class Reactivity {
           이로써 동적으로 속성을 추가하더라도 해당 객체가 반응형 데이터인 경우에만 업데이트되도록 보장되며, 
           그외의 모든 데이터는 화면을 업데이트 하지않도록 개선하였습니다. 
         */
+
+        // console.log(value);
+
         if (oldLength !== newLength && deps.has("_length")) {
           deps.get("_length").notify();
         }
         if (deps.has(key)) {
           deps.get(key).notify();
+        }
+        return result;
+      },
+      deleteProperty(target: Target, property: string) {
+        const oldLength = target._length;
+        const result = Reflect.deleteProperty(target, property);
+        const newLength = target._length;
+
+        if (oldLength !== newLength && deps.has("_length")) {
+          deps.get("_length").notify();
         }
         return result;
       },

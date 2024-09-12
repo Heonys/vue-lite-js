@@ -10,7 +10,7 @@
       
 
 
-
+<!-- 
         <div v-for="(item, index) in items">
             <div v-for="child in children">
               <div>{{ child.name }} {{ item.message }}</div>
@@ -21,25 +21,22 @@
           <div v-for="value in outerItem.inner">
             {{ value }}
           </div>
+        </div> -->
+
+        <!-- <div v-for="(value, key, index) in myObject">
+          <div>{{ key }} {{ value }}</div>
         </div>
 
+        <button @click="addItem">addItem</button>
+        <button @click="change">change</button> -->
 
 
-<!-- 
- <ul>
-    <li v-if="visible" v-for="(item, index) in items">
-      {{ `${index} 번쨰 ${item.message}` }}
-    </li>
- </ul> -->
-
- <!-- <input type="checkbox" v-model="visible"> -->
 
 
- <!-- <button @click="addItem">add</button>
- <button @click="change">change</button> -->
+        <div>{{ handleInput() }}</div>
 
-
-   
+        <input type="text" v-model="firstName">
+        <div>{{ firstName }}</div>
 
 
       
