@@ -4,6 +4,7 @@ import { Options } from "./option";
 export type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "updated";
 
 export class Lifecycle<Data, Methods, Computed> {
+  deferredTasks: Function[] = [];
   private hooks: { [K in HookNames]?: () => void };
 
   setHooks(options: Options<Data, Methods, Computed>) {
@@ -15,5 +16,10 @@ export class Lifecycle<Data, Methods, Computed> {
     if (typeOf(method) === "function") {
       method.call(this);
     }
+  }
+
+  clearTasks() {
+    this.deferredTasks.forEach((fn) => fn());
+    this.deferredTasks = [];
   }
 }

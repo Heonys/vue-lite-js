@@ -57,3 +57,10 @@ export const isNonObserver = (name: string, modifier: string) => {
 export function isDeferred(key: string) {
   return key === "if" || key === "for";
 }
+
+export function node2Fragment(el: Element) {
+  const fragment = document.createDocumentFragment();
+  let child: Node;
+  while ((child = el.firstChild)) fragment.appendChild(child);
+  return fragment;
+}

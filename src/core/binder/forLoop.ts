@@ -37,7 +37,7 @@ export class ForLoop {
   }
 
   render() {
-    new Observer(this.vm, this.listExp, "for", (value) => {
+    new Observer(this.vm, this.listExp, "for", this.el, (value) => {
       this.updater(value);
     });
   }

@@ -8,7 +8,7 @@ import { ForLoop } from "./forLoop";
 import { unsafeEvaluate } from "@/utils/evaluate";
 
 export class Directive {
-  directiveName: string;
+  name: string;
   modifier: string;
   constructor(
     name: string,
@@ -18,7 +18,7 @@ export class Directive {
     loopEffects?: Function[],
   ) {
     const { key, modifier } = extractDirective(name);
-    this.directiveName = key;
+    this.name = key;
     this.modifier = modifier;
 
     if (!isValidDirective(key)) return;
@@ -35,8 +35,12 @@ export class Directive {
 
   bind(updater?: Updater) {
     updater = this.selectUpdater(updater);
-    new Observer(this.vm, this.exp, this.directiveName, (value) => {
-      updater(this.node, value);
+    new Observer(this.vm, this.exp, this.name, this.node, (value, clone) => {
+      if (clone) {
+        updater(clone, value);
+      } else {
+        updater(this.node, value);
+      }
     });
   }
 

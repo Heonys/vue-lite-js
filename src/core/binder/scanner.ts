@@ -1,3 +1,4 @@
+import { node2Fragment } from "@/utils/common";
 import Vuelite from "../viewmodel/vuelite";
 import { Observable } from "./observable";
 import type { Visitor } from "./visitor";
@@ -14,23 +15,16 @@ abstract class Scanner {
 export class VueScanner extends Scanner {
   private fragment: DocumentFragment;
 
-  private node2Fragment(el: Element) {
-    const fragment = document.createDocumentFragment();
-    let child: Node;
-    while ((child = el.firstChild)) fragment.appendChild(child);
-    return fragment;
-  }
-
   scan(vm: Vuelite) {
     const action = (node: Node) => {
       isReactiveNode(node) && new Observable(vm, node);
     };
 
     if (vm.template) {
-      this.fragment = this.node2Fragment(vm.template);
+      this.fragment = node2Fragment(vm.template);
       vm.el.innerHTML = "";
     } else {
-      this.fragment = this.node2Fragment(vm.el);
+      this.fragment = node2Fragment(vm.el);
     }
 
     action(this.fragment);
@@ -40,7 +34,7 @@ export class VueScanner extends Scanner {
   }
 
   scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]) {
-    const container = this.node2Fragment(el);
+    const container = node2Fragment(el);
     const action = (node: Node) => {
       isReactiveNode(node) && new Observable(vm, node, loopEffects);
     };
@@ -48,5 +42,9 @@ export class VueScanner extends Scanner {
     this.visit(action, container);
     el.appendChild(container);
     return el;
+  }
+
+  scan2() {
+    //
   }
 }

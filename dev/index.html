@@ -7,40 +7,14 @@
   </head>
   <body>
     <div id="app">
-      
 
 
-<!-- 
-        <div v-for="(item, index) in items">
-            <div v-for="child in children">
-              <div>{{ child.name }} {{ item.message }}</div>
-            </div>
-        </div>
-        
-        <div v-for="outerItem in outer">
-          <div v-for="value in outerItem.inner">
-            {{ value }}
-          </div>
-        </div> -->
-
-        <!-- <div v-for="(value, key, index) in myObject">
-          <div>{{ key }} {{ value }}</div>
-        </div>
-
-        <button @click="addItem">addItem</button>
-        <button @click="change">change</button> -->
-
-
-
-
-        <!-- <div>{{ handleInput() }}</div> -->
+      <div v-for="item in items">
+        {{ item.message }} {{ title }}
+      </div>
 
         <input type="text" v-model="title">
         <div>{{ title }}</div>
-
-
-      
-
 
     </div>
   </body>

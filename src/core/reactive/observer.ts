@@ -11,8 +11,9 @@ export class Observer {
   constructor(
     private vm: Vuelite,
     private exp: string,
-    public directiveName: string,
-    private onUpdate: (value: any) => void,
+    public name: string,
+    public node: Node,
+    private onUpdate: (value: any, clone?: Node) => void,
   ) {
     this.value = this.getterTrigger();
     onUpdate(this.value);
@@ -26,7 +27,7 @@ export class Observer {
   // this.length-> 의도적으로 "length" 속성에 대한 get trap 발동하기 위함
   getterTrigger() {
     Dep.activated = this;
-    const value = evaluateValue(this.directiveName, this.vm, this.exp);
+    const value = evaluateValue(this.name, this.vm, this.exp);
     if (isObject(value)) value._length;
     Dep.activated = null;
     return value;
@@ -37,6 +38,6 @@ export class Observer {
     const newValue = this.getterTrigger();
     if (isPrimitive(newValue) && oldValue === newValue) return;
     this.value = newValue;
-    this.onUpdate.call(this.vm, newValue);
+    this.vm.updateQueue.push({ value: newValue, updater: this.onUpdate, target: this.node });
   }
 }
