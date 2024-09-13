@@ -35,20 +35,6 @@ export class Reactivity {
         const oldLength = target._length;
         const result = Reflect.set(target, key, value, receiver);
         const newLength = target._length;
-        /*
-          동적으로 속성이 추가되면 해당 속성은 get 트랩을 통과하지 않으므로, 
-          Dep이 생성되지 않을뿐더러, Observer가 연결되지 않습니다. 
-          이로 인해, 속성이 추가되었지만 업데이트를 담당할 옵저버가 없어서 
-          forceUpdate을 통해 화면 전체를 업데이트하는 성능 문제가 있었습니다. 
-
-          그래서 객체에 _length 라는 커스텀 속성을 추가하여 배열처럼 객체에서도 길이를 추적할 수 있게하고 
-          get트랩에서 _length 키에대한 dep을 만들어 두어, 이후에 동적으로 속성을 추가될떄
-          해당 객체가 반응형 데이터인 경우에만 get트랩에 의해서 deps에 "_length"키가 존재할테니까
-          이로써 동적으로 속성을 추가하더라도 해당 객체가 반응형 데이터인 경우에만 업데이트되도록 보장되며, 
-          그외의 모든 데이터는 화면을 업데이트 하지않도록 개선하였습니다. 
-        */
-
-        // console.log(value);
 
         if (oldLength !== newLength && deps.has("_length")) {
           deps.get("_length").notify();

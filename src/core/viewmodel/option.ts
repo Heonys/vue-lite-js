@@ -1,3 +1,4 @@
+import { HookNames } from "./lifecycle";
 import Vuelite from "./vuelite";
 
 type Accessor<Data, Methods, Computed> = {
@@ -9,7 +10,7 @@ type ComputedType<Data, Methods, Computed> = {
   [K: string]: Accessor<Data, Methods, Computed> | (() => any);
 };
 
-export interface Options<Data, Methods, Computed> {
+export type Options<Data, Methods, Computed> = {
   el: string;
   template?: string;
   data?: () => Data;
@@ -19,7 +20,9 @@ export interface Options<Data, Methods, Computed> {
   styles?: {
     [K: string]: any;
   };
-}
+} & {
+  [Hook in HookNames]?: () => void;
+};
 
 type AccessorForm = { get?(): any; set?(value: any): void };
 
