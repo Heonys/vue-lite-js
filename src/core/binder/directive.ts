@@ -35,6 +35,7 @@ export class Directive {
 
   bind(updater?: Updater) {
     updater = this.selectUpdater(updater);
+
     new Observer(this.vm, this.exp, this.name, this.node, (value, clone) => {
       if (clone) {
         updater(clone, value);

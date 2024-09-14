@@ -1,20 +1,18 @@
-import { createDOMTemplate, node2Fragment } from "@utils/common";
+import { createDOMTemplate } from "@utils/common";
 import { type Options } from "./option";
 import { injectReactive } from "../reactive/reactive";
 import { injectStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
-
-// ※타입 정리
-type UpdateQueue = { value: any; updater: (value: any, clone?: Node) => void; target: Node };
+import { typeOf } from "@/utils/format";
 
 export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
   el: HTMLElement;
   template?: Element;
   options: Options<D, M, C>;
   virtual: Node;
-  updateQueue: UpdateQueue[] = [];
+  updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
 
@@ -41,35 +39,12 @@ export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> 
   render() {
     if (this.updateQueue.length > 0) {
       this.callHook("beforeUpdate");
-
-      const focusedElement = document.activeElement;
-      const fragment = node2Fragment(this.el);
-
       while (this.updateQueue.length > 0) {
-        const { target, updater, value } = this.updateQueue.shift();
-        const updatedTarget = this.findInClone(fragment, target);
-        updater(value, updatedTarget);
-      }
-
-      this.el.appendChild(fragment);
-
-      if (focusedElement && focusedElement instanceof HTMLElement) {
-        focusedElement.focus();
+        const fn = this.updateQueue.shift();
+        if (typeOf(fn) === "function") fn();
       }
       this.callHook("updated");
     }
     requestAnimationFrame(() => this.render());
-  }
-
-  findInClone(clone: Node, originalTarget: Node): Node | null {
-    const walker = document.createTreeWalker(clone, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
-    let node: Node | null;
-
-    while ((node = walker.nextNode())) {
-      if (node.isEqualNode(originalTarget)) {
-        return node;
-      }
-    }
-    return null;
   }
 }

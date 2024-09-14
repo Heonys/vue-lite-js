@@ -38,6 +38,7 @@ export class Observer {
     const newValue = this.getterTrigger();
     if (isPrimitive(newValue) && oldValue === newValue) return;
     this.value = newValue;
-    this.vm.updateQueue.push({ value: newValue, updater: this.onUpdate, target: this.node });
+    this.vm.updateQueue.push(() => this.onUpdate(newValue));
+    // this.vm.updateQueue.push({ value: newValue, updater: this.onUpdate, target: this.node });
   }
 }

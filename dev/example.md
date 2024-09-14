@@ -50,8 +50,7 @@
 </div> 
 ```
 
-#### v-if + v-for ❌
-***else구문에서 v-for쓰면 버그생김***
+#### v-if + v-for ✅
 ```html
 <input type="checkbox" v-model="visible"> 
 <div v-if="visible">visible</div> 

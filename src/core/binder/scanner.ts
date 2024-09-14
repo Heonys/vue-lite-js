@@ -43,8 +43,4 @@ export class VueScanner extends Scanner {
     el.appendChild(container);
     return el;
   }
-
-  scan2() {
-    //
-  }
 }

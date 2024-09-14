@@ -11,9 +11,9 @@ const vm = new Vuelite({
   el: "#app",
   data() {
     return {
-      title: "ddd",
+      title: "",
       hello: true,
-      visible: false,
+      visible: true,
       visible2: false,
       inputValue: "",
       objectBind: {
@@ -94,12 +94,8 @@ const vm = new Vuelite({
   },
 
   methods: {
-    handleInput(e: Event) {
-      // console.log(e.target.value);
-      // this.title = (e.target as HTMLInputElement).value;
-      console.log("fullname");
-
-      return this.firstName + " + " + this.lastName;
+    handleInput(e) {
+      this.title = e.target.value;
     },
     handleCheck() {
       this.checked = !this.checked;
