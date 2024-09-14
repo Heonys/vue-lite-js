@@ -13,6 +13,15 @@ declare const updaters: {
     show(el: HTMLElement, condition: any): void;
 };
 
+type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "updated";
+declare class Lifecycle<Data, Methods, Computed> {
+    deferredTasks: Function[];
+    private hooks;
+    setHooks(options: Options<Data, Methods, Computed>): void;
+    callHook(name: HookNames): void;
+    clearTasks(): void;
+}
+
 type Accessor<Data, Methods, Computed> = {
     get?(this: Vuelite<Data, Methods, Computed>): any;
     set?(this: Vuelite<Data, Methods, Computed>, value: any): void;
@@ -20,7 +29,7 @@ type Accessor<Data, Methods, Computed> = {
 type ComputedType<Data, Methods, Computed> = {
     [K: string]: Accessor<Data, Methods, Computed> | (() => any);
 };
-interface Options<Data, Methods, Computed> {
+type Options<Data, Methods, Computed> = {
     el: string;
     template?: string;
     data?: () => Data;
@@ -30,24 +39,29 @@ interface Options<Data, Methods, Computed> {
     styles?: {
         [K: string]: any;
     };
-}
+} & {
+    [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;
+} & {
+    beforeCreate?: () => void;
+};
 
-declare class Vuelite<Data = {}, Methods = {}, Computed = {}> {
+declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
     el: HTMLElement;
     template?: Element;
-    options: Options<Data, Methods, Computed>;
-    deferredTasks: Function[];
+    options: Options<D, M, C>;
+    virtual: Node;
+    updateQueue: Function[];
     static context?: Record<string, any>;
     [customKey: string]: any;
-    constructor(options: Options<Data, Methods, Computed>);
-    clearTasks(): void;
+    constructor(options: Options<D, M, C>);
+    render(): void;
 }
 
 declare class Directive {
     vm: Vuelite;
     node: Node;
     exp: any;
-    directiveName: string;
+    name: string;
     modifier: string;
     constructor(name: string, vm: Vuelite, node: Node, exp: any, loopEffects?: Function[]);
     bind(updater?: Updater): void;
@@ -86,7 +100,6 @@ declare abstract class Scanner {
 }
 declare class VueScanner extends Scanner {
     private fragment;
-    private node2Fragment;
     scan(vm: Vuelite): void;
     scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]): HTMLElement;
 }
@@ -94,11 +107,12 @@ declare class VueScanner extends Scanner {
 declare class Observer {
     private vm;
     private exp;
-    directiveName: string;
+    name: string;
+    node: Node;
     private onUpdate;
     private value;
     private deps;
-    constructor(vm: Vuelite, exp: string, directiveName: string, onUpdate: (value: any) => void);
+    constructor(vm: Vuelite, exp: string, name: string, node: Node, onUpdate: (value: any, clone?: Node) => void);
     addDep(dep: Dep): void;
     getterTrigger(): any;
     update(): void;

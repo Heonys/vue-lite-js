@@ -21,7 +21,9 @@ export type Options<Data, Methods, Computed> = {
     [K: string]: any;
   };
 } & {
-  [Hook in HookNames]?: () => void;
+  [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;
+} & {
+  beforeCreate?: () => void;
 };
 
 type AccessorForm = { get?(): any; set?(value: any): void };

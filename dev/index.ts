@@ -22,7 +22,7 @@ const vm = new Vuelite({
         customKey: "customValue",
       },
       isDisabled: true,
-      count: 0,
+      count: 1,
       itemCount: "",
       outer: [
         { inner: ["Item 1.1", "Item 1.2", "Item 1.3"] },
@@ -73,6 +73,25 @@ const vm = new Vuelite({
       selectedOption: "Vue",
     };
   },
+  beforeUpdate() {
+    // this.count++;
+    // console.log("beforeUpdate");
+  },
+  updated() {
+    // console.log("updated");
+  },
+
+  beforeCreate() {
+    console.log("beforeCreate");
+  },
+  created() {
+    this.title = "initalize";
+    console.log("created");
+  },
+  mounted() {
+    console.log("mounted");
+  },
+
   computed: {
     isChecked() {
       return this.checked ? "checked" : "unchecked";

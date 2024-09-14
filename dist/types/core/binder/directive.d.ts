@@ -4,7 +4,7 @@ export declare class Directive {
     vm: Vuelite;
     node: Node;
     exp: any;
-    directiveName: string;
+    name: string;
     modifier: string;
     constructor(name: string, vm: Vuelite, node: Node, exp: any, loopEffects?: Function[]);
     bind(updater?: Updater): void;

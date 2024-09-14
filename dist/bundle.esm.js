@@ -42,6 +42,13 @@ const isNonObserver = (name, modifier) => {
 function isDeferred(key) {
     return key === "if" || key === "for";
 }
+function node2Fragment(el) {
+    const fragment = document.createDocumentFragment();
+    let child;
+    while ((child = el.firstChild))
+        fragment.appendChild(child);
+    return fragment;
+}
 
 function typeOf(value) {
     return Object.prototype.toString
@@ -430,10 +437,11 @@ function evaluateValue(name, vm, exp) {
 }
 
 class Observer {
-    constructor(vm, exp, directiveName, onUpdate) {
+    constructor(vm, exp, name, node, onUpdate) {
         this.vm = vm;
         this.exp = exp;
-        this.directiveName = directiveName;
+        this.name = name;
+        this.node = node;
         this.onUpdate = onUpdate;
         this.deps = new Set();
         this.value = this.getterTrigger();
@@ -445,7 +453,7 @@ class Observer {
     }
     getterTrigger() {
         Dep.activated = this;
-        const value = evaluateValue(this.directiveName, this.vm, this.exp);
+        const value = evaluateValue(this.name, this.vm, this.exp);
         if (isObject(value))
             value._length;
         Dep.activated = null;
@@ -457,7 +465,7 @@ class Observer {
         if (isPrimitive(newValue) && oldValue === newValue)
             return;
         this.value = newValue;
-        this.onUpdate.call(this.vm, newValue);
+        this.vm.updateQueue.push(() => this.onUpdate(newValue));
     }
 }
 
@@ -473,7 +481,7 @@ class Condition {
         this.render();
     }
     render() {
-        new Observer(this.vm, this.exp, "if", (value) => {
+        new Observer(this.vm, this.exp, "if", this.el, (value) => {
             this.updater(value);
         });
     }
@@ -633,7 +641,7 @@ class ForLoop {
         this.render();
     }
     render() {
-        new Observer(this.vm, this.listExp, "for", (value) => {
+        new Observer(this.vm, this.listExp, "for", this.el, (value) => {
             this.updater(value);
         });
     }
@@ -678,7 +686,7 @@ class Directive {
         this.node = node;
         this.exp = exp;
         const { key, modifier } = extractDirective(name);
-        this.directiveName = key;
+        this.name = key;
         this.modifier = modifier;
         if (!isValidDirective(key))
             return;
@@ -698,8 +706,13 @@ class Directive {
     }
     bind(updater) {
         updater = this.selectUpdater(updater);
-        new Observer(this.vm, this.exp, this.directiveName, (value) => {
-            updater(this.node, value);
+        new Observer(this.vm, this.exp, this.name, this.node, (value, clone) => {
+            if (clone) {
+                updater(clone, value);
+            }
+            else {
+                updater(this.node, value);
+            }
         });
     }
     model() {
@@ -851,23 +864,16 @@ class Scanner {
     }
 }
 class VueScanner extends Scanner {
-    node2Fragment(el) {
-        const fragment = document.createDocumentFragment();
-        let child;
-        while ((child = el.firstChild))
-            fragment.appendChild(child);
-        return fragment;
-    }
     scan(vm) {
         const action = (node) => {
             isReactiveNode(node) && new Observable(vm, node);
         };
         if (vm.template) {
-            this.fragment = this.node2Fragment(vm.template);
+            this.fragment = node2Fragment(vm.template);
             vm.el.innerHTML = "";
         }
         else {
-            this.fragment = this.node2Fragment(vm.el);
+            this.fragment = node2Fragment(vm.el);
         }
         action(this.fragment);
         this.visit(action, this.fragment);
@@ -875,7 +881,7 @@ class VueScanner extends Scanner {
         vm.clearTasks();
     }
     scanPartial(vm, el, loopEffects) {
-        const container = this.node2Fragment(el);
+        const container = node2Fragment(el);
         const action = (node) => {
             isReactiveNode(node) && new Observable(vm, node, loopEffects);
         };
@@ -886,20 +892,53 @@ class VueScanner extends Scanner {
     }
 }
 
-class Vuelite {
-    constructor(options) {
+class Lifecycle {
+    constructor() {
         this.deferredTasks = [];
-        this.el = document.querySelector(options.el);
-        this.options = options;
-        this.template = createDOMTemplate(options.template);
-        injectReactive(this);
-        injectStyleSheet(this);
-        const scanner = new VueScanner(new NodeVisitor());
-        scanner.scan(this);
+    }
+    setHooks(options) {
+        this.hooks = options;
+    }
+    callHook(name) {
+        const method = this.hooks[name];
+        if (typeOf(method) === "function") {
+            name === "beforeCreate" ? method.call(null) : method.call(this);
+        }
     }
     clearTasks() {
         this.deferredTasks.forEach((fn) => fn());
         this.deferredTasks = [];
+    }
+}
+
+class Vuelite extends Lifecycle {
+    constructor(options) {
+        super();
+        this.updateQueue = [];
+        this.options = options;
+        this.setHooks(options);
+        this.el = document.querySelector(options.el);
+        this.template = createDOMTemplate(options.template);
+        this.callHook("beforeCreate");
+        injectReactive(this);
+        injectStyleSheet(this);
+        this.callHook("created");
+        const scanner = new VueScanner(new NodeVisitor());
+        scanner.scan(this);
+        this.callHook("mounted");
+        requestAnimationFrame(() => this.render());
+    }
+    render() {
+        if (this.updateQueue.length > 0) {
+            this.callHook("beforeUpdate");
+            while (this.updateQueue.length > 0) {
+                const fn = this.updateQueue.shift();
+                if (typeOf(fn) === "function")
+                    fn();
+            }
+            this.callHook("updated");
+        }
+        requestAnimationFrame(() => this.render());
     }
 }
 

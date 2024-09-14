@@ -14,7 +14,7 @@ export class Lifecycle<Data, Methods, Computed> {
   callHook(name: HookNames) {
     const method = this.hooks[name];
     if (typeOf(method) === "function") {
-      method.call(this);
+      name === "beforeCreate" ? method.call(null) : method.call(this);
     }
   }
 
