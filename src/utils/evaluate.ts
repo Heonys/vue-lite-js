@@ -1,5 +1,5 @@
 import Vuelite from "@/core/viewmodel/vuelite";
-import { isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
+import { hasTemplate, isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 import { boolean2String, extractPath, normalizeToJson } from "./common";
 import { extractTemplate } from "./directive";
 
@@ -66,13 +66,10 @@ export function evaluateTemplate(vm: Vuelite, exp: string) {
   return result;
 }
 
-export function evaluateValue(name: string, vm: Vuelite, exp: string) {
-  switch (name) {
-    case "text": {
-      return evaluateTemplate(vm, exp);
-    }
-    default: {
-      return unsafeEvaluate(vm, exp);
-    }
+export function evaluateValue(vm: Vuelite, exp: string) {
+  if (hasTemplate(exp)) {
+    return evaluateTemplate(vm, exp);
+  } else {
+    return unsafeEvaluate(vm, exp);
   }
 }

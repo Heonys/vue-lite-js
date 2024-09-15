@@ -1,11 +1,12 @@
 import { createDOMTemplate } from "@utils/common";
 import { type Options } from "./option";
 import { injectReactive } from "../reactive/reactive";
-import { injectStyleSheet } from "./style";
+import { createStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
 import { typeOf } from "@/utils/format";
+import { createWatchers } from "../reactive/observer";
 
 export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
   el: HTMLElement;
@@ -26,7 +27,8 @@ export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> 
     this.callHook("beforeCreate");
 
     injectReactive(this);
-    injectStyleSheet(this);
+    createStyleSheet(this);
+    createWatchers(this);
     this.callHook("created");
 
     const scanner = new VueScanner(new NodeVisitor());

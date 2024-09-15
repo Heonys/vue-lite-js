@@ -73,6 +73,20 @@ const vm = new Vuelite({
       selectedOption: "Vue",
     };
   },
+  watch: {
+    fullName: {
+      handler(newVar, oldVar) {
+        console.log("fullName change", newVar, " :: ", oldVar);
+      },
+    },
+
+    // ["myObject.author"]: {
+    //   handler(newVar, oldVar) {
+    //     console.log("author change", newVar, " :: ", oldVar);
+    //   },
+    //   immediate: true,
+    // },
+  },
   beforeUpdate() {
     // this.count++;
     // console.log("beforeUpdate");
@@ -82,14 +96,13 @@ const vm = new Vuelite({
   },
 
   beforeCreate() {
-    console.log("beforeCreate");
+    // console.log("beforeCreate");
   },
   created() {
-    this.title = "initalize";
-    console.log("created");
+    // console.log("created");
   },
   mounted() {
-    console.log("mounted");
+    // console.log("mounted");
   },
 
   computed: {

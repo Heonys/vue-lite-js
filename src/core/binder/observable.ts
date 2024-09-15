@@ -1,5 +1,5 @@
 import { isDirective } from "@utils/directive";
-import { isElementNode, isIncludeText, isTextNode } from "@utils/format";
+import { hasTemplate, isElementNode, hasTextDirective, isTextNode } from "@utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { Directive } from "./directive";
 import { replaceAlias } from "@/utils/context";
@@ -10,12 +10,13 @@ export class Observable {
     public node: Node,
     public loopEffects?: Function[],
   ) {
-    const patten: RegExp = /{{\s*(.*?)\s*}}/;
-    const text = node.textContent;
-
     if (isElementNode(node)) {
       this.directiveBind(node);
-    } else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
+    } else if (
+      isTextNode(node) &&
+      hasTemplate(node.textContent) &&
+      !hasTextDirective(node.parentElement)
+    ) {
       this.templateBind(node);
     }
   }

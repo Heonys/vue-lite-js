@@ -20,8 +20,8 @@ export class Condition {
   }
 
   render() {
-    new Observer(this.vm, this.exp, "if", this.el, (value) => {
-      this.updater(value);
+    new Observer(this.vm, this.exp, (newVal, oldVal) => {
+      this.updater(newVal);
     });
   }
 

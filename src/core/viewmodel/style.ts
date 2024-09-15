@@ -18,7 +18,7 @@ class StyleRule {
   }
 }
 
-export function injectStyleSheet(vm: Vuelite) {
+export function createStyleSheet(vm: Vuelite) {
   const { styles } = vm.options;
   if (!styles) return;
   const styleElement = document.createElement("style");

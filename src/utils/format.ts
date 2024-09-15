@@ -47,7 +47,7 @@ export const isTextNode = (node: Node) => {
 현재 노드가 template 바인딩을 하려고할떄 
 만약 부모 요소에 v-text 속성이 존재한다면 이미 바인딩한 v-text가 우선시 되기위함 
 */
-export const isIncludeText = (node: HTMLElement) => {
+export const hasTextDirective = (node: HTMLElement) => {
   const attrs = node?.attributes;
   if (!attrs) return;
   return Array.from(attrs).some((v) => v.name === "v-text");
@@ -84,4 +84,15 @@ export function extractAlias(str: string) {
 
 export function isPrimitive(value: any) {
   return value !== Object(value);
+}
+
+export function hasTemplate(str: string) {
+  const pattern = /{{\s*[^{}]+\s*}}/;
+  return pattern.test(str);
+}
+
+export function isPathFormat(str: string) {
+  if (!str.includes(".")) return false;
+  const pattern = /^[a-zA-Z_$][a-zA-Z_$0-9]*(\.[a-zA-Z_$][a-zA-Z_$0-9]+)+$/;
+  return pattern.test(str);
 }
