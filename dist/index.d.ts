@@ -29,20 +29,28 @@ type Accessor<Data, Methods, Computed> = {
 type ComputedType<Data, Methods, Computed> = {
     [K: string]: Accessor<Data, Methods, Computed> | (() => any);
 };
+type WatchMethod = (newVal: any, oldVal: any) => void;
+type WatchObject = {
+    handler: WatchMethod;
+    immediate?: boolean;
+};
+type WatchType = {
+    [K: string]: WatchMethod | WatchObject;
+};
 type Options<Data, Methods, Computed> = {
     el: string;
     template?: string;
     data?: () => Data;
     methods?: Methods & ThisType<Data & Methods & Computed>;
     computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;
-    watch?: {};
+    watch?: WatchType;
     styles?: {
         [K: string]: any;
     };
 } & {
     [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;
 } & {
-    beforeCreate?: () => void;
+    beforeCreate?: (this: void) => void;
 };
 
 declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
@@ -107,12 +115,10 @@ declare class VueScanner extends Scanner {
 declare class Observer {
     private vm;
     private exp;
-    name: string;
-    node: Node;
     private onUpdate;
     private value;
     private deps;
-    constructor(vm: Vuelite, exp: string, name: string, node: Node, onUpdate: (value: any, clone?: Node) => void);
+    constructor(vm: Vuelite, exp: string, onUpdate: (newVal: any, oldVal?: any) => void, watchOption?: Omit<WatchObject, "handler">);
     addDep(dep: Dep): void;
     getterTrigger(): any;
     update(): void;

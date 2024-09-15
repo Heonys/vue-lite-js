@@ -7,10 +7,12 @@ export declare function isQuotedString(str: string): boolean;
 export declare function isHtmlFormat(str: string): boolean;
 export declare const isElementNode: (node: Node) => node is HTMLElement;
 export declare const isTextNode: (node: Node) => boolean;
-export declare const isIncludeText: (node: HTMLElement) => boolean;
+export declare const hasTextDirective: (node: HTMLElement) => boolean;
 export declare function extractKeywords(str: string): {
     key: string;
     list: string;
 };
 export declare function extractAlias(str: string): string[];
 export declare function isPrimitive(value: any): boolean;
+export declare function hasTemplate(str: string): boolean;
+export declare function isPathFormat(str: string): boolean;

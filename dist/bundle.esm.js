@@ -69,7 +69,7 @@ const isElementNode = (node) => {
 const isTextNode = (node) => {
     return node.nodeType === 3;
 };
-const isIncludeText = (node) => {
+const hasTextDirective = (node) => {
     const attrs = node === null || node === void 0 ? void 0 : node.attributes;
     if (!attrs)
         return;
@@ -100,6 +100,10 @@ function extractAlias(str) {
 }
 function isPrimitive(value) {
     return value !== Object(value);
+}
+function hasTemplate(str) {
+    const pattern = /{{\s*[^{}]+\s*}}/;
+    return pattern.test(str);
 }
 
 class Dep {
@@ -145,6 +149,9 @@ function isAccessor(data) {
     if (typeof data !== "function")
         return true;
     return false;
+}
+function isWatchMethod(value) {
+    return typeOf(value) === "function";
 }
 
 class Reactivity {
@@ -260,7 +267,7 @@ class StyleRule {
         this.rule.style[key] = value;
     }
 }
-function injectStyleSheet(vm) {
+function createStyleSheet(vm) {
     const { styles } = vm.options;
     if (!styles)
         return;
@@ -425,27 +432,30 @@ function evaluateTemplate(vm, exp) {
     });
     return result;
 }
-function evaluateValue(name, vm, exp) {
-    switch (name) {
-        case "text": {
-            return evaluateTemplate(vm, exp);
-        }
-        default: {
-            return unsafeEvaluate(vm, exp);
-        }
+function evaluateValue(vm, exp) {
+    if (hasTemplate(exp)) {
+        return evaluateTemplate(vm, exp);
+    }
+    else {
+        return unsafeEvaluate(vm, exp);
     }
 }
 
 class Observer {
-    constructor(vm, exp, name, node, onUpdate) {
+    constructor(vm, exp, onUpdate, watchOption) {
+        var _a;
         this.vm = vm;
         this.exp = exp;
-        this.name = name;
-        this.node = node;
         this.onUpdate = onUpdate;
         this.deps = new Set();
         this.value = this.getterTrigger();
-        onUpdate(this.value);
+        if (watchOption) {
+            const immediate = (_a = watchOption.immediate) !== null && _a !== void 0 ? _a : false;
+            immediate && onUpdate(this.value);
+        }
+        else {
+            onUpdate(this.value);
+        }
     }
     addDep(dep) {
         dep.subscribe(this);
@@ -453,7 +463,7 @@ class Observer {
     }
     getterTrigger() {
         Dep.activated = this;
-        const value = evaluateValue(this.name, this.vm, this.exp);
+        const value = evaluateValue(this.vm, this.exp);
         if (isObject(value))
             value._length;
         Dep.activated = null;
@@ -465,8 +475,20 @@ class Observer {
         if (isPrimitive(newValue) && oldValue === newValue)
             return;
         this.value = newValue;
-        this.vm.updateQueue.push(() => this.onUpdate(newValue));
+        this.vm.updateQueue.push(() => this.onUpdate(newValue, oldValue));
     }
+}
+function createWatchers(vm) {
+    const { watch } = vm.options;
+    Object.entries(watch).forEach(([key, value]) => {
+        if (isWatchMethod(value)) {
+            new Observer(vm, key, value, { immediate: false });
+        }
+        else {
+            const { handler, ...options } = value;
+            new Observer(vm, key, handler, options);
+        }
+    });
 }
 
 class Condition {
@@ -481,8 +503,8 @@ class Condition {
         this.render();
     }
     render() {
-        new Observer(this.vm, this.exp, "if", this.el, (value) => {
-            this.updater(value);
+        new Observer(this.vm, this.exp, (newVal, oldVal) => {
+            this.updater(newVal);
         });
     }
     checkForElse() {
@@ -641,8 +663,8 @@ class ForLoop {
         this.render();
     }
     render() {
-        new Observer(this.vm, this.listExp, "for", this.el, (value) => {
-            this.updater(value);
+        new Observer(this.vm, this.listExp, (newVal, oldVal) => {
+            this.updater(newVal);
         });
     }
     updater(value) {
@@ -706,13 +728,8 @@ class Directive {
     }
     bind(updater) {
         updater = this.selectUpdater(updater);
-        new Observer(this.vm, this.exp, this.name, this.node, (value, clone) => {
-            if (clone) {
-                updater(clone, value);
-            }
-            else {
-                updater(this.node, value);
-            }
+        new Observer(this.vm, this.exp, (newVal, oldVal) => {
+            updater(this.node, newVal);
         });
     }
     model() {
@@ -829,12 +846,12 @@ class Observable {
         this.vm = vm;
         this.node = node;
         this.loopEffects = loopEffects;
-        const patten = /{{\s*(.*?)\s*}}/;
-        const text = node.textContent;
         if (isElementNode(node)) {
             this.directiveBind(node);
         }
-        else if (isTextNode(node) && patten.test(text) && !isIncludeText(node.parentElement)) {
+        else if (isTextNode(node) &&
+            hasTemplate(node.textContent) &&
+            !hasTextDirective(node.parentElement)) {
             this.templateBind(node);
         }
     }
@@ -921,7 +938,8 @@ class Vuelite extends Lifecycle {
         this.template = createDOMTemplate(options.template);
         this.callHook("beforeCreate");
         injectReactive(this);
-        injectStyleSheet(this);
+        createStyleSheet(this);
+        createWatchers(this);
         this.callHook("created");
         const scanner = new VueScanner(new NodeVisitor());
         scanner.scan(this);
