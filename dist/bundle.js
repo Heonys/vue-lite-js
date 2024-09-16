@@ -65,6 +65,9 @@
     const isObject = (data) => {
         return typeOf(data) === "object" || typeOf(data) === "array";
     };
+    const isFunction = (data) => {
+        return typeOf(data) === "function";
+    };
     function isQuotedString(str) {
         const regex = /^["'].*["']$/;
         return regex.test(str) && str[0] === str[str.length - 1];
@@ -125,7 +128,8 @@
         }
         notify() {
             this.listener.forEach((observer) => {
-                observer.update();
+                if (!observer.isMethods)
+                    observer.update();
             });
         }
         depend() {
@@ -134,6 +138,16 @@
         }
     }
     Dep.activated = null;
+
+    function isAccessor(data) {
+        if (typeof data !== "function")
+            return true;
+        return false;
+    }
+    function isWatchMethod(value) {
+        return typeOf(value) === "function";
+    }
+
     class Store {
         static getStore() {
             return this.globalDeps;
@@ -148,17 +162,18 @@
                 }
             });
         }
+        static addObserver(observer) {
+            this.globalObservers.push(observer);
+        }
+        static updateMethods() {
+            this.globalObservers.forEach((obs) => {
+                if (obs.isMethods)
+                    obs.update();
+            });
+        }
     }
     Store.globalDeps = [];
-
-    function isAccessor(data) {
-        if (typeof data !== "function")
-            return true;
-        return false;
-    }
-    function isWatchMethod(value) {
-        return typeOf(value) === "function";
-    }
+    Store.globalObservers = [];
 
     class Reactivity {
         constructor(data) {
@@ -211,7 +226,7 @@
     }
     function injectReactive(vm) {
         const { data } = vm.options;
-        const returned = typeof data === "function" ? data() : {};
+        const returned = isFunction(data) ? data() : {};
         const proxy = new Reactivity(returned).proxy;
         for (const key in returned) {
             Object.defineProperty(vm, key, {
@@ -430,6 +445,8 @@
     function evaluateTemplate(vm, exp) {
         const templates = extractTemplate(exp);
         const evaluatedValues = templates.reduce((acc, template) => {
+            if (isMethodsFormat(template))
+                Dep.activated.isMethods = true;
             acc[template] = unsafeEvaluate(vm, template);
             return acc;
         }, {});
@@ -446,6 +463,9 @@
             return unsafeEvaluate(vm, exp);
         }
     }
+    function isMethodsFormat(str) {
+        return str.slice(-2) === "()";
+    }
 
     class Observer {
         constructor(vm, exp, onUpdate, watchOption) {
@@ -454,6 +474,8 @@
             this.exp = exp;
             this.onUpdate = onUpdate;
             this.deps = new Set();
+            this.isMethods = false;
+            Store.addObserver(this);
             this.value = this.getterTrigger();
             if (watchOption) {
                 const immediate = (_a = watchOption.immediate) !== null && _a !== void 0 ? _a : false;
@@ -481,11 +503,15 @@
             if (isPrimitive(newValue) && oldValue === newValue)
                 return;
             this.value = newValue;
-            this.vm.updateQueue.push(() => this.onUpdate(newValue, oldValue));
+            this.isMethods
+                ? this.onUpdate(newValue, oldValue)
+                : this.vm.updateQueue.push(() => this.onUpdate(newValue, oldValue));
         }
     }
     function createWatchers(vm) {
         const { watch } = vm.options;
+        if (!watch)
+            return;
         Object.entries(watch).forEach(([key, value]) => {
             if (isWatchMethod(value)) {
                 new Observer(vm, key, value, { immediate: false });
@@ -960,6 +986,7 @@
                     if (typeOf(fn) === "function")
                         fn();
                 }
+                Store.updateMethods();
                 this.callHook("updated");
             }
             requestAnimationFrame(() => this.render());

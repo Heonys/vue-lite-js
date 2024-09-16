@@ -9,9 +9,3 @@ export declare class Dep {
     notify(): void;
     depend(): void;
 }
-export declare class Store {
-    private static globalDeps;
-    static getStore(): Map<string, Dep>[];
-    static addStore(deps: Map<string, Dep>): void;
-    static forceUpdate(): void;
-}

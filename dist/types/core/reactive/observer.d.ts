@@ -7,6 +7,7 @@ export declare class Observer {
     private onUpdate;
     private value;
     private deps;
+    isMethods: boolean;
     constructor(vm: Vuelite, exp: string, onUpdate: (newVal: any, oldVal?: any) => void, watchOption?: Omit<WatchObject, "handler">);
     addDep(dep: Dep): void;
     getterTrigger(): any;
