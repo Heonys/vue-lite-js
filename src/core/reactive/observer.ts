@@ -49,7 +49,7 @@ export class Observer {
 }
 
 export function createWatchers(vm: Vuelite) {
-  const { watch } = vm.options;
+  const { watch = {} } = vm.options;
 
   Object.entries(watch).forEach(([key, value]) => {
     if (isWatchMethod(value)) {

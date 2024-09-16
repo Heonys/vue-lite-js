@@ -477,7 +477,7 @@ new Vuelite({
 ### 3. 리스트 렌더링 `<1.5.5>`
 
 <p align="center">
-  <img src="./img/diagram3.png" alt="Description of diagram"  />
+  <img src="./img/diagram3.png" alt="Description of diagram" width="80%" />
 </p>
 
 
@@ -617,7 +617,9 @@ this.myObject = {};
 
 ### 5. Lifecycle Hooks 추가 `<1.6.0>`
 
-**아마도 이미지 추가 예정**
+<p align="center">
+  <img src="./img/diagram4.png" alt="Description of diagram" width="80%" />
+</p>
 
 `vuelite` 인스턴스는 생성될 때 일련의 초기화 단계를 거칩니다. 이 과정에서 데이터 반응성을 주입하고, 템플릿을 컴파일하며, `DOM`에 마운트하고, 데이터의 변경에 따라 화면을 업데이트합니다. 이러한 단계에서 특정 시점에 의도한 로직을 실행할 수 있도록 생명주기 훅을 제공합니다. `Vue.js`의 [생명주기 훅](https://vuejs.org/guide/essentials/lifecycle.html)을 간소화하여 주요 5개의 훅을 지원합니다. `Vuelite`에선 템플릿 파싱과 초기 렌더링이 연속적으로 동작하여 `beforeMount`훅을 따로 두지 않았습니다.
 
@@ -644,8 +646,8 @@ this.myObject = {};
 
 ### 6. Watch 추가 `<1.7.0>`
 
-#### **기본동작 및 특징** <br />
-`watch`는 데이터의 변화를 감지하고, 그에 따라 특정 로직을 실행할 수 있게 해주는 옵션입니다. 주로 데이터가 변경될 때 비동기 작업을 실행하거나 특정 데이터의 변화에 반응해 `Side Effect`를 처리할 때 사용됩니다.
+#### **기본동작 및 특징** 
+`watch`는 데이터의 변화를 감지하고, 이에 따라 특정 로직을 실행할 수 있게 해주는 옵션입니다. 주로 데이터가 변경될 때 비동기 작업을 실행하거나 특정 데이터의 변화에 반응해 `Side Effect`를 처리할 때 사용됩니다.
 
 ```js
 new Vue({
@@ -661,58 +663,50 @@ new Vue({
   }
 });
 ```
-기본적으로 `data` 옵션에서 사용한 속성의 변화를 감지하고, `watch` 옵션에서 정의한 같은 이름의 메소드를 실햅니다. 또한 `data`뿐만 아닌 `computed`로 정의된 데이터의 변화에 대응할 수 있으며 `some.nested.key`와 같은 데이터 경로로도 사용할 수 있습니다.
+기본적으로 `data` 옵션에서 정의된 속성의 변화를 감지하고, `watch` 옵션에 정의된 같은 이름의 메소드를 실행합니다. 또한 중첩된 객체의 경로를 사용하여 특정 속성을 감시할 수도 있으며, `computed` 속성의 변화도 감지할 수 있습니다. `watch`는 단순한 메서드 형태로 정의할 수 있으며, 객체 형태로 정의할 경우 추가적인 옵션을 사용할 수 있습니다.
 
 ```js
 watch: {
+    ["some.nested.key"](newVal, oldVal){
+      // ... 
+    },
     title: {
       handler(newValue, oldValue) { /* .. */ },
       immediate: true, 
     }
 }
 ```
-또한 메소드 형태가 아닌 객체형태로 속성을 추가할 수 도있습니다. 
+
 
 #### 핵심 아이디어  
 
-1) **옵저버** <br />
+`watch`의 핵심 동작을 보면 특정 데이터를 감시하다가 그 데이터의 변화에 대응해서 로직을 실행하는 것인데 사실 이건 `Observer`의 역할과 동일합니다. 기존에 `scanner`가 템플릿을 컴파일할 때 디렉티브를 파싱하고 그 디렉티브에 해당하는 `updater`를 반응형 데이터와 연결하듯이 `watch`도 똑같이 `Observer`를 생성하지만, 단지 `updater` 자리에 옵션에서 전달받은 `handler`를 넘겨주면됩니다.
+
+```ts 
+export function createWatchers(vm: Vuelite) {
+  const { watch } = vm.options;
+
+  Object.entries(watch).forEach(([key, value]) => {
+    if (isWatchMethod(value)) { // watch가 2가지 포맷을 지원하기 때문에 분기처리  
+      new Observer(vm, key, value, { immediate: false });
+    } else {
+      const { handler, ...options } = value;
+      new Observer(vm, key, handler, options);
+    }
+  });
+}
+```
+
+#### 제한사항 
+- `Vuelite`는 참조값 유지를 강제하기 때문에, 객체에 `watch`를 설정하는 것은 의미가 없습니다. 객체를 감시하는 것은 객체 자체가 다시 할당될 때만 감지되기 때문입니다. 따라서 객체 내부의 변화를 감시하려면 `deep` 속성을 사용해야 하지만, 이는 성능적으로 비효율적이며 `Vuelite`는 `deep` 속성을 지원하지 않습니다.
+
+- 기본적으로 `data`와 1:1 대응하여 감시하지만, `React`의 `useEffect`에서 사용되는 의존성 배열처럼 여러 데이터의 의존성을 추가하고 싶다면 `computed`를 사용하여 여러 데이터를 포함하는 메소드를 만들어야 합니다.
+
+- `updated` 훅에서 반응형 데이터를 수정하면 안되듯이, `watch`에서도 자기 자신을 수정하면 무한 루프가 발생합니다. 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------
-
------
-
+---
 
 ## ⚠️ 렌더링 전략 및 문제점 `<1.6.0>`
 
@@ -756,9 +750,7 @@ methods: {
 }
 ```
 
-
 ---
-
 
 ## 📝 Todos
 - [x] ~~***methods, computed 내부에서 this의 타입추론 및 자동완성 개선***~~ `<1.1.0>`
@@ -768,7 +760,8 @@ methods: {
 - [x] ~~***리스트 렌더링 추가 (v-for 디렉티브)***~~ `<1.5.5>`
 - [x] ~~***데이터 변화에 대응하기***~~ `<1.5.6>`
 - [x] ~~***Lifecycle Hooks 추가***~~ `<1.6.0>`
-- [ ] watch 지원
+- [x] ~~***watch 추가***~~ `<1.7.0>`
+- [ ] ... 
 - [ ] 부분적으로 Composition API 지원 
 
 ## 📖 Reference

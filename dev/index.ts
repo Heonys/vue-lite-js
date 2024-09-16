@@ -74,11 +74,15 @@ const vm = new Vuelite({
     };
   },
   watch: {
-    fullName: {
+    title: {
       handler(newVar, oldVar) {
         console.log("fullName change", newVar, " :: ", oldVar);
       },
+      immediate: true,
     },
+    // title(newVar, oldVar) {
+    //   console.log("fullName change", newVar, " :: ", oldVar);
+    // },
 
     // ["myObject.author"]: {
     //   handler(newVar, oldVar) {
@@ -132,8 +136,11 @@ const vm = new Vuelite({
     handleCheck() {
       this.checked = !this.checked;
     },
-    handleClick() {
-      this.message = "vuelite";
+    async handleClick() {
+      const url = "https://jsonplaceholder.typicode.com/todos/1";
+      const respones = await fetch(url);
+      const data = await respones.json();
+      this.title = data.title;
     },
     fullNameMethod() {
       return this.firstName + " + " + this.lastName;

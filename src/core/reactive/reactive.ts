@@ -1,4 +1,4 @@
-import { isObject, typeOf } from "@utils/format";
+import { isFunction, isObject, typeOf } from "@utils/format";
 import { Dep, Store } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
@@ -62,7 +62,7 @@ export class Reactivity {
 
 export function injectReactive(vm: Vuelite) {
   const { data } = vm.options;
-  const returned = typeof data === "function" ? data() : {};
+  const returned = isFunction(data) ? data() : {};
   const proxy = new Reactivity(returned).proxy;
 
   for (const key in returned) {
