@@ -1,7 +1,8 @@
 import { isFunction, isObject, typeOf } from "@utils/format";
-import { Dep, Store } from "./dep";
+import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
+import { Store } from "./store";
 
 type Target = { [k: string]: any };
 

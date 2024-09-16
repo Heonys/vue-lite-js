@@ -74,16 +74,15 @@ const vm = new Vuelite({
     };
   },
   watch: {
-    title: {
-      handler(newVar, oldVar) {
-        console.log("fullName change", newVar, " :: ", oldVar);
-      },
-      immediate: true,
-    },
+    // title: {
+    //   handler(newVar, oldVar) {
+    //     console.log("fullName change", newVar, " :: ", oldVar);
+    //   },
+    //   immediate: true,
+    // },
     // title(newVar, oldVar) {
     //   console.log("fullName change", newVar, " :: ", oldVar);
     // },
-
     // ["myObject.author"]: {
     //   handler(newVar, oldVar) {
     //     console.log("author change", newVar, " :: ", oldVar);
@@ -117,6 +116,7 @@ const vm = new Vuelite({
       return this.visible ? "truthy" : "falsy";
     },
     fullName() {
+      // console.log("computed");
       return this.firstName + " + " + this.lastName;
     },
     fullName2: {
@@ -126,6 +126,9 @@ const vm = new Vuelite({
       set(newValue) {
         [this.firstName, this.lastName] = newValue.split(" ");
       },
+    },
+    staticValue() {
+      return Math.random().toFixed(3);
     },
   },
 
@@ -143,7 +146,14 @@ const vm = new Vuelite({
       this.title = data.title;
     },
     fullNameMethod() {
+      console.log("이름 계산중");
+
       return this.firstName + " + " + this.lastName;
+    },
+    fullNameMethod2() {
+      console.log("3+2 계산중");
+
+      return 3 + 2;
     },
     addItem(value: any) {
       /* 
@@ -173,14 +183,10 @@ const vm = new Vuelite({
       // this.myObject.newKey = "newValue";
       // this.title = "hello";
     },
-    change() {
-      // this.myObject.newKey = "newValue2";
+    getRandom() {
+      console.log("랜덤 생성중");
 
-      // delete this.myObject.publishedAt;
-
-      this.myObject.title = "change Title";
-
-      // this.items[this.items.length - 1].message = "change";
+      return Math.random().toFixed(3);
     },
   },
   styles: {

@@ -35,7 +35,6 @@ export class Directive {
 
   bind(updater?: Updater) {
     updater = this.selectUpdater(updater);
-
     new Observer(this.vm, this.exp, (newVal, oldVal) => {
       updater(this.node, newVal);
     });

@@ -7,6 +7,7 @@ import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
 import { typeOf } from "@/utils/format";
 import { createWatchers } from "../reactive/observer";
+import { Store } from "../reactive/store";
 
 export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
   el: HTMLElement;
@@ -45,6 +46,7 @@ export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> 
         const fn = this.updateQueue.shift();
         if (typeOf(fn) === "function") fn();
       }
+      Store.updateMethods();
       this.callHook("updated");
     }
     requestAnimationFrame(() => this.render());

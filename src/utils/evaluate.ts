@@ -2,6 +2,7 @@ import Vuelite from "@/core/viewmodel/vuelite";
 import { hasTemplate, isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
 import { boolean2String, extractPath, normalizeToJson } from "./common";
 import { extractTemplate } from "./directive";
+import { Dep } from "@/core/reactive/dep";
 
 /*
 safeEvaluate 함수는 viewmodel에서 exp라는 속성에 접근해서 값을 가져오는 동작을 하며
@@ -54,6 +55,7 @@ export function evaluateTemplate(vm: Vuelite, exp: string) {
   const templates = extractTemplate(exp);
   const evaluatedValues = templates.reduce(
     (acc, template) => {
+      if (isMethodsFormat(template)) Dep.activated.isMethods = true;
       acc[template] = unsafeEvaluate(vm, template);
       return acc;
     },
@@ -72,4 +74,8 @@ export function evaluateValue(vm: Vuelite, exp: string) {
   } else {
     return unsafeEvaluate(vm, exp);
   }
+}
+
+function isMethodsFormat(str: string) {
+  return str.slice(-2) === "()";
 }
