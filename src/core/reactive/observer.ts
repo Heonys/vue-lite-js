@@ -2,7 +2,7 @@ import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { evaluateValue } from "@/utils/evaluate";
 import { isObject, isPrimitive } from "@/utils/format";
-import { isWatchMethod, WatchObject } from "../viewmodel/option";
+import { isWatchMethod, WatchOption } from "../viewmodel/option";
 import { Store } from "./store";
 
 //  데이터의 변화를 추적하고 이를 절히 처리하는 역할
@@ -15,7 +15,7 @@ export class Observer {
     private vm: Vuelite,
     private exp: string,
     private onUpdate: (newVal: any, oldVal?: any) => void,
-    watchOption?: Omit<WatchObject, "handler">,
+    watchOption?: WatchOption,
   ) {
     Store.addObserver(this);
     this.value = this.getterTrigger();
@@ -54,7 +54,7 @@ export class Observer {
 }
 
 export function createWatchers(vm: Vuelite) {
-  const { watch } = vm.options;
+  const { watch } = vm.$options;
   if (!watch) return;
 
   Object.entries(watch).forEach(([key, value]) => {

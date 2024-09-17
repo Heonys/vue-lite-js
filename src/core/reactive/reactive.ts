@@ -62,10 +62,11 @@ export class Reactivity {
 }
 
 export function injectReactive(vm: Vuelite) {
-  const { data } = vm.options;
+  const { data } = vm.$options;
   const returned = isFunction(data) ? data() : {};
   const proxy = new Reactivity(returned).proxy;
 
+  Object.defineProperty(vm, "$data", { get: () => proxy });
   for (const key in returned) {
     Object.defineProperty(vm, key, {
       configurable: false,
@@ -81,7 +82,7 @@ export function injectReactive(vm: Vuelite) {
 }
 
 function injectMethod(vm: Vuelite) {
-  const { methods } = vm.options;
+  const { methods } = vm.$options;
   if (!methods) return;
 
   Object.entries(methods).forEach(([key, method]) => {
@@ -93,7 +94,7 @@ function injectMethod(vm: Vuelite) {
 }
 
 function injectComputed(vm: Vuelite) {
-  const { computed } = vm.options;
+  const { computed } = vm.$options;
   if (!computed) return;
 
   for (const key in computed) {

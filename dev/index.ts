@@ -11,7 +11,7 @@ const vm = new Vuelite({
   el: "#app",
   data() {
     return {
-      title: "",
+      title: "초기",
       hello: true,
       visible: true,
       visible2: false,
@@ -145,6 +145,12 @@ const vm = new Vuelite({
       const data = await respones.json();
       this.title = data.title;
     },
+    handleClickButton() {
+      console.log(this.$refs);
+    },
+    change() {
+      this.$data.title = "";
+    },
     fullNameMethod() {
       console.log("이름 계산중");
 
@@ -185,7 +191,6 @@ const vm = new Vuelite({
     },
     getRandom() {
       console.log("랜덤 생성중");
-
       return Math.random().toFixed(3);
     },
   },

@@ -22,14 +22,14 @@ export class VueScanner extends Scanner {
 
     if (vm.template) {
       this.fragment = node2Fragment(vm.template);
-      vm.el.innerHTML = "";
+      vm.$el.innerHTML = "";
     } else {
-      this.fragment = node2Fragment(vm.el);
+      this.fragment = node2Fragment(vm.$el);
     }
 
     action(this.fragment);
     this.visit(action, this.fragment);
-    vm.el.appendChild(this.fragment);
+    vm.$el.appendChild(this.fragment);
     vm.clearTasks();
   }
 

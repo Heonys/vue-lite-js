@@ -19,7 +19,7 @@ class StyleRule {
 }
 
 export function createStyleSheet(vm: Vuelite) {
-  const { styles } = vm.options;
+  const { styles } = vm.$options;
   if (!styles) return;
   const styleElement = document.createElement("style");
   document.head.appendChild(styleElement);

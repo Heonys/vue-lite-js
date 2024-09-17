@@ -1,5 +1,5 @@
 import { createDOMTemplate } from "@utils/common";
-import { type Options } from "./option";
+import { ComponentPublicInstance, WatchCallback, WatchOption, type Options } from "./option";
 import { injectReactive } from "../reactive/reactive";
 import { createStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
@@ -9,21 +9,25 @@ import { typeOf } from "@/utils/format";
 import { createWatchers } from "../reactive/observer";
 import { Store } from "../reactive/store";
 
-export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
-  el: HTMLElement;
+export default class Vuelite<D = {}, M = {}, C = {}>
+  extends Lifecycle<D, M, C>
+  implements ComponentPublicInstance
+{
+  $data: object;
+  $el: HTMLElement;
   template?: Element;
-  options: Options<D, M, C>;
-  virtual: Node;
+  $options: Options<D, M, C>;
+  $refs: { [name: string]: Element };
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
 
   constructor(options: Options<D, M, C>) {
     super();
-    this.options = options;
-    this.setHooks(options);
-
-    this.el = document.querySelector(options.el);
+    this.$options = options;
+    this.setHooks(this.$options);
+    this.$refs = {};
+    this.$el = document.querySelector(options.el);
     this.template = createDOMTemplate(options.template);
     this.callHook("beforeCreate");
 
@@ -50,5 +54,15 @@ export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> 
       this.callHook("updated");
     }
     requestAnimationFrame(() => this.render());
+  }
+
+  $watch(source: string, callback: WatchCallback, optoins?: WatchOption): void {
+    throw new Error("Method not implemented.");
+  }
+  $forceUpdate() {
+    Store.forceUpdate();
+  }
+  $nextTick(callback?: () => void): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 }

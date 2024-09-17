@@ -25,7 +25,7 @@ export class ForLoop {
     public exp: any,
     public parentContext: Record<string, any>,
   ) {
-    this.parent = el.parentElement || vm.el;
+    this.parent = el.parentElement || vm.$el;
     this.startIndex = Array.from(this.parent.children).indexOf(el);
     const keywords = extractKeywords(this.exp);
     if (!keywords) return;

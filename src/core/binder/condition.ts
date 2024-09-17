@@ -12,7 +12,7 @@ export class Condition {
     public el: HTMLElement,
     public exp: any,
   ) {
-    this.parent = el.parentElement || vm.el;
+    this.parent = el.parentElement || vm.$el;
     this.childIndex = Array.from(this.parent.children).indexOf(el);
     this.ifFragment = document.createDocumentFragment();
     this.checkForElse();

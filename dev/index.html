@@ -37,15 +37,20 @@
         <div>{{ visible ? "체크" : "언체크"}}</div> -->
 
 
+        <input type="text" v-model="title">
+        <div>{{ title }}</div>
 
+        <button @click="handleClickButton">클릭</button>
 
-        <input type="text" v-model="firstName">
+        <button @click="change">초기화</button>
+
+        <!-- <input type="text" v-model="firstName">
         <input type="text" v-model="lastName">
 
-        <!-- <div>computed:: {{ fullName }}</div> -->
+        <div>computed:: {{ fullName }}</div>
         <div>methods:: {{ fullNameMethod() }}</div>
         <div>methods:: {{ fullNameMethod2() }}</div>
-        <div>{{ getRandom() }}</div>
+        <div>{{ getRandom() }}</div> -->
 
         <!-- 
         
