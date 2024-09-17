@@ -17,7 +17,7 @@ export class VueScanner extends Scanner {
 
   scan(vm: Vuelite) {
     const action = (node: Node) => {
-      isReactiveNode(node) && new Observable(vm, node);
+      isReactiveNode(vm, node) && new Observable(vm, node);
     };
 
     if (vm.template) {
@@ -36,7 +36,7 @@ export class VueScanner extends Scanner {
   scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]) {
     const container = node2Fragment(el);
     const action = (node: Node) => {
-      isReactiveNode(node) && new Observable(vm, node, loopEffects);
+      isReactiveNode(vm, node) && new Observable(vm, node, loopEffects);
     };
     action(container);
     this.visit(action, container);

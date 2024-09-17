@@ -23,7 +23,7 @@ type WatchObject = {
   handler: WatchCallback;
 };
 
-type WatchType = {
+export type WatchType = {
   [K: string]: WatchCallback | WatchObject;
 };
 
@@ -54,12 +54,12 @@ export function isWatchMethod(value: any): value is WatchCallback {
   return typeOf(value) === "function";
 }
 
+// 추가예정
 export interface ComponentPublicInstance {
   $data: object;
   $el: Node | null;
   $options: Options;
   $refs: { [name: string]: Element | null };
-  $watch(source: string, callback: WatchCallback, optoins?: WatchOption): void;
+  $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;
-  $nextTick(callback?: () => void): Promise<void>;
 }

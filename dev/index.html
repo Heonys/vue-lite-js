@@ -8,85 +8,17 @@
   <body>
     <div id="app">
 
-
-      <!-- <div v-for="item in items">
-        {{ item.message }} {{ title }}
-      </div> -->
-
-<!-- 
-        <input type="text" v-model="firstName">
-        <input type="text" v-model="lastName">
+        <div ref="myDiv" style="width: 100px; background-color: red;">Content</div>
 
 
-        <div>{{ fullName }}</div>
-
-
-        <button @click="handleClick">비동기</button>
-
-        <div>{{ title }}</div> -->
-
-        <!-- <div>{{ count }}</div> -->
-
-
-        <!-- <input type="text" :value="title" @input="handleInput">
-        <div>{{ title }}</div> -->
-
-
-
-        <!-- <input type="checkbox" v-model="visible">
-        <div>{{ visible ? "체크" : "언체크"}}</div> -->
-
-
-        <input type="text" v-model="title">
-        <div>{{ title }}</div>
+        <input type="text" ref="input" v-model="title">
+        <div >{{ title }}</div>
 
         <button @click="handleClickButton">클릭</button>
-
         <button @click="change">초기화</button>
 
-        <!-- <input type="text" v-model="firstName">
-        <input type="text" v-model="lastName">
-
-        <div>computed:: {{ fullName }}</div>
-        <div>methods:: {{ fullNameMethod() }}</div>
-        <div>methods:: {{ fullNameMethod2() }}</div>
-        <div>{{ getRandom() }}</div> -->
-
-        <!-- 
-        
-        comptued는 정상으로 동작한다
-        초기값을 캐싱하여 갖고있고 오직 내부에 반응형 데이터가 바뀔때만 다시 실행된다
-
-
-        하지만 현재 methods는 호출방식만 다를뿐 computed와 동일하게 동작하는데
-        vuejs의 methods 처럼 동작하게 하려면 템플릿에서 직접 사용한 methods는
-        내부에 반응형 데이터의 유무와 상관없이 항상 렌더링 사이클에서 실행되야한다
-
       
-        
-        
-        
-        -->
-
-        
-        
-
-
     </div>
   </body>
 </html>
-
-
-
-
-
-
-      
-
-
-
-      
-
-
-
 

@@ -149,7 +149,13 @@ const vm = new Vuelite({
       console.log(this.$refs);
     },
     change() {
-      this.$data.title = "";
+      console.log("@@", this.$refs.myDiv.style.width);
+
+      this.$refs.myDiv.style.width = "500px";
+
+      // DOM 업데이트 전 크기 측정 (잘못된 결과 가능)
+      const width = this.$refs.myDiv.clientWidth;
+      console.log("Width before nextTick:", width); // 결과가 100px일 수 있음
     },
     fullNameMethod() {
       console.log("이름 계산중");
@@ -205,23 +211,3 @@ const vm = new Vuelite({
 });
 
 // console.log(vm);
-
-/* 
-computed, method 차이 
-
-1) computed
-computed는 리액티브가 주입된 데이터에 의존하여 계산된 값을 반환한다
-따라서 종속된 데이터가 변경되지 않는 한, 결과를 캐시하고 동일한 데이터에 대해 여러 번 접근해도 계산이 한 번만 수행된다
-또한 종속된 데이터가 변경되면 자동으로 값을 갱신한다
-
-2) method  
-호출될 때마다 실행되며, 반응형 데이터에 의존하지 않기 때문에 캐싱되지 않는 일반적인 함수이다 
-따라서 동일한 메서드를 여러 번 호출하면 매번 새로운 결과를 계산한다
-computed는 주로 계산된 값을 제공하는 데 사용되고, methods는 어떤 동작이나 이벤트 처리기를 정의할 때 사용된다.
-
-*/
-
-/* 
-  템플릿은 데이터의 결과를 보여주는게 아닌 데이터의 상태를 표현하기 위한 것
-  computed는 데이터의 상태 표현을 최적화하고, methods는 동작을 수행하는 역할을 명확히 구분짓기 위해 설계된 것 
-*/

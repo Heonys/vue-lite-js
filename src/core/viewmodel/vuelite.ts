@@ -6,7 +6,7 @@ import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
 import { typeOf } from "@/utils/format";
-import { createWatchers } from "../reactive/observer";
+import { createWatcher, Observer } from "../reactive/observer";
 import { Store } from "../reactive/store";
 
 export default class Vuelite<D = {}, M = {}, C = {}>
@@ -26,14 +26,14 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     super();
     this.$options = options;
     this.setHooks(this.$options);
-    this.$refs = {};
     this.$el = document.querySelector(options.el);
     this.template = createDOMTemplate(options.template);
+    this.$refs = {};
     this.callHook("beforeCreate");
 
     injectReactive(this);
     createStyleSheet(this);
-    createWatchers(this);
+    createWatcher(this);
     this.callHook("created");
 
     const scanner = new VueScanner(new NodeVisitor());
@@ -56,13 +56,11 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     requestAnimationFrame(() => this.render());
   }
 
-  $watch(source: string, callback: WatchCallback, optoins?: WatchOption): void {
-    throw new Error("Method not implemented.");
+  $watch(source: string, callback: WatchCallback, options?: WatchOption): void {
+    new Observer(this, source, callback, options);
   }
+
   $forceUpdate() {
     Store.forceUpdate();
-  }
-  $nextTick(callback?: () => void): Promise<void> {
-    throw new Error("Method not implemented.");
   }
 }

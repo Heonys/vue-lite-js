@@ -1,3 +1,4 @@
+import Vuelite from "@/core/viewmodel/vuelite";
 import { directiveNames, type DirectiveKey } from "../types/directive";
 import { isElementNode, isTextNode } from "./format";
 
@@ -39,13 +40,16 @@ export function isEventDirective(name: string) {
   return name.startsWith("v-on:") || name.startsWith("@");
 }
 
-export const isReactiveNode = (node: Node) => {
+export const isReactiveNode = (vm: Vuelite, node: Node) => {
   if (isElementNode(node)) {
     const attributes = node.attributes;
+    const ref = attributes.getNamedItem("ref");
+    if (ref) vm.$refs[ref.value] = node;
+
     return Array.from(attributes).some((attr) => isDirective(attr.name));
   } else if (isTextNode(node)) {
     const textContent = node.textContent || "";
-    return extractTemplate(textContent).length > 0 ? true : false;
+    return extractTemplate(textContent).length > 0;
   }
 };
 

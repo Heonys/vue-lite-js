@@ -64,3 +64,7 @@ export function node2Fragment(el: Element) {
   while ((child = el.firstChild)) fragment.appendChild(child);
   return fragment;
 }
+
+export function isReserved(str: string) {
+  return str.charCodeAt(0) === 0x24;
+}

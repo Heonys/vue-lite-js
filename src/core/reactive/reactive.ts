@@ -3,6 +3,7 @@ import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
 import { Store } from "./store";
+import { isReserved } from "@/utils/common";
 
 type Target = { [k: string]: any };
 
@@ -68,13 +69,15 @@ export function injectReactive(vm: Vuelite) {
 
   Object.defineProperty(vm, "$data", { get: () => proxy });
   for (const key in returned) {
-    Object.defineProperty(vm, key, {
-      configurable: false,
-      get: () => proxy[key],
-      set: (value) => {
-        proxy[key] = value;
-      },
-    });
+    if (!isReserved(key)) {
+      Object.defineProperty(vm, key, {
+        configurable: false,
+        get: () => proxy[key],
+        set: (value) => {
+          proxy[key] = value;
+        },
+      });
+    }
   }
 
   injectMethod(vm);
