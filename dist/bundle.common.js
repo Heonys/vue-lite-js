@@ -51,6 +51,9 @@ function node2Fragment(el) {
         fragment.appendChild(child);
     return fragment;
 }
+function isReserved(str) {
+    return str.charCodeAt(0) === 0x24;
+}
 
 function typeOf(value) {
     return Object.prototype.toString
@@ -221,23 +224,26 @@ class Reactivity {
     }
 }
 function injectReactive(vm) {
-    const { data } = vm.options;
+    const { data } = vm.$options;
     const returned = isFunction(data) ? data() : {};
     const proxy = new Reactivity(returned).proxy;
+    Object.defineProperty(vm, "$data", { get: () => proxy });
     for (const key in returned) {
-        Object.defineProperty(vm, key, {
-            configurable: false,
-            get: () => proxy[key],
-            set: (value) => {
-                proxy[key] = value;
-            },
-        });
+        if (!isReserved(key)) {
+            Object.defineProperty(vm, key, {
+                configurable: false,
+                get: () => proxy[key],
+                set: (value) => {
+                    proxy[key] = value;
+                },
+            });
+        }
     }
     injectMethod(vm);
     injectComputed(vm);
 }
 function injectMethod(vm) {
-    const { methods } = vm.options;
+    const { methods } = vm.$options;
     if (!methods)
         return;
     Object.entries(methods).forEach(([key, method]) => {
@@ -249,7 +255,7 @@ function injectMethod(vm) {
     });
 }
 function injectComputed(vm) {
-    const { computed } = vm.options;
+    const { computed } = vm.$options;
     if (!computed)
         return;
     for (const key in computed) {
@@ -285,7 +291,7 @@ class StyleRule {
     }
 }
 function createStyleSheet(vm) {
-    const { styles } = vm.options;
+    const { styles } = vm.$options;
     if (!styles)
         return;
     const styleElement = document.createElement("style");
@@ -345,14 +351,17 @@ function isDirective(attr) {
 function isEventDirective(name) {
     return name.startsWith("v-on:") || name.startsWith("@");
 }
-const isReactiveNode = (node) => {
+const isReactiveNode = (vm, node) => {
     if (isElementNode(node)) {
         const attributes = node.attributes;
+        const ref = attributes.getNamedItem("ref");
+        if (ref)
+            vm.$refs[ref.value] = node;
         return Array.from(attributes).some((attr) => isDirective(attr.name));
     }
     else if (isTextNode(node)) {
         const textContent = node.textContent || "";
-        return extractTemplate(textContent).length > 0 ? true : false;
+        return extractTemplate(textContent).length > 0;
     }
 };
 const isValidDirective = (name) => {
@@ -504,8 +513,8 @@ class Observer {
             : this.vm.updateQueue.push(() => this.onUpdate(newValue, oldValue));
     }
 }
-function createWatchers(vm) {
-    const { watch } = vm.options;
+function createWatcher(vm) {
+    const { watch } = vm.$options;
     if (!watch)
         return;
     Object.entries(watch).forEach(([key, value]) => {
@@ -524,7 +533,7 @@ class Condition {
         this.vm = vm;
         this.el = el;
         this.exp = exp;
-        this.parent = el.parentElement || vm.el;
+        this.parent = el.parentElement || vm.$el;
         this.childIndex = Array.from(this.parent.children).indexOf(el);
         this.ifFragment = document.createDocumentFragment();
         this.checkForElse();
@@ -680,7 +689,7 @@ class ForLoop {
         this.exp = exp;
         this.parentContext = parentContext;
         this.loopEffects = [];
-        this.parent = el.parentElement || vm.el;
+        this.parent = el.parentElement || vm.$el;
         this.startIndex = Array.from(this.parent.children).indexOf(el);
         const keywords = extractKeywords(this.exp);
         if (!keywords)
@@ -911,24 +920,24 @@ class Scanner {
 class VueScanner extends Scanner {
     scan(vm) {
         const action = (node) => {
-            isReactiveNode(node) && new Observable(vm, node);
+            isReactiveNode(vm, node) && new Observable(vm, node);
         };
         if (vm.template) {
             this.fragment = node2Fragment(vm.template);
-            vm.el.innerHTML = "";
+            vm.$el.innerHTML = "";
         }
         else {
-            this.fragment = node2Fragment(vm.el);
+            this.fragment = node2Fragment(vm.$el);
         }
         action(this.fragment);
         this.visit(action, this.fragment);
-        vm.el.appendChild(this.fragment);
+        vm.$el.appendChild(this.fragment);
         vm.clearTasks();
     }
     scanPartial(vm, el, loopEffects) {
         const container = node2Fragment(el);
         const action = (node) => {
-            isReactiveNode(node) && new Observable(vm, node, loopEffects);
+            isReactiveNode(vm, node) && new Observable(vm, node, loopEffects);
         };
         action(container);
         this.visit(action, container);
@@ -960,14 +969,15 @@ class Vuelite extends Lifecycle {
     constructor(options) {
         super();
         this.updateQueue = [];
-        this.options = options;
-        this.setHooks(options);
-        this.el = document.querySelector(options.el);
+        this.$options = options;
+        this.setHooks(this.$options);
+        this.$el = document.querySelector(options.el);
         this.template = createDOMTemplate(options.template);
+        this.$refs = {};
         this.callHook("beforeCreate");
         injectReactive(this);
         createStyleSheet(this);
-        createWatchers(this);
+        createWatcher(this);
         this.callHook("created");
         const scanner = new VueScanner(new NodeVisitor());
         scanner.scan(this);
@@ -986,6 +996,12 @@ class Vuelite extends Lifecycle {
             this.callHook("updated");
         }
         requestAnimationFrame(() => this.render());
+    }
+    $watch(source, callback, options) {
+        new Observer(this, source, callback, options);
+    }
+    $forceUpdate() {
+        Store.forceUpdate();
     }
 }
 

@@ -29,15 +29,19 @@ type Accessor<Data, Methods, Computed> = {
 type ComputedType<Data, Methods, Computed> = {
     [K: string]: Accessor<Data, Methods, Computed> | (() => any);
 };
-type WatchMethod = (newVal: any, oldVal: any) => void;
-type WatchObject = {
-    handler: WatchMethod;
+type WatchCallback = (newVal: any, oldVal: any) => void;
+type WatchOption = {
     immediate?: boolean;
 };
-type WatchType = {
-    [K: string]: WatchMethod | WatchObject;
+type WatchObject = {
+    [K in keyof WatchOption]: WatchOption[K];
+} & {
+    handler: WatchCallback;
 };
-type Options<Data, Methods, Computed> = {
+type WatchType = {
+    [K: string]: WatchCallback | WatchObject;
+};
+type Options<Data = {}, Methods = {}, Computed = {}> = {
     el: string;
     template?: string;
     data?: () => Data;
@@ -52,17 +56,32 @@ type Options<Data, Methods, Computed> = {
 } & {
     beforeCreate?: (this: void) => void;
 };
+interface ComponentPublicInstance {
+    $data: object;
+    $el: Node | null;
+    $options: Options;
+    $refs: {
+        [name: string]: Element | null;
+    };
+    $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
+    $forceUpdate(): void;
+}
 
-declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> {
-    el: HTMLElement;
+declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> implements ComponentPublicInstance {
+    $data: object;
+    $el: HTMLElement;
     template?: Element;
-    options: Options<D, M, C>;
-    virtual: Node;
+    $options: Options<D, M, C>;
+    $refs: {
+        [name: string]: Element;
+    };
     updateQueue: Function[];
     static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<D, M, C>);
     render(): void;
+    $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
+    $forceUpdate(): void;
 }
 
 declare class Directive {
@@ -119,7 +138,7 @@ declare class Observer {
     private value;
     private deps;
     isMethods: boolean;
-    constructor(vm: Vuelite, exp: string, onUpdate: (newVal: any, oldVal?: any) => void, watchOption?: Omit<WatchObject, "handler">);
+    constructor(vm: Vuelite, exp: string, onUpdate: (newVal: any, oldVal?: any) => void, watchOption?: WatchOption);
     addDep(dep: Dep): void;
     getterTrigger(): any;
     update(): void;

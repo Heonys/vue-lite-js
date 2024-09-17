@@ -7,15 +7,19 @@ type Accessor<Data, Methods, Computed> = {
 type ComputedType<Data, Methods, Computed> = {
     [K: string]: Accessor<Data, Methods, Computed> | (() => any);
 };
-type WatchMethod = (newVal: any, oldVal: any) => void;
-export type WatchObject = {
-    handler: WatchMethod;
+export type WatchCallback = (newVal: any, oldVal: any) => void;
+export type WatchOption = {
     immediate?: boolean;
 };
-type WatchType = {
-    [K: string]: WatchMethod | WatchObject;
+type WatchObject = {
+    [K in keyof WatchOption]: WatchOption[K];
+} & {
+    handler: WatchCallback;
 };
-export type Options<Data, Methods, Computed> = {
+export type WatchType = {
+    [K: string]: WatchCallback | WatchObject;
+};
+export type Options<Data = {}, Methods = {}, Computed = {}> = {
     el: string;
     template?: string;
     data?: () => Data;
@@ -35,5 +39,15 @@ type AccessorForm = {
     set?(value: any): void;
 };
 export declare function isAccessor(data: Function | AccessorForm): data is AccessorForm;
-export declare function isWatchMethod(value: any): value is WatchMethod;
+export declare function isWatchMethod(value: any): value is WatchCallback;
+export interface ComponentPublicInstance {
+    $data: object;
+    $el: Node | null;
+    $options: Options;
+    $refs: {
+        [name: string]: Element | null;
+    };
+    $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
+    $forceUpdate(): void;
+}
 export {};
