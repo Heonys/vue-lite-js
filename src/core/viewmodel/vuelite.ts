@@ -15,9 +15,10 @@ export default class Vuelite<D = {}, M = {}, C = {}>
 {
   $data: object;
   $el: HTMLElement;
-  template?: Element;
   $options: Options<D, M, C>;
-  $refs: { [name: string]: Element };
+  $props: object = {};
+  $refs: { [name: string]: Element } = {};
+  $coponents: Record<string, HTMLElement> = {};
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
@@ -26,9 +27,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     super();
     this.$options = options;
     this.setHooks(this.$options);
-    this.$el = document.querySelector(options.el);
-    this.template = createDOMTemplate(options.template);
-    this.$refs = {};
+    this.setupDOM(options);
     this.callHook("beforeCreate");
 
     injectReactive(this);
@@ -41,6 +40,19 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     this.callHook("mounted");
 
     requestAnimationFrame(() => this.render());
+  }
+
+  setupDOM(options: Options<D, M, C>) {
+    if (options.template) {
+      this.$el = createDOMTemplate(options.template);
+    } else {
+      const el = document.querySelector(options.el) as HTMLElement;
+      if (el instanceof HTMLTemplateElement) {
+        this.$el = el.content.firstElementChild as HTMLElement;
+      } else {
+        this.$el = el;
+      }
+    }
   }
 
   render() {
@@ -62,5 +74,11 @@ export default class Vuelite<D = {}, M = {}, C = {}>
 
   $forceUpdate() {
     Store.forceUpdate();
+  }
+
+  static globalComponents: Record<string, Vuelite> = {};
+
+  static component(name: string, options: Options) {
+    this.globalComponents[name] = new Vuelite(options);
   }
 }

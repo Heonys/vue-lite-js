@@ -47,7 +47,7 @@ export function createDOMTemplate(template: string) {
   if (!template) return;
   const div = document.createElement("div");
   div.innerHTML = template;
-  return div.firstElementChild;
+  return div.firstElementChild as HTMLElement;
 }
 
 export const isNonObserver = (name: string, modifier: string) => {

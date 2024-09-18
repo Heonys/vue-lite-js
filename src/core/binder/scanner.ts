@@ -3,6 +3,7 @@ import Vuelite from "../viewmodel/vuelite";
 import { Observable } from "./observable";
 import type { Visitor } from "./visitor";
 import { isReactiveNode } from "@utils/directive";
+import { isNonStandard } from "@/utils/format";
 
 abstract class Scanner {
   constructor(private visitor: Visitor) {}
@@ -17,16 +18,17 @@ export class VueScanner extends Scanner {
 
   scan(vm: Vuelite) {
     const action = (node: Node) => {
-      isReactiveNode(vm, node) && new Observable(vm, node);
+      if (isNonStandard(node)) {
+        const tagName = node.tagName.toLowerCase();
+        vm.$coponents[tagName] = node;
+        const clone = Vuelite.globalComponents[tagName].$el.cloneNode(true);
+        node.parentNode?.replaceChild(clone, node);
+      } else {
+        isReactiveNode(vm, node) && new Observable(vm, node);
+      }
     };
 
-    if (vm.template) {
-      this.fragment = node2Fragment(vm.template);
-      vm.$el.innerHTML = "";
-    } else {
-      this.fragment = node2Fragment(vm.$el);
-    }
-
+    this.fragment = node2Fragment(vm.$el);
     action(this.fragment);
     this.visit(action, this.fragment);
     vm.$el.appendChild(this.fragment);

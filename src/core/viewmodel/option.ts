@@ -30,6 +30,7 @@ export type WatchType = {
 export type Options<Data = {}, Methods = {}, Computed = {}> = {
   el: string;
   template?: string;
+  props?: string[];
   data?: () => Data;
   methods?: Methods & ThisType<Data & Methods & Computed>;
   computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;

@@ -96,3 +96,8 @@ export function isPathFormat(str: string) {
   const pattern = /^[a-zA-Z_$][a-zA-Z_$0-9]*(\.[a-zA-Z_$][a-zA-Z_$0-9]+)+$/;
   return pattern.test(str);
 }
+
+export function isNonStandard(node: Node): node is HTMLElement {
+  if (!(node instanceof HTMLElement)) return;
+  return node.tagName.includes("-");
+}

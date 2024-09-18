@@ -7,6 +7,16 @@ const template = `
             <p>{{ fullNameMethod() }}</p>
           </div>`;
 
+Vuelite.component("my-component", {
+  props: ["propsData"],
+  el: "#my-component",
+  data() {
+    return {
+      message: "child template",
+    };
+  },
+});
+
 const vm = new Vuelite({
   el: "#app",
   data() {
@@ -15,6 +25,7 @@ const vm = new Vuelite({
       hello: true,
       visible: true,
       visible2: false,
+      parentMessage: "parent message",
       inputValue: "",
       objectBind: {
         id: "testId",
@@ -52,7 +63,6 @@ const vm = new Vuelite({
         author: "홍길동",
         publishedAt: "2016-04-10",
       },
-      message: "",
       firstName: "Jiheon",
       lastName: "Kim",
       textStyle: {
