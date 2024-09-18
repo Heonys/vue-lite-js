@@ -737,6 +737,8 @@ export interface ComponentPublicInstance {
   $el: Node | null;
   $options: Options;
   $refs: { [name: string]: Element | null };
+  $props: Record<string, any> = {};
+  $parent: Vuelite | null = null;
   $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;
   // ... 
@@ -800,6 +802,7 @@ methods: {
 - [x] ~~***Lifecycle Hooks 추가***~~ `<1.6.0>`
 - [x] ~~***watch 추가***~~ `<1.7.0>`
 - [x] ~~***Ref 추가, 인스턴스 속성 추가***~~ `<1.7.2>`
+- [ ] 컴포넌트 단위 개발 지원, props 지원 
 - [ ] 부분적으로 Composition API 지원 
 
 ## 📖 Reference

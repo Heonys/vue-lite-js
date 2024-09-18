@@ -28,7 +28,7 @@ export type WatchType = {
 };
 
 export type Options<Data = {}, Methods = {}, Computed = {}> = {
-  el: string;
+  el?: string;
   template?: string;
   props?: string[];
   data?: () => Data;

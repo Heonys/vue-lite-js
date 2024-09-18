@@ -68,3 +68,13 @@ export function node2Fragment(el: Element) {
 export function isReserved(str: string) {
   return str.charCodeAt(0) === 0x24;
 }
+
+export function initializeProps(props: string[]) {
+  return props.reduce(
+    (acc, cur) => {
+      acc[cur] = undefined;
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
+}

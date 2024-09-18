@@ -1,5 +1,6 @@
 declare global {
   interface HTMLElement {
+    isComponent?: boolean;
     uid: number;
   }
   interface Object {

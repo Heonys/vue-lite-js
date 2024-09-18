@@ -7,27 +7,18 @@
   </head>
   <body>
     <div id="app">
-
-        <div ref="myDiv" style="width: 100px; background-color: red;">Content</div>
-
-        <input type="text" ref="input" v-model="title">
-        <div >{{ title }}</div>
-
-        <button @click="handleClickButton">클릭</button>
-        <button @click="change">초기화</button>
-
-        <div>{{ parentMessage }}</div>
-
-        <my-component :message="parentMessage"></my-component>
+        <input type="text" v-model="title">
+        <div>{{ title }}</div>
+        <my-component :propsdata="title"></my-component>
     </div>
 
 
     <template id="my-component">
       <div>
         <h1>{{ message }}</h1>
+        <h1>{{ propsdata }}</h1>
       </div>
     </template>
-
   </body>
 </html>
 

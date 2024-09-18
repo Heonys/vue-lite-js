@@ -3,7 +3,7 @@ import { Dep } from "./dep";
 import Vuelite from "../viewmodel/vuelite";
 import { isAccessor } from "../viewmodel/option";
 import { Store } from "./store";
-import { isReserved } from "@/utils/common";
+import { initializeProps, isReserved } from "@/utils/common";
 
 type Target = { [k: string]: any };
 
@@ -22,7 +22,6 @@ export class Reactivity {
     const handler = {
       get(target: Target, key: string, receiver: Target) {
         if (typeOf(key) === "symbol") return Reflect.get(target, key, receiver);
-
         if (!deps.has(key)) deps.set(key, new Dep(key));
         deps.get(key).depend();
 
@@ -63,7 +62,7 @@ export class Reactivity {
 }
 
 export function injectReactive(vm: Vuelite) {
-  const { data } = vm.$options;
+  const { data, props } = vm.$options;
   const returned = isFunction(data) ? data() : {};
   const proxy = new Reactivity(returned).proxy;
 
@@ -76,6 +75,19 @@ export function injectReactive(vm: Vuelite) {
         set: (value) => {
           proxy[key] = value;
         },
+      });
+    }
+  }
+
+  if (props) {
+    const propsState = initializeProps(props);
+    const proxyProps = new Reactivity(propsState).proxy;
+    Object.defineProperty(vm, "$props", { get: () => proxyProps });
+    for (const key in propsState) {
+      Object.defineProperty(vm, key, {
+        configurable: false,
+        get: () => proxyProps[key],
+        set: (_) => {},
       });
     }
   }

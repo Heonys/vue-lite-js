@@ -6,6 +6,7 @@ import { Observer } from "../reactive/observer";
 import { Condition } from "./condition";
 import { ForLoop } from "./forLoop";
 import { unsafeEvaluate } from "@/utils/evaluate";
+import { isComponent } from "@/utils/format";
 
 export class Directive {
   name: string;
@@ -35,8 +36,15 @@ export class Directive {
 
   bind(updater?: Updater) {
     updater = this.selectUpdater(updater);
+
     new Observer(this.vm, this.exp, (newVal, oldVal) => {
-      updater(this.node, newVal);
+      if (isComponent(this.node)) {
+        const childVM = Vuelite.globalComponents[this.node.tagName];
+        childVM.$parent = this.vm;
+        childVM.$props[this.modifier] = newVal;
+      } else {
+        updater(this.node, newVal);
+      }
     });
   }
 
@@ -139,6 +147,7 @@ export class Directive {
     if (mod === "text" || mod === "class" || mod === "style") {
       return updaters[mod].bind(this);
     }
+
     if (updater) return updater;
     else return mod ? updaters.customBind.bind(this) : updaters.objectBind.bind(this);
   }

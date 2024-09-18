@@ -19,13 +19,12 @@ export class VueScanner extends Scanner {
   scan(vm: Vuelite) {
     const action = (node: Node) => {
       if (isNonStandard(node)) {
-        const tagName = node.tagName.toLowerCase();
-        vm.$coponents[tagName] = node;
-        const clone = Vuelite.globalComponents[tagName].$el.cloneNode(true);
-        node.parentNode?.replaceChild(clone, node);
-      } else {
-        isReactiveNode(vm, node) && new Observable(vm, node);
+        const tagName = node.tagName;
+        const ref = Vuelite.globalComponents[tagName].$el;
+        node.parentNode?.replaceChild(ref, node);
+        node.isComponent = true;
       }
+      isReactiveNode(vm, node) && new Observable(vm, node);
     };
 
     this.fragment = node2Fragment(vm.$el);

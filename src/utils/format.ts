@@ -101,3 +101,7 @@ export function isNonStandard(node: Node): node is HTMLElement {
   if (!(node instanceof HTMLElement)) return;
   return node.tagName.includes("-");
 }
+
+export function isComponent(node: Node): node is HTMLElement {
+  return node instanceof HTMLElement && node.isComponent;
+}

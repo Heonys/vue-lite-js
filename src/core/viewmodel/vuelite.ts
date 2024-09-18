@@ -16,9 +16,9 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   $data: object;
   $el: HTMLElement;
   $options: Options<D, M, C>;
-  $props: object = {};
+  $props: Record<string, any> = {};
+  $parent: Vuelite | null = null;
   $refs: { [name: string]: Element } = {};
-  $coponents: Record<string, HTMLElement> = {};
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
@@ -79,6 +79,6 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   static globalComponents: Record<string, Vuelite> = {};
 
   static component(name: string, options: Options) {
-    this.globalComponents[name] = new Vuelite(options);
+    this.globalComponents[name.toLocaleUpperCase()] = new Vuelite(options);
   }
 }

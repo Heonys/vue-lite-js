@@ -1,19 +1,18 @@
 import Vuelite from "../src/index";
 
-const template = `
-          <div>
-            <input type="text" v-model="title">
-            <div>{{ title }}</div>
-            <p>{{ fullNameMethod() }}</p>
-          </div>`;
-
 Vuelite.component("my-component", {
-  props: ["propsData"],
+  props: ["propsdata"],
   el: "#my-component",
   data() {
     return {
-      message: "child template",
+      message: "message",
+      count: 5,
     };
+  },
+  methods: {
+    increase() {
+      this.count++;
+    },
   },
 });
 
@@ -25,7 +24,7 @@ const vm = new Vuelite({
       hello: true,
       visible: true,
       visible2: false,
-      parentMessage: "parent message",
+      parentMessage: "props로 부터 온 메시지",
       inputValue: "",
       objectBind: {
         id: "testId",
