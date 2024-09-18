@@ -20,8 +20,9 @@ export type WatchType = {
     [K: string]: WatchCallback | WatchObject;
 };
 export type Options<Data = {}, Methods = {}, Computed = {}> = {
-    el: string;
+    el?: string;
     template?: string;
+    props?: string[];
     data?: () => Data;
     methods?: Methods & ThisType<Data & Methods & Computed>;
     computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;

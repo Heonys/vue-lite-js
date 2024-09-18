@@ -58,6 +58,12 @@
     function isReserved(str) {
         return str.charCodeAt(0) === 0x24;
     }
+    function initializeProps(props) {
+        return props.reduce((acc, cur) => {
+            acc[cur] = undefined;
+            return acc;
+        }, {});
+    }
 
     function typeOf(value) {
         return Object.prototype.toString
@@ -116,6 +122,14 @@
     function hasTemplate(str) {
         const pattern = /{{\s*[^{}]+\s*}}/;
         return pattern.test(str);
+    }
+    function isNonStandard(node) {
+        if (!(node instanceof HTMLElement))
+            return;
+        return node.tagName.includes("-");
+    }
+    function isComponent(node) {
+        return node instanceof HTMLElement && node.isComponent;
     }
 
     class Dep {
@@ -228,7 +242,7 @@
         }
     }
     function injectReactive(vm) {
-        const { data } = vm.$options;
+        const { data, props } = vm.$options;
         const returned = isFunction(data) ? data() : {};
         const proxy = new Reactivity(returned).proxy;
         Object.defineProperty(vm, "$data", { get: () => proxy });
@@ -240,6 +254,18 @@
                     set: (value) => {
                         proxy[key] = value;
                     },
+                });
+            }
+        }
+        if (props) {
+            const propsState = initializeProps(props);
+            const proxyProps = new Reactivity(propsState).proxy;
+            Object.defineProperty(vm, "$props", { get: () => proxyProps });
+            for (const key in propsState) {
+                Object.defineProperty(vm, key, {
+                    configurable: false,
+                    get: () => proxyProps[key],
+                    set: (_) => { },
                 });
             }
         }
@@ -679,9 +705,9 @@
         bind(el, index) {
             const { alias, vm, loopEffects, listExp, parentContext } = this.loop;
             const context = { ...parentContext, ...createContext(alias, listExp, index, this.data) };
-            Vuelite.context = context;
+            Vuelite$1.context = context;
             const container = this.scanner.scanPartial(vm, el, loopEffects);
-            Vuelite.context = null;
+            Vuelite$1.context = null;
             return container;
         }
     }
@@ -770,7 +796,14 @@
         bind(updater) {
             updater = this.selectUpdater(updater);
             new Observer(this.vm, this.exp, (newVal, oldVal) => {
-                updater(this.node, newVal);
+                if (isComponent(this.node)) {
+                    const childVM = Vuelite$1.globalComponents[this.node.tagName];
+                    childVM.$parent = this.vm;
+                    childVM.$props[this.modifier] = newVal;
+                }
+                else {
+                    updater(this.node, newVal);
+                }
             });
         }
         model() {
@@ -860,7 +893,7 @@
             }
         }
         scheduleTask(key, task) {
-            const context = { ...Vuelite.context };
+            const context = { ...Vuelite$1.context };
             const constructor = key === "if" ? Condition : ForLoop;
             const directiveFn = () => {
                 return new constructor(this.vm, this.node, this.exp, context);
@@ -899,7 +932,7 @@
         directiveBind(el) {
             Array.from(el.attributes).forEach(({ name, value }) => {
                 if (isDirective(name)) {
-                    const global = Vuelite.context;
+                    const global = Vuelite$1.context;
                     value = replaceAlias(global, value);
                     new Directive(name, this.vm, el, value, this.loopEffects);
                 }
@@ -907,7 +940,7 @@
         }
         templateBind(node) {
             let exp = node.textContent;
-            const global = Vuelite.context;
+            const global = Vuelite$1.context;
             exp = replaceAlias(global, exp);
             new Directive("v-text", this.vm, node, exp);
         }
@@ -924,15 +957,16 @@
     class VueScanner extends Scanner {
         scan(vm) {
             const action = (node) => {
+                var _a;
+                if (isNonStandard(node)) {
+                    const tagName = node.tagName;
+                    const ref = Vuelite$1.globalComponents[tagName].$el;
+                    (_a = node.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(ref, node);
+                    node.isComponent = true;
+                }
                 isReactiveNode(vm, node) && new Observable(vm, node);
             };
-            if (vm.template) {
-                this.fragment = node2Fragment(vm.template);
-                vm.$el.innerHTML = "";
-            }
-            else {
-                this.fragment = node2Fragment(vm.$el);
-            }
+            this.fragment = node2Fragment(vm.$el);
             action(this.fragment);
             this.visit(action, this.fragment);
             vm.$el.appendChild(this.fragment);
@@ -972,12 +1006,13 @@
     class Vuelite extends Lifecycle {
         constructor(options) {
             super();
+            this.$props = {};
+            this.$parent = null;
+            this.$refs = {};
             this.updateQueue = [];
             this.$options = options;
             this.setHooks(this.$options);
-            this.$el = document.querySelector(options.el);
-            this.template = createDOMTemplate(options.template);
-            this.$refs = {};
+            this.setupDOM(options);
             this.callHook("beforeCreate");
             injectReactive(this);
             createStyleSheet(this);
@@ -987,6 +1022,20 @@
             scanner.scan(this);
             this.callHook("mounted");
             requestAnimationFrame(() => this.render());
+        }
+        setupDOM(options) {
+            if (options.template) {
+                this.$el = createDOMTemplate(options.template);
+            }
+            else {
+                const el = document.querySelector(options.el);
+                if (el instanceof HTMLTemplateElement) {
+                    this.$el = el.content.firstElementChild;
+                }
+                else {
+                    this.$el = el;
+                }
+            }
         }
         render() {
             if (this.updateQueue.length > 0) {
@@ -1007,8 +1056,13 @@
         $forceUpdate() {
             Store.forceUpdate();
         }
+        static component(name, options) {
+            this.globalComponents[name.toLocaleUpperCase()] = new Vuelite(options);
+        }
     }
+    Vuelite.globalComponents = {};
+    var Vuelite$1 = Vuelite;
 
-    return Vuelite;
+    return Vuelite$1;
 
 }));

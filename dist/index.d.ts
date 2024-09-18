@@ -42,8 +42,9 @@ type WatchType = {
     [K: string]: WatchCallback | WatchObject;
 };
 type Options<Data = {}, Methods = {}, Computed = {}> = {
-    el: string;
+    el?: string;
     template?: string;
+    props?: string[];
     data?: () => Data;
     methods?: Methods & ThisType<Data & Methods & Computed>;
     computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;
@@ -70,8 +71,9 @@ interface ComponentPublicInstance {
 declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> implements ComponentPublicInstance {
     $data: object;
     $el: HTMLElement;
-    template?: Element;
     $options: Options<D, M, C>;
+    $props: Record<string, any>;
+    $parent: Vuelite | null;
     $refs: {
         [name: string]: Element;
     };
@@ -79,9 +81,12 @@ declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> impleme
     static context?: Record<string, any>;
     [customKey: string]: any;
     constructor(options: Options<D, M, C>);
+    setupDOM(options: Options<D, M, C>): void;
     render(): void;
     $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
     $forceUpdate(): void;
+    static globalComponents: Record<string, Vuelite>;
+    static component(name: string, options: Options): void;
 }
 
 declare class Directive {
