@@ -1,26 +1,26 @@
 import Vuelite from "../src/index";
 
-Vuelite.component("my-component", {
-  props: ["propsdata"],
-  el: "#my-component",
-  data() {
-    return {
-      message: "message",
-      count: 5,
-    };
-  },
-  methods: {
-    increase() {
-      this.count++;
-    },
-  },
-});
+// Vuelite.component("global-component", {
+//   props: ["globaltitle"],
+//   el: "#global-component",
+//   data() {
+//     return {
+//       message: "global message",
+//       count: 5,
+//     };
+//   },
+//   methods: {
+//     increase() {
+//       this.count++;
+//     },
+//   },
+// });
 
 const vm = new Vuelite({
   el: "#app",
   data() {
     return {
-      title: "초기",
+      title: "title",
       hello: true,
       visible: true,
       visible2: false,
@@ -81,6 +81,17 @@ const vm = new Vuelite({
       selectedValue: "male",
       selectedOption: "Vue",
     };
+  },
+  components: {
+    "local-component": {
+      props: ["localtitle"],
+      el: "#local-component",
+      data() {
+        return {
+          message: "local message",
+        };
+      },
+    },
   },
   watch: {
     // title: {
@@ -181,17 +192,6 @@ const vm = new Vuelite({
       배열을 새로 할당하면 기존에 Reactity를 주입해놓은 기존의 배열이 
       새로 할당되면서 참조가 바뀌기 때문에 변경된 배열을 감지하지 못하는것 같다
       */
-      // const arr = [
-      //   { id: 1, message: "Item 1" },
-      //   { id: 2, message: "Item 2" },
-      //   { id: 3, message: "Item 3" },
-      //   { id: 4, message: "Item 4" },
-      //   { id: 5, message: "Item 5" },
-      //   { id: 6, message: "Item 6" },
-      // ];
-      // this.items = arr;
-      // console.log("index.ts", this.items);
-      // this.items.splice(0, this.items.length);
       this.items.push({ id: 10, message: `Item 10` });
 
       this.myObject = {

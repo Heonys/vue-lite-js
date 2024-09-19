@@ -1,5 +1,11 @@
 import { createDOMTemplate } from "@utils/common";
-import { ComponentPublicInstance, WatchCallback, WatchOption, type Options } from "./option";
+import {
+  ComponentMap,
+  ComponentPublicInstance,
+  WatchCallback,
+  WatchOption,
+  Options,
+} from "./option";
 import { injectReactive } from "../reactive/reactive";
 import { createStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
@@ -19,6 +25,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   $props: Record<string, any> = {};
   $parent: Vuelite | null = null;
   $refs: { [name: string]: Element } = {};
+  $components: ComponentMap = {};
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
@@ -28,6 +35,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     this.$options = options;
     this.setHooks(this.$options);
     this.setupDOM(options);
+    this.localComponents(options);
     this.callHook("beforeCreate");
 
     injectReactive(this);
@@ -76,8 +84,15 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     Store.forceUpdate();
   }
 
-  static globalComponents: Record<string, Vuelite> = {};
+  localComponents(options: Options) {
+    const { components } = options;
+    if (!components) return;
+    Object.entries(components).forEach(([name, options]) => {
+      this.$components[name.toLocaleUpperCase()] = new Vuelite(options);
+    });
+  }
 
+  static globalComponents: ComponentMap = {};
   static component(name: string, options: Options) {
     this.globalComponents[name.toLocaleUpperCase()] = new Vuelite(options);
   }

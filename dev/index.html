@@ -9,16 +9,30 @@
     <div id="app">
         <input type="text" v-model="title">
         <div>{{ title }}</div>
-        <my-component :propsdata="title"></my-component>
+        <local-component :localtitle="title"></local-component>
+        <!-- <global-component :globaltitle="title"></global-component> -->
     </div>
 
 
-    <template id="my-component">
+    <template id="local-component">
+    <!-- <div> -->
+      <div>{{ message }}</div>
+      <div>{{ localtitle }}</div>
+    <!-- </div> -->
+    </template>
+
+
+    <template id="global-component">
       <div>
         <h1>{{ message }}</h1>
-        <h1>{{ propsdata }}</h1>
+        <h1>{{ globaltitle }}</h1>
       </div>
     </template>
+
+
+
+
+
   </body>
 </html>
 

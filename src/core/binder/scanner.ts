@@ -19,14 +19,12 @@ export class VueScanner extends Scanner {
   scan(vm: Vuelite) {
     const action = (node: Node) => {
       if (isNonStandard(node)) {
-        const tagName = node.tagName;
-        const ref = Vuelite.globalComponents[tagName].$el;
-        node.parentNode?.replaceChild(ref, node);
-        node.isComponent = true;
+        console.log(node);
+
+        this.replaceComponent(vm, node);
       }
       isReactiveNode(vm, node) && new Observable(vm, node);
     };
-
     this.fragment = node2Fragment(vm.$el);
     action(this.fragment);
     this.visit(action, this.fragment);
@@ -37,11 +35,27 @@ export class VueScanner extends Scanner {
   scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]) {
     const container = node2Fragment(el);
     const action = (node: Node) => {
+      if (isNonStandard(node)) {
+        this.replaceComponent(vm, node);
+      }
       isReactiveNode(vm, node) && new Observable(vm, node, loopEffects);
     };
     action(container);
     this.visit(action, container);
     el.appendChild(container);
     return el;
+  }
+
+  private replaceComponent(vm: Vuelite, el: HTMLElement) {
+    const tagName = el.tagName;
+    const childVM = vm.$components[tagName] || Vuelite.globalComponents[tagName];
+
+    if (childVM) {
+      const ref = childVM.$el;
+      vm.deferredTasks.push(() => {
+        el.parentNode?.replaceChild(ref, el);
+      });
+      el.isComponent = true;
+    }
   }
 }
