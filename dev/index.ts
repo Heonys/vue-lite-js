@@ -1,23 +1,34 @@
 import Vuelite from "../src/index";
 
-// Vuelite.component("global-component", {
-//   props: ["globaltitle"],
-//   el: "#global-component",
-//   data() {
-//     return {
-//       message: "global message",
-//       count: 5,
-//     };
-//   },
-//   methods: {
-//     increase() {
-//       this.count++;
-//     },
-//   },
-// });
+Vuelite.component("global-component", {
+  props: ["globaltitle"],
+  el: "#global-component",
+  data() {
+    return {
+      message: "global message",
+      count: 5,
+    };
+  },
+  methods: {
+    increase() {
+      this.count++;
+    },
+  },
+});
 
 const vm = new Vuelite({
   el: "#app",
+  components: {
+    "local-component": {
+      props: ["localtitle"],
+      el: "#local-component",
+      data() {
+        return {
+          message: "local message",
+        };
+      },
+    },
+  },
   data() {
     return {
       title: "title",
@@ -82,17 +93,7 @@ const vm = new Vuelite({
       selectedOption: "Vue",
     };
   },
-  components: {
-    "local-component": {
-      props: ["localtitle"],
-      el: "#local-component",
-      data() {
-        return {
-          message: "local message",
-        };
-      },
-    },
-  },
+
   watch: {
     // title: {
     //   handler(newVar, oldVar) {

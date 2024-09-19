@@ -58,7 +58,7 @@ export function isDeferred(key: string) {
   return key === "if" || key === "for";
 }
 
-export function node2Fragment(el: Element) {
+export function node2Fragment(el: Element | DocumentFragment) {
   const fragment = document.createDocumentFragment();
   let child: Node;
   while ((child = el.firstChild)) fragment.appendChild(child);

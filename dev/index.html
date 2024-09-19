@@ -7,18 +7,35 @@
   </head>
   <body>
     <div id="app">
-        <input type="text" v-model="title">
-        <div>{{ title }}</div>
-        <local-component :localtitle="title"></local-component>
-        <!-- <global-component :globaltitle="title"></global-component> -->
+        <!-- <input type="text" v-model="title">
+        <div>{{ title }}</div> -->
+
+        <div v-for="item in items">
+          <local-component :localtitle="firstName"></local-component>
+        </div>
+
+      
+    
+
+
+        
+        
+
+        <!-- <local-component :localtitle="lastName"></local-component> -->
+      
+      <!-- <global-component :globaltitle="firstName"></global-component>
+      <global-component :globaltitle="firstName"></global-component> -->
+        
+         
+
     </div>
 
 
     <template id="local-component">
-    <!-- <div> -->
-      <div>{{ message }}</div>
-      <div>{{ localtitle }}</div>
-    <!-- </div> -->
+      <h2>로컬 컴포넌트</h2>
+      <h2>{{ message }}</h2>
+      <h2>{{ localtitle }}</h2>
+      <!-- <global-component :globaltitle="message"></global-component> -->
     </template>
 
 

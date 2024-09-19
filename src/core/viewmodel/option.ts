@@ -27,7 +27,7 @@ export type WatchType = {
   [K: string]: WatchCallback | WatchObject;
 };
 
-export type ComponentMap = Record<string, Vuelite>;
+export type ComponentMap = Map<Element, Vuelite>;
 
 export type Options<Data = {}, Methods = {}, Computed = {}> = {
   el?: string;

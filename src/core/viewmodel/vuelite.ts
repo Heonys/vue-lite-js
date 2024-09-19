@@ -11,7 +11,7 @@ import { createStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
-import { typeOf } from "@/utils/format";
+import { isTemplateElement, typeOf } from "@/utils/format";
 import { createWatcher, Observer } from "../reactive/observer";
 import { Store } from "../reactive/store";
 
@@ -20,12 +20,12 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   implements ComponentPublicInstance
 {
   $data: object;
-  $el: HTMLElement;
+  $el: HTMLElement | DocumentFragment;
   $options: Options<D, M, C>;
   $props: Record<string, any> = {};
   $parent: Vuelite | null = null;
   $refs: { [name: string]: Element } = {};
-  $components: ComponentMap = {};
+  $components: ComponentMap = new Map();
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
@@ -55,8 +55,8 @@ export default class Vuelite<D = {}, M = {}, C = {}>
       this.$el = createDOMTemplate(options.template);
     } else {
       const el = document.querySelector(options.el) as HTMLElement;
-      if (el instanceof HTMLTemplateElement) {
-        this.$el = el.content.firstElementChild as HTMLElement;
+      if (isTemplateElement(el)) {
+        this.$el = el.content.cloneNode(true) as DocumentFragment;
       } else {
         this.$el = el;
       }
@@ -88,12 +88,18 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     const { components } = options;
     if (!components) return;
     Object.entries(components).forEach(([name, options]) => {
-      this.$components[name.toLocaleUpperCase()] = new Vuelite(options);
+      Array.from(document.querySelectorAll(name)).forEach((node) => {
+        this.$components.set(node, new Vuelite(options));
+      });
     });
   }
 
-  static globalComponents: ComponentMap = {};
+  static globalComponentsNames: Record<string, Options> = {};
+  static globalComponents: ComponentMap = new Map();
   static component(name: string, options: Options) {
-    this.globalComponents[name.toLocaleUpperCase()] = new Vuelite(options);
+    this.globalComponentsNames[name.toLocaleUpperCase()] = options;
+    Array.from(document.querySelectorAll(name)).forEach((node) => {
+      this.globalComponents.set(node, new Vuelite(options));
+    });
   }
 }

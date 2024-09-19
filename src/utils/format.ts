@@ -87,7 +87,7 @@ export function isPrimitive(value: any) {
 }
 
 export function hasTemplate(str: string) {
-  const pattern = /{{\s*[^{}]+\s*}}/;
+  const pattern = /{{\s*.*?\s*}}/;
   return pattern.test(str);
 }
 
@@ -104,4 +104,8 @@ export function isNonStandard(node: Node): node is HTMLElement {
 
 export function isComponent(node: Node): node is HTMLElement {
   return node instanceof HTMLElement && node.isComponent;
+}
+
+export function isTemplateElement(el: HTMLElement): el is HTMLTemplateElement {
+  return el instanceof HTMLTemplateElement;
 }

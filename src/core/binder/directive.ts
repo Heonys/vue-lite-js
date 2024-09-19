@@ -39,8 +39,8 @@ export class Directive {
 
     new Observer(this.vm, this.exp, (newVal, oldVal) => {
       if (isComponent(this.node)) {
-        const tagName = this.node.tagName;
-        const childVM = this.vm.$components[tagName] || Vuelite.globalComponents[tagName];
+        const childVM =
+          this.vm.$components.get(this.node) || Vuelite.globalComponents.get(this.node);
         childVM.$parent = this.vm;
         childVM.$props[this.modifier] = newVal;
       } else {

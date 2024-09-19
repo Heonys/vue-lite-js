@@ -2,7 +2,7 @@ import { node2Fragment } from "@/utils/common";
 import Vuelite from "../viewmodel/vuelite";
 import { Observable } from "./observable";
 import type { Visitor } from "./visitor";
-import { isReactiveNode } from "@utils/directive";
+import { checkObserverType } from "@utils/directive";
 import { isNonStandard } from "@/utils/format";
 
 abstract class Scanner {
@@ -19,11 +19,10 @@ export class VueScanner extends Scanner {
   scan(vm: Vuelite) {
     const action = (node: Node) => {
       if (isNonStandard(node)) {
-        console.log(node);
-
         this.replaceComponent(vm, node);
       }
-      isReactiveNode(vm, node) && new Observable(vm, node);
+      const obserberType = checkObserverType(vm, node);
+      if (obserberType) new Observable(vm, node, obserberType);
     };
     this.fragment = node2Fragment(vm.$el);
     action(this.fragment);
@@ -38,7 +37,8 @@ export class VueScanner extends Scanner {
       if (isNonStandard(node)) {
         this.replaceComponent(vm, node);
       }
-      isReactiveNode(vm, node) && new Observable(vm, node, loopEffects);
+      const obserberType = checkObserverType(vm, node);
+      if (obserberType) new Observable(vm, node, obserberType, loopEffects);
     };
     action(container);
     this.visit(action, container);
@@ -47,15 +47,18 @@ export class VueScanner extends Scanner {
   }
 
   private replaceComponent(vm: Vuelite, el: HTMLElement) {
-    const tagName = el.tagName;
-    const childVM = vm.$components[tagName] || Vuelite.globalComponents[tagName];
-
+    const childVM = vm.$components.get(el) || Vuelite.globalComponents.get(el);
     if (childVM) {
-      const ref = childVM.$el;
-      vm.deferredTasks.push(() => {
-        el.parentNode?.replaceChild(ref, el);
-      });
+      vm.deferredTasks.push(() => el.parentNode?.replaceChild(childVM.$el, el));
       el.isComponent = true;
+    } else {
+      const option = Vuelite.globalComponentsNames[el.tagName];
+      if (option) {
+        const childVM = new Vuelite(option);
+        Vuelite.globalComponents.set(el, childVM);
+        vm.deferredTasks.push(() => el.parentNode?.replaceChild(childVM.$el, el));
+        el.isComponent = true;
+      }
     }
   }
 }

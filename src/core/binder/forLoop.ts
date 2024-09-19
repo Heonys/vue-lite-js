@@ -14,7 +14,7 @@ import { Observer } from "../reactive/observer";
 
 export class ForLoop {
   alias: string[];
-  parent: HTMLElement;
+  parent: HTMLElement | DocumentFragment;
   listExp: string;
   startIndex: number;
   endIndex: number;

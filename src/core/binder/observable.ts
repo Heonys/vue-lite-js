@@ -1,26 +1,29 @@
 import { isDirective } from "@utils/directive";
-import { hasTemplate, isElementNode, hasTextDirective, isTextNode } from "@utils/format";
 import Vuelite from "../viewmodel/vuelite";
 import { Directive } from "./directive";
 import { replaceAlias } from "@/utils/context";
+
+export type ObserverType = "Template" | "Directive" | "Component";
 
 export class Observable {
   constructor(
     public vm: Vuelite,
     public node: Node,
+    type: ObserverType,
     public loopEffects?: Function[],
   ) {
-    if (isElementNode(node)) {
-      this.directiveBind(node);
-    } else if (
-      isTextNode(node) &&
-      hasTemplate(node.textContent) &&
-      !hasTextDirective(node.parentElement)
-    ) {
-      this.templateBind(node);
+    switch (type) {
+      case "Component":
+      case "Directive": {
+        this.directiveBind(node as HTMLElement);
+        break;
+      }
+      case "Template": {
+        this.templateBind(node);
+        break;
+      }
     }
   }
-
   directiveBind(el: Element) {
     Array.from(el.attributes).forEach(({ name, value }) => {
       if (isDirective(name)) {

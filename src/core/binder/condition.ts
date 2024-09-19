@@ -2,7 +2,7 @@ import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
 
 export class Condition {
-  parent: HTMLElement;
+  parent: HTMLElement | DocumentFragment;
   childIndex: number;
   ifFragment: DocumentFragment;
   elseFragment?: DocumentFragment;
