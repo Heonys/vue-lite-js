@@ -38,6 +38,7 @@ export type Options<Data = {}, Methods = {}, Computed = {}> = {
   computed?: ComputedType<Data, Methods, Computed> & ThisType<Data & Methods & Computed>;
   watch?: WatchType;
   styles?: { [K: string]: any };
+  scopedStyles?: { [K: string]: any };
   components?: { [K: string]: Options };
 } & {
   [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;

@@ -26,6 +26,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   $parent: Vuelite | null = null;
   $refs: { [name: string]: Element } = {};
   $components: ComponentMap = new Map();
+  componentsNames: Record<string, Options> = {};
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
   [customKey: string]: any;
@@ -88,6 +89,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     const { components } = options;
     if (!components) return;
     Object.entries(components).forEach(([name, options]) => {
+      this.componentsNames[name.toUpperCase()] = options;
       Array.from(document.querySelectorAll(name)).forEach((node) => {
         this.$components.set(node, new Vuelite(options));
       });

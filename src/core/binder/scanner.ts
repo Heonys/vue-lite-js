@@ -35,7 +35,7 @@ export class VueScanner extends Scanner {
     const container = node2Fragment(el);
     const action = (node: Node) => {
       if (isNonStandard(node)) {
-        this.replaceComponent(vm, node);
+        this.replaceComponent(vm, node, loopEffects);
       }
       const obserberType = checkObserverType(vm, node);
       if (obserberType) new Observable(vm, node, obserberType, loopEffects);
@@ -46,18 +46,24 @@ export class VueScanner extends Scanner {
     return el;
   }
 
-  private replaceComponent(vm: Vuelite, el: HTMLElement) {
+  private replaceComponent(vm: Vuelite, el: HTMLElement, task?: Function[]) {
     const childVM = vm.$components.get(el) || Vuelite.globalComponents.get(el);
     if (childVM) {
       vm.deferredTasks.push(() => el.parentNode?.replaceChild(childVM.$el, el));
       el.isComponent = true;
     } else {
-      const option = Vuelite.globalComponentsNames[el.tagName];
+      const option = vm.componentsNames[el.tagName] || Vuelite.globalComponentsNames[el.tagName];
       if (option) {
-        const childVM = new Vuelite(option);
-        Vuelite.globalComponents.set(el, childVM);
-        vm.deferredTasks.push(() => el.parentNode?.replaceChild(childVM.$el, el));
         el.isComponent = true;
+        const childVM = new Vuelite(option);
+        if (vm.componentsNames[el.tagName]) {
+          vm.$components.set(el, childVM);
+        } else {
+          Vuelite.globalComponents.set(el, childVM);
+        }
+        const fn = () => el.parentNode?.replaceChild(childVM.$el, el);
+        if (task) task.push(fn);
+        else vm.deferredTasks.push(fn);
       }
     }
   }

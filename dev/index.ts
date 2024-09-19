@@ -20,12 +20,17 @@ const vm = new Vuelite({
   el: "#app",
   components: {
     "local-component": {
-      props: ["localtitle"],
+      props: ["handlecheck"],
       el: "#local-component",
       data() {
         return {
           message: "local message",
         };
+      },
+      methods: {
+        localClick() {
+          this.$props.handlecheck();
+        },
       },
     },
   },
@@ -157,8 +162,8 @@ const vm = new Vuelite({
     handleInput(e) {
       this.title = e.target.value;
     },
-    handleCheck() {
-      this.checked = !this.checked;
+    handlecheck() {
+      this.visible = !this.visible;
     },
     async handleClick() {
       const url = "https://jsonplaceholder.typicode.com/todos/1";
@@ -171,7 +176,6 @@ const vm = new Vuelite({
     },
     change() {
       console.log("@@", this.$refs.myDiv.style.width);
-
       this.$refs.myDiv.style.width = "500px";
 
       // DOM 업데이트 전 크기 측정 (잘못된 결과 가능)
