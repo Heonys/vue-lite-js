@@ -19,6 +19,7 @@ type WatchObject = {
 export type WatchType = {
     [K: string]: WatchCallback | WatchObject;
 };
+export type ComponentMap = Map<Element, Vuelite>;
 export type Options<Data = {}, Methods = {}, Computed = {}> = {
     el?: string;
     template?: string;
@@ -29,6 +30,12 @@ export type Options<Data = {}, Methods = {}, Computed = {}> = {
     watch?: WatchType;
     styles?: {
         [K: string]: any;
+    };
+    scopedStyles?: {
+        [K: string]: any;
+    };
+    components?: {
+        [K: string]: Options;
     };
 } & {
     [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;

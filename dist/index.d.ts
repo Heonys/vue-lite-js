@@ -41,6 +41,7 @@ type WatchObject = {
 type WatchType = {
     [K: string]: WatchCallback | WatchObject;
 };
+type ComponentMap = Map<Element, Vuelite>;
 type Options<Data = {}, Methods = {}, Computed = {}> = {
     el?: string;
     template?: string;
@@ -51,6 +52,12 @@ type Options<Data = {}, Methods = {}, Computed = {}> = {
     watch?: WatchType;
     styles?: {
         [K: string]: any;
+    };
+    scopedStyles?: {
+        [K: string]: any;
+    };
+    components?: {
+        [K: string]: Options;
     };
 } & {
     [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data & Methods & Computed) => void;
@@ -70,13 +77,15 @@ interface ComponentPublicInstance {
 
 declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> implements ComponentPublicInstance {
     $data: object;
-    $el: HTMLElement;
+    $el: HTMLElement | DocumentFragment;
     $options: Options<D, M, C>;
     $props: Record<string, any>;
     $parent: Vuelite | null;
     $refs: {
         [name: string]: Element;
     };
+    $components: ComponentMap;
+    componentsNames: Record<string, Options>;
     updateQueue: Function[];
     static context?: Record<string, any>;
     [customKey: string]: any;
@@ -85,7 +94,9 @@ declare class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> impleme
     render(): void;
     $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
     $forceUpdate(): void;
-    static globalComponents: Record<string, Vuelite>;
+    localComponents(options: Options): void;
+    static globalComponentsNames: Record<string, Options>;
+    static globalComponents: ComponentMap;
     static component(name: string, options: Options): void;
 }
 
@@ -108,11 +119,12 @@ declare class Directive {
     selectUpdater(updater: Updater): Updater;
 }
 
+type ObserverType = "Template" | "Directive" | "Component";
 declare class Observable {
     vm: Vuelite;
     node: Node;
     loopEffects?: Function[];
-    constructor(vm: Vuelite, node: Node, loopEffects?: Function[]);
+    constructor(vm: Vuelite, node: Node, type: ObserverType, loopEffects?: Function[]);
     directiveBind(el: Element): void;
     templateBind(node: Node): void;
 }
@@ -134,6 +146,7 @@ declare class VueScanner extends Scanner {
     private fragment;
     scan(vm: Vuelite): void;
     scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]): HTMLElement;
+    private replaceComponent;
 }
 
 declare class Observer {

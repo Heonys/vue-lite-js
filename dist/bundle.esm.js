@@ -114,7 +114,7 @@ function isPrimitive(value) {
     return value !== Object(value);
 }
 function hasTemplate(str) {
-    const pattern = /{{\s*[^{}]+\s*}}/;
+    const pattern = /{{\s*.*?\s*}}/;
     return pattern.test(str);
 }
 function isNonStandard(node) {
@@ -124,6 +124,9 @@ function isNonStandard(node) {
 }
 function isComponent(node) {
     return node instanceof HTMLElement && node.isComponent;
+}
+function isTemplateElement(el) {
+    return el instanceof HTMLTemplateElement;
 }
 
 class Dep {
@@ -315,18 +318,39 @@ class StyleRule {
     }
 }
 function createStyleSheet(vm) {
-    const { styles } = vm.$options;
-    if (!styles)
+    const { styles, scopedStyles } = vm.$options;
+    if (!styles && !scopedStyles)
         return;
-    const styleElement = document.createElement("style");
-    document.head.appendChild(styleElement);
-    Object.entries(styles).forEach(([selector, styles]) => {
-        const rule = new StyleRule(styleElement.sheet);
-        rule.selector(selector);
-        Object.entries(styles).forEach(([key, value]) => {
-            rule.setStyle(key, value);
+    if (styles) {
+        const styleElement = document.createElement("style");
+        document.head.appendChild(styleElement);
+        Object.entries(styles).forEach(([selector, styles]) => {
+            const rule = new StyleRule(styleElement.sheet);
+            rule.selector(selector);
+            Object.entries(styles).forEach(([key, value]) => {
+                rule.setStyle(key, value);
+            });
         });
-    });
+    }
+    if (scopedStyles) {
+        const scopedStyleElement = document.createElement("style");
+        document.head.appendChild(scopedStyleElement);
+        const scopeId = generateScopeId();
+        Object.entries(scopedStyles).forEach(([selector, style]) => {
+            const scopedSelector = `*[data-scopeid="${scopeId}"] ${selector}`;
+            const rule = new StyleRule(scopedStyleElement.sheet);
+            rule.selector(scopedSelector);
+            Object.entries(style).forEach(([key, value]) => {
+                rule.setStyle(key, value);
+            });
+        });
+        if (vm.$el instanceof HTMLElement) {
+            vm.$el.setAttribute("data-scopeid", scopeId);
+        }
+    }
+}
+function generateScopeId() {
+    return "v-" + Math.random().toString(36).substring(2, 7);
 }
 
 const directiveNames = [
@@ -375,19 +399,25 @@ function isDirective(attr) {
 function isEventDirective(name) {
     return name.startsWith("v-on:") || name.startsWith("@");
 }
-const isReactiveNode = (vm, node) => {
+function checkObserverType(vm, node) {
+    if (isComponent(node))
+        return "Component";
     if (isElementNode(node)) {
         const attributes = node.attributes;
         const ref = attributes.getNamedItem("ref");
         if (ref)
             vm.$refs[ref.value] = node;
-        return Array.from(attributes).some((attr) => isDirective(attr.name));
+        if (Array.from(attributes).some((attr) => isDirective(attr.name)))
+            return "Directive";
     }
-    else if (isTextNode(node)) {
+    else if (isTextNode(node) &&
+        hasTemplate(node.textContent) &&
+        !hasTextDirective(node.parentElement)) {
         const textContent = node.textContent || "";
-        return extractTemplate(textContent).length > 0;
+        if (extractTemplate(textContent).length > 0)
+            return "Template";
     }
-};
+}
 const isValidDirective = (name) => {
     return directiveNames.includes(name);
 };
@@ -791,7 +821,7 @@ class Directive {
         updater = this.selectUpdater(updater);
         new Observer(this.vm, this.exp, (newVal, oldVal) => {
             if (isComponent(this.node)) {
-                const childVM = Vuelite$1.globalComponents[this.node.tagName];
+                const childVM = this.vm.$components.get(this.node) || Vuelite$1.globalComponents.get(this.node);
                 childVM.$parent = this.vm;
                 childVM.$props[this.modifier] = newVal;
             }
@@ -910,17 +940,20 @@ class Directive {
 }
 
 class Observable {
-    constructor(vm, node, loopEffects) {
+    constructor(vm, node, type, loopEffects) {
         this.vm = vm;
         this.node = node;
         this.loopEffects = loopEffects;
-        if (isElementNode(node)) {
-            this.directiveBind(node);
-        }
-        else if (isTextNode(node) &&
-            hasTemplate(node.textContent) &&
-            !hasTextDirective(node.parentElement)) {
-            this.templateBind(node);
+        switch (type) {
+            case "Component":
+            case "Directive": {
+                this.directiveBind(node);
+                break;
+            }
+            case "Template": {
+                this.templateBind(node);
+                break;
+            }
         }
     }
     directiveBind(el) {
@@ -951,14 +984,12 @@ class Scanner {
 class VueScanner extends Scanner {
     scan(vm) {
         const action = (node) => {
-            var _a;
             if (isNonStandard(node)) {
-                const tagName = node.tagName;
-                const ref = Vuelite$1.globalComponents[tagName].$el;
-                (_a = node.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(ref, node);
-                node.isComponent = true;
+                this.replaceComponent(vm, node);
             }
-            isReactiveNode(vm, node) && new Observable(vm, node);
+            const obserberType = checkObserverType(vm, node);
+            if (obserberType)
+                new Observable(vm, node, obserberType);
         };
         this.fragment = node2Fragment(vm.$el);
         action(this.fragment);
@@ -969,12 +1000,42 @@ class VueScanner extends Scanner {
     scanPartial(vm, el, loopEffects) {
         const container = node2Fragment(el);
         const action = (node) => {
-            isReactiveNode(vm, node) && new Observable(vm, node, loopEffects);
+            if (isNonStandard(node)) {
+                this.replaceComponent(vm, node, loopEffects);
+            }
+            const obserberType = checkObserverType(vm, node);
+            if (obserberType)
+                new Observable(vm, node, obserberType, loopEffects);
         };
         action(container);
         this.visit(action, container);
         el.appendChild(container);
         return el;
+    }
+    replaceComponent(vm, el, task) {
+        const childVM = vm.$components.get(el) || Vuelite$1.globalComponents.get(el);
+        if (childVM) {
+            vm.deferredTasks.push(() => { var _a; return (_a = el.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(childVM.$el, el); });
+            el.isComponent = true;
+        }
+        else {
+            const option = vm.componentsNames[el.tagName] || Vuelite$1.globalComponentsNames[el.tagName];
+            if (option) {
+                el.isComponent = true;
+                const childVM = new Vuelite$1(option);
+                if (vm.componentsNames[el.tagName]) {
+                    vm.$components.set(el, childVM);
+                }
+                else {
+                    Vuelite$1.globalComponents.set(el, childVM);
+                }
+                const fn = () => { var _a; return (_a = el.parentNode) === null || _a === void 0 ? void 0 : _a.replaceChild(childVM.$el, el); };
+                if (task)
+                    task.push(fn);
+                else
+                    vm.deferredTasks.push(fn);
+            }
+        }
     }
 }
 
@@ -1003,10 +1064,13 @@ class Vuelite extends Lifecycle {
         this.$props = {};
         this.$parent = null;
         this.$refs = {};
+        this.$components = new Map();
+        this.componentsNames = {};
         this.updateQueue = [];
         this.$options = options;
         this.setHooks(this.$options);
         this.setupDOM(options);
+        this.localComponents(options);
         this.callHook("beforeCreate");
         injectReactive(this);
         createStyleSheet(this);
@@ -1023,8 +1087,8 @@ class Vuelite extends Lifecycle {
         }
         else {
             const el = document.querySelector(options.el);
-            if (el instanceof HTMLTemplateElement) {
-                this.$el = el.content.firstElementChild;
+            if (isTemplateElement(el)) {
+                this.$el = el.content.cloneNode(true);
             }
             else {
                 this.$el = el;
@@ -1050,11 +1114,26 @@ class Vuelite extends Lifecycle {
     $forceUpdate() {
         Store.forceUpdate();
     }
+    localComponents(options) {
+        const { components } = options;
+        if (!components)
+            return;
+        Object.entries(components).forEach(([name, options]) => {
+            this.componentsNames[name.toUpperCase()] = options;
+            Array.from(document.querySelectorAll(name)).forEach((node) => {
+                this.$components.set(node, new Vuelite(options));
+            });
+        });
+    }
     static component(name, options) {
-        this.globalComponents[name.toLocaleUpperCase()] = new Vuelite(options);
+        this.globalComponentsNames[name.toLocaleUpperCase()] = options;
+        Array.from(document.querySelectorAll(name)).forEach((node) => {
+            this.globalComponents.set(node, new Vuelite(options));
+        });
     }
 }
-Vuelite.globalComponents = {};
+Vuelite.globalComponentsNames = {};
+Vuelite.globalComponents = new Map();
 var Vuelite$1 = Vuelite;
 
 export { Vuelite$1 as default };

@@ -10,5 +10,6 @@ export declare class VueScanner extends Scanner {
     private fragment;
     scan(vm: Vuelite): void;
     scanPartial(vm: Vuelite, el: HTMLElement, loopEffects: Function[]): HTMLElement;
+    private replaceComponent;
 }
 export {};

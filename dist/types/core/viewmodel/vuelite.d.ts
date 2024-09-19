@@ -1,14 +1,16 @@
-import { ComponentPublicInstance, WatchCallback, WatchOption, type Options } from "./option";
+import { ComponentMap, ComponentPublicInstance, WatchCallback, WatchOption, Options } from "./option";
 import { Lifecycle } from "./lifecycle";
 export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> implements ComponentPublicInstance {
     $data: object;
-    $el: HTMLElement;
+    $el: HTMLElement | DocumentFragment;
     $options: Options<D, M, C>;
     $props: Record<string, any>;
     $parent: Vuelite | null;
     $refs: {
         [name: string]: Element;
     };
+    $components: ComponentMap;
+    componentsNames: Record<string, Options>;
     updateQueue: Function[];
     static context?: Record<string, any>;
     [customKey: string]: any;
@@ -17,6 +19,8 @@ export default class Vuelite<D = {}, M = {}, C = {}> extends Lifecycle<D, M, C> 
     render(): void;
     $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
     $forceUpdate(): void;
-    static globalComponents: Record<string, Vuelite>;
+    localComponents(options: Options): void;
+    static globalComponentsNames: Record<string, Options>;
+    static globalComponents: ComponentMap;
     static component(name: string, options: Options): void;
 }

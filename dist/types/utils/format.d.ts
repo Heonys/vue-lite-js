@@ -18,3 +18,4 @@ export declare function hasTemplate(str: string): boolean;
 export declare function isPathFormat(str: string): boolean;
 export declare function isNonStandard(node: Node): node is HTMLElement;
 export declare function isComponent(node: Node): node is HTMLElement;
+export declare function isTemplateElement(el: HTMLElement): el is HTMLTemplateElement;

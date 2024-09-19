@@ -5,7 +5,7 @@ export declare class ForLoop {
     exp: any;
     parentContext: Record<string, any>;
     alias: string[];
-    parent: HTMLElement;
+    parent: HTMLElement | DocumentFragment;
     listExp: string;
     startIndex: number;
     endIndex: number;

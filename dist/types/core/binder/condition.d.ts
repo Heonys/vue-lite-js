@@ -3,7 +3,7 @@ export declare class Condition {
     vm: Vuelite;
     el: HTMLElement;
     exp: any;
-    parent: HTMLElement;
+    parent: HTMLElement | DocumentFragment;
     childIndex: number;
     ifFragment: DocumentFragment;
     elseFragment?: DocumentFragment;
