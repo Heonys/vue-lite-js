@@ -46,8 +46,9 @@ export const updaters = {
     });
   },
   customBind(this: Directive, el: HTMLElement, value: any) {
-    // (el as any)[this.modifier] = value;
-    value && el.setAttribute(this.modifier, value);
+    if (value != null) {
+      el.setAttribute(this.modifier, value);
+    }
   },
   objectBind(this: Directive, el: HTMLInputElement, value: any) {
     if (isObject(value)) {

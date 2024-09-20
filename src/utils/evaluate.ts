@@ -63,7 +63,7 @@ export function evaluateTemplate(vm: Vuelite, exp: string) {
   );
 
   const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
-    return evaluatedValues[key] || "";
+    return evaluatedValues[key] ?? "";
   });
   return result;
 }

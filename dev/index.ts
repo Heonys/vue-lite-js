@@ -32,8 +32,8 @@ const vm = new Vuelite({
           this.$props.handlecheck();
         },
       },
-      styles: {
-        "#wrapper": {
+      scopedStyles: {
+        section: {
           border: "1px solid red",
           margin: "1rem",
           padding: "10px",
@@ -46,7 +46,6 @@ const vm = new Vuelite({
       title: "title",
       hello: true,
       visible: true,
-      visible2: false,
       message: "parent message",
       inputValue: "",
       objectBind: {
@@ -192,7 +191,7 @@ const vm = new Vuelite({
       margin: "3rem",
     },
     ".title": {
-      "font-weight": "bold",
+      fontWeight: "bold",
     },
   },
 });
