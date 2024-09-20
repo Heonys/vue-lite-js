@@ -343,7 +343,7 @@
             document.head.appendChild(scopedStyleElement);
             const scopeId = generateScopeId();
             Object.entries(scopedStyles).forEach(([selector, style]) => {
-                const scopedSelector = `*[data-scopeid="${scopeId}"] ${selector}`;
+                const scopedSelector = `${selector}[data-scopeid="${scopeId}"], *[data-scopeid="${scopeId}"] ${selector}`;
                 const rule = new StyleRule(scopedStyleElement.sheet);
                 rule.selector(scopedSelector);
                 Object.entries(style).forEach(([key, value]) => {
@@ -352,6 +352,11 @@
             });
             if (vm.$el instanceof HTMLElement) {
                 vm.$el.setAttribute("data-scopeid", scopeId);
+            }
+            else if (vm.$el instanceof DocumentFragment) {
+                Array.from(vm.$el.children).forEach((v) => {
+                    v.setAttribute("data-scopeid", scopeId);
+                });
             }
         }
     }
@@ -479,7 +484,9 @@
             });
         },
         customBind(el, value) {
-            value && el.setAttribute(this.modifier, value);
+            if (value != null) {
+                el.setAttribute(this.modifier, value);
+            }
         },
         objectBind(el, value) {
             if (isObject(value)) {
@@ -516,7 +523,8 @@
             return acc;
         }, {});
         const result = exp.replace(/{{\s*(.*?)\s*}}/g, (_, key) => {
-            return evaluatedValues[key] || "";
+            var _a;
+            return (_a = evaluatedValues[key]) !== null && _a !== void 0 ? _a : "";
         });
         return result;
     }
