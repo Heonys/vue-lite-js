@@ -66,8 +66,11 @@ type Options<Data = {}, Methods = {}, Computed = {}> = {
 };
 interface ComponentPublicInstance {
     $data: object;
-    $el: Node | null;
+    $el: Node;
+    $props: Record<string, any>;
+    $parent: Vuelite | null;
     $options: Options;
+    $components: ComponentMap;
     $refs: {
         [name: string]: Element | null;
     };

@@ -50,8 +50,11 @@ export declare function isAccessor(data: Function | AccessorForm): data is Acces
 export declare function isWatchMethod(value: any): value is WatchCallback;
 export interface ComponentPublicInstance {
     $data: object;
-    $el: Node | null;
+    $el: Node;
+    $props: Record<string, any>;
+    $parent: Vuelite | null;
     $options: Options;
+    $components: ComponentMap;
     $refs: {
         [name: string]: Element | null;
     };
