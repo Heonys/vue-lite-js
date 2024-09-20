@@ -19,16 +19,16 @@ Vuelite.component("global-component", {
 const vm = new Vuelite({
   el: "#app",
   components: {
-    "local-component": {
-      props: ["handlecheck"],
-      el: "#local-component",
+    "vue-propsviewer": {
+      props: ["propsdata", "handlecheck"],
+      el: "#propsviewer",
       data() {
         return {
           message: "local message",
         };
       },
       methods: {
-        localClick() {
+        handleClick() {
           this.$props.handlecheck();
         },
       },
@@ -40,7 +40,7 @@ const vm = new Vuelite({
       hello: true,
       visible: true,
       visible2: false,
-      parentMessage: "props로 부터 온 메시지",
+      message: "parent message",
       inputValue: "",
       objectBind: {
         id: "testId",
@@ -50,28 +50,10 @@ const vm = new Vuelite({
       isDisabled: true,
       count: 1,
       itemCount: "",
-      outer: [
-        { inner: ["Item 1.1", "Item 1.2", "Item 1.3"] },
-        { inner: ["Item 2.1", "Item 2.2"] },
-        { inner: ["Item 3.1", "Item 3.2", "Item 3.3", "Item 3.4"] },
-      ],
-      outerList: [
-        { innerList: ["Item 1.1", "Item 1.2", "Item 1.3"] },
-        { innerList: ["Item 2.1", "Item 2.2"] },
-        { innerList: ["Item 3.1", "Item 3.2", "Item 3.3", "Item 3.4"] },
-      ],
       items: [
         { id: 1, message: "Item 1" },
         { id: 2, message: "Item 2" },
         { id: 3, message: "Item 3" },
-      ],
-      children: [
-        { id: 1, name: "children 1" },
-        { id: 2, name: "children 2" },
-      ],
-      lang: [
-        { id: 1, type: "python" },
-        { id: 2, type: "c++" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -142,7 +124,6 @@ const vm = new Vuelite({
       return this.visible ? "truthy" : "falsy";
     },
     fullName() {
-      // console.log("computed");
       return this.firstName + " + " + this.lastName;
     },
     fullName2: {
@@ -174,22 +155,10 @@ const vm = new Vuelite({
     handleClickButton() {
       console.log(this.$refs);
     },
-    change() {
-      console.log("@@", this.$refs.myDiv.style.width);
-      this.$refs.myDiv.style.width = "500px";
-
-      // DOM 업데이트 전 크기 측정 (잘못된 결과 가능)
-      const width = this.$refs.myDiv.clientWidth;
-      console.log("Width before nextTick:", width); // 결과가 100px일 수 있음
-    },
     fullNameMethod() {
-      console.log("이름 계산중");
-
       return this.firstName + " + " + this.lastName;
     },
     fullNameMethod2() {
-      console.log("3+2 계산중");
-
       return 3 + 2;
     },
     addItem(value: any) {
@@ -203,23 +172,15 @@ const vm = new Vuelite({
         title: "Vue에서 목록을 작성하는 방법",
         author: "홍길동",
       };
-
-      // this.myObject.title = "change Title";
-
-      // this.myObject.newKey = "newValue";
-      // this.title = "hello";
     },
     getRandom() {
-      console.log("랜덤 생성중");
       return Math.random().toFixed(3);
     },
   },
   styles: {
-    // only camelCase key
-    "#wrapper": {
-      width: "50%",
-      background: "#ffa",
-      cursor: "pointer",
+    "#app": {
+      border: "1px solid blue",
+      padding: "10px",
     },
   },
 });

@@ -57,11 +57,13 @@ export function isWatchMethod(value: any): value is WatchCallback {
   return typeOf(value) === "function";
 }
 
-// 추가예정
 export interface ComponentPublicInstance {
   $data: object;
-  $el: Node | null;
+  $el: Node;
+  $props: Record<string, any>;
+  $parent: Vuelite | null;
   $options: Options;
+  $components: ComponentMap;
   $refs: { [name: string]: Element | null };
   $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;

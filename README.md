@@ -48,7 +48,7 @@
   + [Watch 추가](#6-watch-추가-170)
   + [methods 옵션 동작방식 변경](#7-methods-옵션-동작방식-변경-171)
   + [Ref 추가, 인스턴스 속성 추가](#8-ref-추가-인스턴스-속성-추가-172)
-  + [컴포넌트 단위 개발 지원, props 지원](#9-컴포넌트-단위-개발-지원-props-지원-210)
+  + [컴포넌트 단위 개발 및 props 지원](#9-컴포넌트-단위-개발-및-props-지원-210)
   + [..]()
 + **[렌더링 전략 및 문제점](#️-렌더링-전략-및-문제점-160)**
 + **[Reference](#-reference)**
@@ -70,9 +70,9 @@
 - ***리스트 렌더링 추가 (v-for 디렉티브)*** `<1.5.5>`
 - ***데이터 변화에 대응하기*** `<1.5.6>`
 - ***Lifecycle Hooks 추가*** `<1.6.0>`
-- ***watch 지원*** `<1.7.0>`
+- ***watch 추가*** `<1.7.0>`
 - ***Ref 및 인스턴스 속성 추가*** `<1.7.2>`
-- ***컴포넌트 단위 개발 지원, props 지원*** `<2.1.0>`
+- ***컴포넌트 단위 개발 및 props 추가*** `<2.1.0>`
 
 ## 🎉 Getting Started
 
@@ -749,24 +749,128 @@ new Vue({
 ```js
 export interface ComponentPublicInstance {
   $data: object;
-  $el: Node | null;
+  $el: Node;
+  $props: Record<string, any>;
+  $parent: Vuelite | null;
   $options: Options;
+  $components: ComponentMap;
   $refs: { [name: string]: Element | null };
-  $props: Record<string, any> = {};
-  $parent: Vuelite | null = null;
   $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;
-  // ... 
 }
 ```
 인스턴스 속성이란 컴포넌트에서 `this`에 노출되는 빌트인 속성 및 메서드를 의미합니다. 이러한 속성들은 컴포넌트의 동작을 조절하거나 정보를 얻는 데 사용됩니다. 예를 들어, `$watch`는 동적으로 감시할 속성을 추가할 수 있게 해주며, `$forceUpdate`는 강제로 화면을 다시 렌더링할 때 사용됩니다. 이러한 인스턴스 속성들은 컴포넌트를 다루는 데 있어 편의성을 높여 주며, 내부 상태나 동작을 제어하는 데 유용합니다.
 
 
-### 9. 컴포넌트 단위 개발 지원, props 지원 `<2.1.0>`
+### 9. 컴포넌트 단위 개발 및 props 지원 `<2.1.0>`
 
 ```html
+<div id="app">
+  <input type="checkbox" v-model="visible">
+  <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
+</div>
+
+<template id="propsviewer">
+  <h2>{{ message }}</h2>
+  <div>{{ propsdata }}</div>
+  <button @click="handleClick">클릭</button>
+</template>
 ```
-작성중 .. 
+```ts
+new Vuelite({
+  el: "#app",
+  data() {
+    return {
+      visible: true,
+      message: "parent message",
+    };
+  },
+  methods: {
+    handlecheck() {
+      this.visible = !this.visible;
+    },
+  },
+  components: {
+    "vue-propsviewer": {
+      props: ["propsdata", "handlecheck"],
+      el: "#propsviewer",
+      data() {
+        return {
+          message: "local message",
+        };
+      },
+      methods: {
+        handleClick() {
+          this.$props.handlecheck();
+        },
+      },
+    },
+  },
+});
+```
+#### 핵심 아이디어 
+`DOM`과 `ViewModel`을 연결하여 양방향 바인딩을 구현하기 위해, 새로운 컴포넌트는 새로운 인스턴스를 필요로 합니다. 따라서 컴포넌트를 추가할 때는 독립적인 새로운 인스턴스를 만들어 관리해야 합니다. `Vuelite`는 싱글 파일 컴포넌트를 제공하지 않기 때문에, `HTML` 파일 내에서 `<template>` 태그를 사용하여 컴포넌트를 정의합니다. `<template>` 태그는 화면에 렌더링되지 않기 때문에, 복사하여 반복적으로 사용하면 됩니다.
+
+
+**기본 동작 흐름** <br />
+>1. 인스턴스 생성 전에 전역 컴포넌트를 등록할 수 있음.
+>2. 인스턴스 생성 시 `components` 속성으로 로컬 컴포넌트를 등록할 수 있음.
+>3. 컴포넌트는 `Record<name, options>` 형태로 이름과 해당 컴포넌트 생성에 필요한 옵션으로 매핑
+>4. 템플릿 파싱중에 `<vue-component>`와 같이 하이픈이 포함된 태그를 컴포넌트로 인식.
+>5. 컴포넌트가 로컬 및 전역에 등록되어 있는지 확인 (로컬 컴포넌트가 우선).
+>6. 등록된 컴포넌트가 있을 경우 해당 옵션을 사용하여 새로운 인스턴스를 생성하고 기존 엘리먼트와 교체.
+>7. 컴포넌트에 `props`가 있으면 교체 전에 옵저버를 생성하여 `props` 데이터의 변화가 하위 컴포넌트에 업데이트 될 수 있도록 처리.
+
+
+
+#### 컴포넌트 종류 
+1. **로컬 컴포넌트:** 
+```ts
+new Vuelite({
+  components: {
+    "vue-propsviewer": { /* options */ },
+    "login-form": { /* options */ },
+  }
+});
+```
+인스턴스 내부에서 `components` 속성을 통해 등록된 컴포넌트로, 해당 인스턴스 내에서만 유효합니다.
+
+2. **전역 컴포넌트:** 
+```ts
+Vuelite.component("global-component", { /* options */ });
+```
+`Vuelite.component()` 메서드를 사용하여 전역적으로 등록된 컴포넌트로, 모든 컴포넌트에서 사용 가능합니다.
+
+
+#### props 및 method props
+
+`Vue.js`의 `props`는 부모 컴포넌트가 자식 컴포넌트에 데이터를 전달하는 방법입니다. 부모 컴포넌트에서 데이터를 자식 컴포넌트로 전달할 때, `props`를 사용하여 전달하며, 자식 컴포넌트는 이러한 `props`를 통해 데이터를 받아서 처리합니다. 이때, 자식 컴포넌트는 명시적인 `props` 선언을 함으로써 외부에서 컴포넌트에 `props`를 넘길 때 어떤 속성이 처리되어야 하는지 알 수 있습니다
+
+- **props를 통한 속성 전달**
+`props`속성을통해서 부모 컴포넌트로 부터 속성을 전달 받을 수 있습니다. 이때, 부모 컴포넌트에서 `key`로 사용된 이름과 자식 컴포넌트의 `props`로 등록한 `key`의 이름과 동일해야 됩니다.
+
+- **props를 통한 메소드 전달**
+`vuejs`의 `$emit`과 같이 이벤트를 방출하는 기능은 제공하지않고 따로 부모에서 이벤트를 `props`를 통해서 내려줘야합니다. 단, 이때 자식 컴포넌트에선 `props`로 받은 데이터는 `template`에서 사용가능하지만 `methods`는 `tempalte`에서 바로 사용할 수 없습니다. 따라서 자식 컴포넌트에서 `methods`를 정의해서 `this.$props.parenMethod()` 이런식으로 호출해야합니다.
+
+
+#### 제한사항 
+
+1. 컴포넌트는 등록되는 순서가 중요해서 전역 컴포넌트는 반드시 인스턴스 생성 전에 등록되어야 합니다.
+
+2. 중첩된 컴포넌트도 지원되지만, 마찬가지로 등록 순서가 중요합니다. 손자 컴포넌트가 가장 먼저 정의되어야 합니다.
+
+3. 커스텀 엘리먼트는 표준에 따라서 하이픈을 포함해야하고 컴포넌트도 이러한 하이픈을 포함한 태그이름으로 구분하고 있어서 반드시 하이픈을 포함한 이름으로 등록해야합니다. 
+
+4. `HTML` 속성은 대문자가 소문자로 변환되므로, 속성 이름에 주의해야 합니다. 따라서 습관적으로 속성에 `camelCase`를 사용해도 파싱되어 `props`로 전달될땐 소문자로 전달되기 때문에 실수하기 쉽습니다. 
+
+5. `props`는 읽기 전용으로 수정되지 않지만 `$props` 객체는 수정할 수 있어 실수로 수정되지 않도록 주의해야 합니다.
+
+6. `v-slot` 기능은 지원하지 않아서 템플릿을 전달하진 못하고 단순 `props`만 제공합니다.
+
+7. `props`로 전달된 메서드는 자식 컴포넌트 템플릿에서 직접 사용할 수 없으며, 자식 컴포넌트에서 메서드를 정의해 호출해야 합니다.
+
+
+
 
 
 ---
