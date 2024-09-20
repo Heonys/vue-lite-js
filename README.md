@@ -764,16 +764,25 @@ export interface ComponentPublicInstance {
 
 ### 9. 컴포넌트 단위 개발 및 props 지원 `<2.1.0>`
 
+<p align="center">
+  <img src="./img/Animation3.gif" alt="Description of GIF" width="350" />
+</p>
+
 ```html
 <div id="app">
-  <input type="checkbox" v-model="visible">
-  <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
+    <div>Parent Component</div>
+    <input type="text" v-model="message">
+    <input type="checkbox" v-model="visible">
+    <span>{{ visible ? "🔓" : "🔒" }}</span>
+    <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
+    <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
 </div>
 
 <template id="propsviewer">
-  <h2>{{ message }}</h2>
-  <div>{{ propsdata }}</div>
-  <button @click="handleClick">클릭</button>
+    <div>Child Component</div>
+    <div>{{ message }}</div>
+    <div>{{ propsdata }}</div>
+    <button @click="handleClick">event emit</button>
 </template>
 ```
 ```ts

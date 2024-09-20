@@ -32,6 +32,13 @@ const vm = new Vuelite({
           this.$props.handlecheck();
         },
       },
+      styles: {
+        "#wrapper": {
+          border: "1px solid red",
+          margin: "1rem",
+          padding: "10px",
+        },
+      },
     },
   },
   data() {
@@ -180,7 +187,12 @@ const vm = new Vuelite({
   styles: {
     "#app": {
       border: "1px solid blue",
+      borderRadius: "5px",
       padding: "10px",
+      margin: "3rem",
+    },
+    ".title": {
+      "font-weight": "bold",
     },
   },
 });
