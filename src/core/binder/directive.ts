@@ -37,7 +37,7 @@ export class Directive {
   bind(updater?: Updater) {
     updater = this.selectUpdater(updater);
 
-    new Observer(this.vm, this.exp, (newVal, oldVal) => {
+    new Observer(this.vm, this.exp, (newVal) => {
       if (isComponent(this.node)) {
         const childVM =
           this.vm.$components.get(this.node) || Vuelite.globalComponents.get(this.node);
@@ -124,12 +124,19 @@ export class Directive {
     this.bind(updaters.show);
   }
   on() {
-    const fn = extractPath(this.vm, this.exp);
-    if (typeof fn === "function") {
-      this.node.addEventListener(this.modifier, fn);
+    if (this.vm.$props[this.exp] === null) {
+      // 만약 들어온 표현식이 props로 받은거라면 이후에 이벤트가 등록되야함
+      new Observer(this.vm, this.exp, (newVal) => {
+        this.node.addEventListener(this.modifier, newVal);
+      });
     } else {
-      const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
-      this.node.addEventListener(this.modifier, unsafeFn);
+      const fn = extractPath(this.vm, this.exp);
+      if (typeof fn === "function") {
+        this.node.addEventListener(this.modifier, fn);
+      } else {
+        const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
+        this.node.addEventListener(this.modifier, unsafeFn);
+      }
     }
   }
 

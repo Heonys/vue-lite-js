@@ -56,7 +56,7 @@ function isReserved(str) {
 }
 function initializeProps(props) {
     return props.reduce((acc, cur) => {
-        acc[cur] = undefined;
+        acc[cur] = null;
         return acc;
     }, {});
 }
@@ -829,7 +829,7 @@ class Directive {
     }
     bind(updater) {
         updater = this.selectUpdater(updater);
-        new Observer(this.vm, this.exp, (newVal, oldVal) => {
+        new Observer(this.vm, this.exp, (newVal) => {
             if (isComponent(this.node)) {
                 const childVM = this.vm.$components.get(this.node) || Vuelite$1.globalComponents.get(this.node);
                 childVM.$parent = this.vm;
@@ -917,13 +917,20 @@ class Directive {
         this.bind(updaters.show);
     }
     on() {
-        const fn = extractPath(this.vm, this.exp);
-        if (typeof fn === "function") {
-            this.node.addEventListener(this.modifier, fn);
+        if (this.vm.$props[this.exp] === null) {
+            new Observer(this.vm, this.exp, (newVal) => {
+                this.node.addEventListener(this.modifier, newVal);
+            });
         }
         else {
-            const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
-            this.node.addEventListener(this.modifier, unsafeFn);
+            const fn = extractPath(this.vm, this.exp);
+            if (typeof fn === "function") {
+                this.node.addEventListener(this.modifier, fn);
+            }
+            else {
+                const unsafeFn = unsafeEvaluate(this.vm, `function(){ ${this.exp} }`);
+                this.node.addEventListener(this.modifier, unsafeFn);
+            }
         }
     }
     scheduleTask(key, task) {
@@ -1145,5 +1152,20 @@ class Vuelite extends Lifecycle {
 Vuelite.globalComponentsNames = {};
 Vuelite.globalComponents = new Map();
 var Vuelite$1 = Vuelite;
+
+Object.defineProperty(Object.prototype, "_length", {
+    get: function () {
+        if (Object.hasOwn(this, "length")) {
+            return this.length;
+        }
+        else if (typeOf(this) === "object") {
+            return Object.keys(this).length;
+        }
+        else {
+            return 0;
+        }
+    },
+    enumerable: false,
+});
 
 module.exports = Vuelite$1;

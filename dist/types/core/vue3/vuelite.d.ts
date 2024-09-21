@@ -1,6 +1,6 @@
 import { Options } from "../viewmodel/option";
 import Vuelite from "../viewmodel/vuelite";
-export declare function createApp<D = {}, M = {}, C = {}>(options: Options<D, M, C>): {
+export declare function createApp<Data = {}>(options: Options<Data>): {
     use(): void;
     directive(): void;
     mixin(): void;
@@ -8,7 +8,7 @@ export declare function createApp<D = {}, M = {}, C = {}>(options: Options<D, M,
     mount(el: string): void;
     $data: object;
     $el: HTMLElement | DocumentFragment;
-    $options: Options<D, M, C>;
+    $options: Options<Data>;
     $props: Record<string, any>;
     $parent: Vuelite | null;
     $refs: {

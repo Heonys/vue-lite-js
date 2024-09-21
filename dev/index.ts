@@ -27,11 +27,6 @@ const vm = new Vuelite({
           message: "local message",
         };
       },
-      methods: {
-        handleClick() {
-          this.$props.handlecheck();
-        },
-      },
       scopedStyles: {
         section: {
           border: "1px solid red",
@@ -60,6 +55,7 @@ const vm = new Vuelite({
         { id: 1, message: "Item 1" },
         { id: 2, message: "Item 2" },
         { id: 3, message: "Item 3" },
+        { id: 4, message: "Item 4" },
       ],
       myObject: {
         title: "Vue에서 목록을 작성하는 방법",
@@ -174,12 +170,14 @@ const vm = new Vuelite({
       */
       this.items.push({ id: 10, message: `Item 10` });
 
-      this.myObject = {
-        title: "Vue에서 목록을 작성하는 방법",
-        author: "홍길동",
-      };
+      // this.myObject = {
+      //   title: "Vue에서 목록을 작성하는 방법",
+      //   author: "홍길동",
+      // };
     },
     getRandom() {
+      // this.
+
       return Math.random().toFixed(3);
     },
   },

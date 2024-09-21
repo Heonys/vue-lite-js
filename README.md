@@ -777,7 +777,7 @@ export interface ComponentPublicInstance {
     <div>Child Component</div>
     <div>{{ message }}</div>
     <div>{{ propsdata }}</div>
-    <button @click="handleClick">event emit</button>
+    <button @click="handlecheck">event emit</button>
 </template>
 ```
 ```ts
@@ -802,11 +802,6 @@ new Vuelite({
         return {
           message: "local message",
         };
-      },
-      methods: {
-        handleClick() {
-          this.$props.handlecheck();
-        },
       },
     },
   },
@@ -853,7 +848,7 @@ Vuelite.component("global-component", optoins);
 `props`속성을통해서 부모 컴포넌트로 부터 속성을 전달 받을 수 있습니다. 이때, 부모 컴포넌트에서 `key`로 사용된 이름과 자식 컴포넌트의 `props`로 등록한 `key`의 이름과 동일해야 됩니다.
 
 - **props를 통한 메소드 전달**
-`vuejs`의 `$emit`과 같이 이벤트를 방출하는 기능은 제공하지않고 따로 부모에서 이벤트를 `props`를 통해서 내려줘야합니다. 단, 이때 자식 컴포넌트에선 `props`로 받은 데이터는 `template`에서 사용가능하지만 `methods`는 `tempalte`에서 바로 사용할 수 없습니다. 따라서 자식 컴포넌트에서 `methods`를 정의해서 `this.$props.parenMethod()` 이런식으로 호출해야합니다.
+`vuejs`의 `$emit`과 같이 이벤트를 방출하는 기능은 제공하지않고 따로 부모에서 이벤트를 `props`를 통해서 내려줘야합니다.
 
 
 #### 제한사항 
@@ -864,7 +859,6 @@ Vuelite.component("global-component", optoins);
 - `HTML` 속성은 대문자가 소문자로 변환되므로, 속성 이름에 주의해야 합니다. 따라서 습관적으로 속성에 `camelCase`를 사용해도 파싱되어 `props`로 전달될땐 소문자로 전달되기 때문에 실수하기 쉽습니다. 
 - `props`는 읽기 전용이지만, `$props` 객체는 수정할 수 있어 수정하지 않고 일관성을 유지해야합니다.
 - `v-slot` 기능은 지원하지 않아서 템플릿을 전달하진 못하고 단순 `props`만 제공합니다.
-- `props`로 전달된 메서드는 자식 컴포넌트 템플릿에서 직접 사용할 수 없고 `props`로 호출해야 합니다.
 - 컴포넌트 중첩 사용, 동일 컴포넌트의 다중 인스턴스 사용 시 독립적으로 동작 여부, 로컬 컴포넌트 내부에서 전역 컴포넌트를 사용하는 경우와 `v-if`, `v-for` 내부에서의 컴포넌트 사용 등 다양한 케이스에서 테스트를 진행했으나, 더 복잡한 상황에서는 고려하지 못한 부분이 있을 수 있습니다.
 
 

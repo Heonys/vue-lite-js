@@ -72,7 +72,7 @@ export function isReserved(str: string) {
 export function initializeProps(props: string[]) {
   return props.reduce(
     (acc, cur) => {
-      acc[cur] = undefined;
+      acc[cur] = null;
       return acc;
     },
     {} as Record<string, any>,

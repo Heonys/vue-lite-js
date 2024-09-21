@@ -5,7 +5,7 @@ const del = require("rollup-plugin-delete");
 
 module.exports = [
   {
-    input: "src/core/viewmodel/vuelite.ts",
+    input: "src/index.ts",
     plugins: [del({ targets: "dist/*" }), tsPlugin()],
     output: [
       {
@@ -24,7 +24,7 @@ module.exports = [
     ],
   },
   {
-    input: "src/core/viewmodel/vuelite.ts",
+    input: "src/index.ts",
     plugins: [tsPlugin(), terser()],
     output: [
       {

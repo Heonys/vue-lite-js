@@ -15,13 +15,13 @@ import { isTemplateElement, typeOf } from "@/utils/format";
 import { createWatcher, Observer } from "../reactive/observer";
 import { Store } from "../reactive/store";
 
-export default class Vuelite<D = {}, M = {}, C = {}>
-  extends Lifecycle<D, M, C>
-  implements ComponentPublicInstance
+export default class Vuelite<Data = {}>
+  extends Lifecycle<Data>
+  implements ComponentPublicInstance<Data>
 {
   $data: object;
   $el: HTMLElement | DocumentFragment;
-  $options: Options<D, M, C>;
+  $options: Options<Data>;
   $props: Record<string, any> = {};
   $parent: Vuelite | null = null;
   $refs: { [name: string]: Element } = {};
@@ -31,7 +31,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
   static context?: Record<string, any>;
   [customKey: string]: any;
 
-  constructor(options: Options<D, M, C>) {
+  constructor(options: Options<Data>) {
     super();
     this.$options = options;
     this.setHooks(this.$options);
@@ -51,7 +51,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     requestAnimationFrame(() => this.render());
   }
 
-  setupDOM(options: Options<D, M, C>) {
+  private setupDOM(options: Options<Data>) {
     if (options.template) {
       this.$el = createDOMTemplate(options.template);
     } else {
@@ -85,7 +85,7 @@ export default class Vuelite<D = {}, M = {}, C = {}>
     Store.forceUpdate();
   }
 
-  localComponents(options: Options) {
+  private localComponents(options: Options<Data>) {
     const { components } = options;
     if (!components) return;
     Object.entries(components).forEach(([name, options]) => {

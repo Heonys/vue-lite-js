@@ -3,11 +3,11 @@ import { Options } from "./option";
 
 export type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "updated";
 
-export class Lifecycle<Data, Methods, Computed> {
+export class Lifecycle<Data> {
   deferredTasks: Function[] = [];
   private hooks: { [K in HookNames]?: () => void };
 
-  setHooks(options: Options<Data, Methods, Computed>) {
+  setHooks(options: Options<Data>) {
     this.hooks = options;
   }
 
