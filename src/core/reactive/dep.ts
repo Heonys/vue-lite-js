@@ -5,8 +5,6 @@ export class Dep {
   static activated: Observer = null;
   private listener = new Set<Observer>();
 
-  constructor(public key: string) {}
-
   subscribe(observer: Observer) {
     this.listener.add(observer);
   }

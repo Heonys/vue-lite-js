@@ -8,10 +8,8 @@
   <body>
     <div id="app">
 
-
-
-    <div v-once>절대 바뀌지 않음: {{ message }}</div>
-    <div>바뀜: {{ message }}</div>
+      <input type="text" v-model="message">
+      <div>{{ message }}</div>
 
       <!-- <div v-for="(item, index) in items" :key="item.id">
         <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>

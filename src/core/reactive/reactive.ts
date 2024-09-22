@@ -22,7 +22,7 @@ export class Reactivity {
     const handler = {
       get(target: Target, key: string, receiver: Target) {
         if (typeOf(key) === "symbol") return Reflect.get(target, key, receiver);
-        if (!deps.has(key)) deps.set(key, new Dep(key));
+        if (!deps.has(key)) deps.set(key, new Dep());
         deps.get(key).depend();
 
         const child = target[key];

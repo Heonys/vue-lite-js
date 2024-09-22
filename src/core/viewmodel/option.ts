@@ -1,6 +1,7 @@
 import { typeOf } from "@/utils/format";
 import { HookNames } from "./lifecycle";
 import Vuelite from "./vuelite";
+import { Ref, SetupResult } from "@/types/compositionApi";
 
 type Accessor<Data> = {
   get?(this: Vuelite<Data>): any;
@@ -73,7 +74,3 @@ export interface ComponentPublicInstance<Data> {
   $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;
 }
-
-// setup 추가 하도록 수정
-
-export type CompositionAPIOptions = Omit<Options, "el" | "template">;

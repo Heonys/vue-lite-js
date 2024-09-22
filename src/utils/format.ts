@@ -20,6 +20,10 @@ export const isObject = (data: any): data is object => {
   return typeOf(data) === "object" || typeOf(data) === "array";
 };
 
+export const isPlainObject = (data: any): data is object => {
+  return typeOf(data) === "object";
+};
+
 export const isFunction = (data: any): data is Function => {
   return typeOf(data) === "function";
 };

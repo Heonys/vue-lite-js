@@ -15,3 +15,4 @@ Object.defineProperty(Object.prototype, "_length", {
 });
 
 export default Vuelite;
+export * from "./core/vue3/index";
