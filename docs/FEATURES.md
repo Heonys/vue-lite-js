@@ -31,7 +31,7 @@
 <div>{{ selectedOption }}</div>
 ```
 
-#### 그외 디렉티브 ✅
+#### 3. 그외 디렉티브 ✅
 
 ```html
 <div v-text="text"></div>
@@ -41,7 +41,7 @@
 <button v-on:click="increase">+</button>
 ```
 
-#### 디렉티브 축약 표현 ✅
+#### 4. 디렉티브 축약 표현 ✅
 
 ```html
 <input v-bind:value="title" v-bind:style="textStyle" v-on:input="handleInput" />
@@ -51,21 +51,21 @@
 
 ## 인라인 포맷 바인딩 지원
 
-#### 클래스 바인딩 ✅
+#### 5. 클래스 바인딩 ✅
 
 ```html
 <div :class="{ active: isActive, 'text-danger': hasError }"></div>
 <div :class="classData"></div>
 ```
 
-#### 스타일 바인딩 ✅
+#### 6. 스타일 바인딩 ✅
 
 ```html
 <div :style="{ 'font-size': fontSize + 'px', backgroundColor: '#FF0000' }"></div>
 <div :style="textStyle"></div>
 ```
 
-#### 객체 바인딩 ✅
+#### 7. 객체 바인딩 ✅
 
 ```html
 <div v-bind="{ id: 'testId', class: 'tesdtClass', customKey: 'customValue' }"></div>
@@ -74,14 +74,14 @@
 
 ## 템플릿 문법
 
-#### 여러개의 템플릿 사용 가능하며 일반 텍스트랑 같이 사용가능 ✅
+#### 8. 여러개의 템플릿 사용 가능하며 일반 텍스트랑 같이 사용가능 ✅
 
 ```html
 <div>first: {{ firstName }}, last: {{ lastName }}</div>
 <div>{{ checked ? "체크o" : "체크x" }} {{ 5 + 6 }}</div>
 ```
 
-#### computed 및 methods 사용가능 ✅
+#### 9. computed 및 methods 사용가능 ✅
 
 ```html
 <div>{{ isChecked }}</div>
@@ -90,7 +90,7 @@
 
 ## 표현식 지원
 
-#### 디렉티브 ✅
+#### 10. 디렉티브 ✅
 
 ```html
 <div v-show="visible && hasPermission">Visible</div>
@@ -99,7 +99,7 @@
 <button @click="visible = !visible">click</button>
 ```
 
-#### 템플릿 내부 ✅
+#### 11. 템플릿 내부 ✅
 
 ```html
 <!-- 산술 연산 -->
@@ -112,7 +112,7 @@
 <p>{{ items[0] }}</p>
 ```
 
-## computed getter, setter 지원 ✅
+## 12. computed getter, setter 지원 ✅
 
 ```js
 computed: {
@@ -127,7 +127,10 @@ computed: {
 }
 ```
 
-## 1. v-if ✅
+
+## 조건부 렌더링 
+
+#### 13. v-if ✅
 
 ```html
 <div v-if="inputValue === '30'">{{ "Correct 😄" }}</div>
@@ -135,7 +138,7 @@ computed: {
 <input type="text" v-model="inputValue" />
 ```
 
-## 2. v-show ✅
+#### 14. v-show ✅
 
 ```html
 <input type="checkbox" v-model="visible" />
@@ -143,9 +146,9 @@ computed: {
 <div v-show="visible">{{ "👻" }}</div>
 ```
 
-## 3. v-for
+## 리스트 렌더링 
 
-#### v-for (object) ✅
+#### 15. v-for (object) ✅
 
 ```html
 <div v-for="(value, key, index) in myObject" :key="index">
@@ -153,7 +156,7 @@ computed: {
 </div>
 ```
 
-#### v-for (array) ✅
+#### 16. v-for (array) ✅
 
 ```html
 <div v-for="(item, index) in items" :key="item.id">
@@ -161,7 +164,7 @@ computed: {
 </div>
 ```
 
-#### v-for (number) ✅
+#### 17. v-for (number) ✅
 
 ```html
 <div v-for="(value, index) in 10">
@@ -169,7 +172,7 @@ computed: {
 </div>
 ```
 
-#### v-for (그외 케이스) ✅
+#### 18. v-for (그외 케이스) ✅
 
 ```html
 <!-- 별칭 사용안하는 케이스 -->
@@ -178,9 +181,9 @@ computed: {
 <div v-for="item of items">{{ item.message }}</div>
 ```
 
-## 3. 중첩 사용
+## 중첩 사용
 
-#### v-if > v-if ✅
+#### 19. v-if > v-if ✅
 
 ```html
 <div v-if="visible">
@@ -189,7 +192,7 @@ computed: {
 </div>
 ```
 
-#### v-if > v-for ✅
+#### 20. v-if > v-for ✅
 
 ```html
 <input type="checkbox" v-model="visible" />
@@ -201,7 +204,7 @@ computed: {
 </div>
 ```
 
-#### v-for > v-for ✅
+#### 21. v-for > v-for ✅
 
 ```html
 <li v-for="(item, index) in items">
@@ -209,7 +212,7 @@ computed: {
 </li>
 ```
 
-#### v-for > v-if ✅
+#### 22. v-for > v-if ✅
 
 ```html
 <div v-for="(item, index) in items" :key="item.id">
@@ -217,7 +220,7 @@ computed: {
 </div>
 ```
 
-## styles 및 scopedStyles 옵션 지원 ✅
+#### 23. styles 및 scopedStyles 옵션 지원 ✅
 
 ```js
 styles: {
@@ -229,21 +232,22 @@ styles: {
 },
 ```
 
-## 데이터 변화에 대응하기 ❌
+#### 24. 데이터 변화에 대응하기 ✅
 
 ```js
-
+this.items.push({item: 10, message: "item 10"});
+this.myObject["newKey"] = "newValue";
 ```
 
-## Lifecycle Hooks 지원 ✅
+#### 25. Lifecycle Hooks 지원 ✅
 
 ```ts
-type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "updated";
+type HookNames = "beforeCreate" | "created" | "beforeMount" | "mounted" | "beforeUpdate" | "updated";
 ```
 
 ## 컴포넌트 단위 개발
 
-#### 로컬 컴포넌트 ✅
+#### 26. 로컬 컴포넌트 ✅
 
 ```html
 <div id="app">
@@ -271,7 +275,7 @@ type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "upda
 </script>
 ```
 
-#### 전역 컴포넌트 ✅
+#### 27. 전역 컴포넌트 ✅
 
 ```html
 <div id="app">
@@ -298,7 +302,7 @@ type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "upda
 </script>
 ```
 
-#### props 사용 ✅
+#### 28. props 사용 ✅
 
 ```html
 <div id="app">
@@ -333,7 +337,7 @@ type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "upda
 </script>
 ```
 
-#### 독립적인 인스턴스 여부 확인 ✅
+#### 29. 독립적인 인스턴스 여부 확인 ✅
 
 ```html
 <div id="app">

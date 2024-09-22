@@ -1,7 +1,13 @@
 import { typeOf } from "@/utils/format";
 import { Options } from "./option";
 
-export type HookNames = "beforeCreate" | "created" | "mounted" | "beforeUpdate" | "updated";
+export type HookNames =
+  | "beforeCreate"
+  | "created"
+  | "beforeMount"
+  | "mounted"
+  | "beforeUpdate"
+  | "updated";
 
 export class Lifecycle<Data> {
   deferredTasks: Function[] = [];

@@ -43,14 +43,10 @@ export const isTextNode = (node: Node) => {
   return node.nodeType === 3;
 };
 
-/* 
-현재 노드가 template 바인딩을 하려고할떄 
-만약 부모 요소에 v-text 속성이 존재한다면 이미 바인딩한 v-text가 우선시 되기위함 
-*/
-export const hasTextDirective = (node: HTMLElement) => {
+export const hasDirectiveBy = (name: string, node: HTMLElement) => {
   const attrs = node?.attributes;
   if (!attrs) return;
-  return Array.from(attrs).some((v) => v.name === "v-text");
+  return Array.from(attrs).some((v) => v.name === name);
 };
 
 // Regular expressions to match "x in y" and "x of y" formats

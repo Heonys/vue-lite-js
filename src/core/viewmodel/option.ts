@@ -73,3 +73,7 @@ export interface ComponentPublicInstance<Data> {
   $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
   $forceUpdate(): void;
 }
+
+// setup 추가 하도록 수정
+
+export type CompositionAPIOptions = Omit<Options, "el" | "template">;

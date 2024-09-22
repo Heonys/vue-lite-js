@@ -1,6 +1,6 @@
 import Vuelite from "@/core/viewmodel/vuelite";
 import { directiveNames, type DirectiveKey } from "../types/directive";
-import { hasTemplate, hasTextDirective, isComponent, isElementNode, isTextNode } from "./format";
+import { hasTemplate, hasDirectiveBy, isComponent, isElementNode, isTextNode } from "./format";
 import { ObserverType } from "@/core/binder/observable";
 
 export function extractDirective(attr: string) {
@@ -51,7 +51,7 @@ export function checkObserverType(vm: Vuelite, node: Node): ObserverType {
   } else if (
     isTextNode(node) &&
     hasTemplate(node.textContent) &&
-    !hasTextDirective(node.parentElement)
+    !hasDirectiveBy("v-text", node.parentElement)
   ) {
     const textContent = node.textContent || "";
     if (extractTemplate(textContent).length > 0) return "Template";

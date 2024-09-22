@@ -35,33 +35,28 @@ export default class Vuelite<Data = {}>
     super();
     this.$options = options;
     this.setHooks(this.$options);
-    this.setupDOM(options);
     this.localComponents(options);
     this.callHook("beforeCreate");
 
     injectReactive(this);
-    createStyleSheet(this);
     createWatcher(this);
     this.callHook("created");
 
+    if (!this.setupDOM(options)) return this;
+    this.mount();
+  }
+
+  mount(selector?: string) {
+    this.callHook("beforeMount");
+    if (selector) {
+      this.$el = document.querySelector(selector) as HTMLElement;
+    }
+    createStyleSheet(this);
     const scanner = new VueScanner(new NodeVisitor());
     scanner.scan(this);
     this.callHook("mounted");
 
     requestAnimationFrame(() => this.render());
-  }
-
-  private setupDOM(options: Options<Data>) {
-    if (options.template) {
-      this.$el = createDOMTemplate(options.template);
-    } else {
-      const el = document.querySelector(options.el) as HTMLElement;
-      if (isTemplateElement(el)) {
-        this.$el = el.content.cloneNode(true) as DocumentFragment;
-      } else {
-        this.$el = el;
-      }
-    }
   }
 
   render() {
@@ -83,6 +78,21 @@ export default class Vuelite<Data = {}>
 
   $forceUpdate() {
     Store.forceUpdate();
+  }
+
+  private setupDOM(options: Options<Data>) {
+    if (options.template) {
+      return (this.$el = createDOMTemplate(options.template));
+    } else if (options.el) {
+      const el = document.querySelector(options.el) as HTMLElement;
+      if (isTemplateElement(el)) {
+        return (this.$el = el.content.cloneNode(true) as DocumentFragment);
+      } else {
+        return (this.$el = el);
+      }
+    } else {
+      return null;
+    }
   }
 
   private localComponents(options: Options<Data>) {

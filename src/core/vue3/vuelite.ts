@@ -1,21 +1,29 @@
-import { Options } from "../viewmodel/option";
+import { CompositionAPIOptions, Options } from "../viewmodel/option";
 import Vuelite from "../viewmodel/vuelite";
 
-/* 
-일단 옵션이 달라져야하고
-그에따라서 vuelite 인스턴스도 준비단계를 거쳐야함
-*/
-export function createApp<Data = {}>(options: Options<Data>) {
+export function createApp(options: CompositionAPIOptions) {
   const app = new Vuelite(options);
-
   return {
     ...app,
-    use() {},
-    directive() {},
-    mixin() {},
-    component() {},
-    mount(el: string) {
-      // 이 시점에 템플릿을 컴파일
+    component(name: string, options: Options) {
+      Vuelite.component(name, options);
+    },
+    mount(selector: string) {
+      app.mount(selector);
     },
   };
 }
+
+// 반응형 API
+export function ref() {}
+export function reactive() {}
+export function computed() {}
+export function watch() {}
+export function watchEffect() {}
+export function defineProps() {}
+
+// 생명주기 API
+export function onBeforeMount() {}
+export function onMounted() {}
+export function onBeforeUpdate() {}
+export function onUpdated() {}

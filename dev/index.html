@@ -7,12 +7,24 @@
   </head>
   <body>
     <div id="app">
-        <div class="title">Parent Component</div>
+
+
+
+    <div v-once>절대 바뀌지 않음: {{ message }}</div>
+    <div>바뀜: {{ message }}</div>
+
+      <!-- <div v-for="(item, index) in items" :key="item.id">
+        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
+      </div> -->
+
+      <!-- <span v-once>절대 바뀌지 않음: {{ message }}</span> -->
+
+        <!-- <div class="title">Parent Component</div>
         <input type="text" v-model="message">
         <input type="checkbox" v-model="visible">
         <span>{{ visible ? "🔓" : "🔒" }}</span>
         <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
-        <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
+        <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer> -->
     </div>
 
     <template id="propsviewer">
