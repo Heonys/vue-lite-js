@@ -15,6 +15,7 @@ function createApp(options: CompositionAPIOptions) {
     ...app,
     component(name: string, options: Options) {
       Vuelite.component(name, options);
+      return this;
     },
     mount(selector: string) {
       app.mount(selector);

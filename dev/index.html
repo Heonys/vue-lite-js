@@ -7,28 +7,16 @@
   </head>
   <body>
     <div id="app">
-
-      <input type="text" v-model="message">
-      <div>{{ message }}</div>
-      <div>{{ count }}</div>
-      <div>{{ plusOne }}</div>
-      <button @click="increase">++</button>
-
-      <!-- <div v-for="value in user">
-        {{value }}
-      </div> -->
-
-      <!-- <div v-for="(item, index) in items" :key="item.id">
-        <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
-      </div> -->
-
-
-        <!-- <div class="title">Parent Component</div>
+        <div class="title">Parent Component</div>
         <input type="text" v-model="message">
         <input type="checkbox" v-model="visible">
         <span>{{ visible ? "🔓" : "🔒" }}</span>
+        <div>{{ message }}</div>
+        <span>{{ uppercaseMessage }}</span>
+
         <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
-        <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer> -->
+        <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
+        <!-- <global-component :globaltitle="message" ></global-component> -->
     </div>
 
     <template id="propsviewer">

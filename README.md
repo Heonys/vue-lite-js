@@ -49,7 +49,7 @@
   + [methods 옵션 동작방식 변경](#7-methods-옵션-동작방식-변경-171)
   + [Ref 추가, 인스턴스 속성 추가](#8-ref-추가-인스턴스-속성-추가-172)
   + [컴포넌트 단위 개발 및 props 지원](#9-컴포넌트-단위-개발-및-props-지원-200)
-  + [..]()
+  + [부분적인 Composition API 스타일 지원](#10-부분적인-composition-api-스타일-지원-213)
 + **[렌더링 전략 및 문제점](#️-렌더링-전략-및-문제점-160)**
 + **[Reference](#-reference)**
 
@@ -77,6 +77,7 @@
 - ***watch 추가*** `<1.7.0>`
 - ***Ref 및 인스턴스 속성 추가*** `<1.7.2>`
 - ***컴포넌트 단위 개발 및 props 추가*** `<2.0.0>`
+- ***부분적인 Composition API 스타일 지원*** `<2.1.3>`
 
 ## 🎉 Getting Started
 
@@ -871,6 +872,115 @@ Vuelite.component("global-component", optoins);
 - 컴포넌트 중첩 사용, 동일 컴포넌트의 다중 인스턴스 사용 시 독립적으로 동작 여부, 로컬 컴포넌트 내부에서 전역 컴포넌트를 사용하는 경우와 `v-if`, `v-for` 내부에서의 컴포넌트 사용 등 다양한 케이스에서 테스트를 진행했으나, 더 복잡한 상황에서는 고려하지 못한 부분이 있을 수 있습니다.
 
 
+
+### 10. 부분적인 Composition API 스타일 지원 `<2.1.3>`
+
+`Vue.js`의 `Composition API` 문법들을 부분적으로 제공합니다. 두가지 `API` 스타일은 모두 동일한 시스템에 의해 동작하는 다른 인터페이스입니다. `Composition API`는 함수 범위에서 직접 반응형 데이터를 선언하는 방식으로 리액트의 함수형 컴포넌트에서 훅을 사용하는 것 과 사용성이 많이 유사하며, `Option API` 보다 확실히 자유로운 형식으로 유연한 로직을 구성할 수 있습니다.
+
+> **Note** [Composition API 가이드](https://vuejs.org/api/composition-api-setup.html)
+ 
+```js
+import { createApp, ref, reactive, computed, watch } from "vue-lite-js";
+
+createApp({
+  setup(props) {
+    const message = ref("");
+    const visible = ref(true);
+    const items = reactive([
+      { id: 1, message: "Item 1" },
+      { id: 2, message: "Item 2" },
+    ]);
+    const uppercaseMessage = computed(() => {
+      return message.value.toUpperCase();
+    });
+    const addItem = () => {
+      items.push({ id: 10, message: "item 10" });
+    };
+    const handlecheck = () => {
+      visible.value = !visible.value;
+    };
+    watch(message, (newVal, oldVal) => {
+      console.log(newVal, oldVal);
+    });
+    return { message, visible, items, handlecheck, addItem, uppercaseMessage };
+  },
+}).mount("#app");
+```
+
+#### Option API와의 호환성
+실제 `Vue.js`에서는 두가지 `API` 스타일이 서로 완전히 호환되어 상황에 따라서 적절하게 섞어서 사용할 수 있도록 만들어졌습니다. 이러한 구조를 유사하게 구현하기 위해서 기존의 `Vuelite` 인스턴스가 생성되는 단계를 조금 수정하여 `mount`단계를 메소드로 나누었고 `created` 단계까지 초기화를 하고 멈춘 후 이후에 `el`, `templaet` 속성 여부에 따라서  `mount` 메소드가 즉시 동작하는 `Option API`방식, `mount`를 따로 호출해야하는 `Composition API` 방식으로 분리했습니다.
+
+
+```ts
+class Vuelite {
+  constructor(options: Options) {
+    // -> 옵션을 파싱하고 로컬 컴포넌트 생성 
+    this.callHook("beforeCreate");
+    // -> 데이터에 반응성을 주입하고 watch 생성 
+    this.callHook("created");
+    if (!this.setupDOM(options)) return this; // createApp으로 생성했다면 대기 
+    this.mount(); 
+  }
+  mount(selector?: string){  // -> 여기서 부터 setup 함수의 진입점
+    this.callHook("beforeMount");
+    // ... 
+  }
+}
+function createApp(options: CompositionAPIOptions) {
+  const app = new Vuelite(options);
+  const reactive = options.setup.call(app, app.$props);
+  return {
+    ...app,
+    mount(selector: string) {
+      app.mount(selector);
+    },
+  };
+}
+```
+
+#### ref와 reactive의 차이 및 구현원리 
+
+반응형 데이터를 선언하기 위한 방법은 2가지가 있습니다. 
+- **ref:** 인자를 받아서 `.value` 속성이 있는 `ref` 객체로 래핑하여 반환
+- **reactive:** 객체로 감싸는 `ref`와달리 객체자체를 `Proxy`객체로 반환
+
+```ts
+interface Ref<T> { value: T }
+function ref<T>(value: T): Ref<T>
+function reactive<T extends object>(target: T): T
+```
+
+일반적으로 단일 값을 갖는 원시 타입의 경우 `ref`를 사용하고, 배열이나 객체같은 참조타입의 경우 `reactive`를 사용하여 각각 반응형 데이터를 선언합니다.
+
+`ref`를 사용하면 원시타입이 `value`라는 속성으로 접근할 수 있는 객체로 변환되는데 자바스크립트는 단일 값의 접근이나 변경에 감지할 수 있는 방법이 없기 때문에 이걸 객체로 한번 감싸서 `getter`, `setter`를 통해 객체에 대한 접근과 수정에 대해 연산을 가로채고 이로인해 값을 추적하고 데이터의 변화에 대해 렌더링을 트리거할 수 있게 됩니다. 즉, 단일 값을 객체로 래핑하면 접근할때 `.value`로 접근해야만 하기때문에 `.value` 속성은 데이터가 변경되었을 때를 감지할 기회를 주고 내부적으로 데이터를 추적하고 업데이트를 수행할 수 있습니다. 
+
+`getter`, `setter`를 추가하기 위해 `ref`는 `Object.defineProperties`을 사용하였고 `reactive`는 `Proxy`객체의 `get`트랩, `set`트랩을 사용하였습니다. 추가적으로 이렇게 만들어진 객체를 일반객체와 구분할 수 있게 각각 `__v_isRef`, `__v_isReactive` 속성을 추가해서 식별 할 수 있게 했습니다. (이 부분은 실제 `vue.js`에서 사용중인 `flag` 참조했습니다)
+
+```ts
+// https://github.com/vuejs/core/blob/main/packages/reactivity/src/constants.ts
+export enum ReactiveFlags {
+  SKIP = '__v_skip',
+  IS_REACTIVE = '__v_isReactive',
+  IS_READONLY = '__v_isReadonly',
+  IS_SHALLOW = '__v_isShallow',
+  RAW = '__v_raw',
+  IS_REF = '__v_isRef',
+}
+```
+
+#### 지원하는 API
+
+현재 제공된 모든 `Option API`의 기능들을 `Composition API`에서 전부 지원되지 않습니다. 
+
+| 반응형 API    | 유틸함수      | 생명주기 훅         |
+|---------------|---------------|---------------------|
+| `ref()`       | `isRef()`     | `onBeforeMount()`   |
+| `reactive()`  | `isProxy()`   | `onMounted()`       |
+| `computed()`  |               | `onBeforeUpdate()`  |
+| `watch()`     |               | `onUpdated()`       |
+
+
+
 ---
 
 ## ⚠️ 렌더링 전략 및 문제점 `<1.6.0>`
@@ -895,7 +1005,54 @@ Vuelite.component("global-component", optoins);
 하지만 현재 `Vuelite`에선 `requestAnimationFrame`을 사용하여 프레임 단위로 `update`함수를 일괄 처리하고 있지만 변경사항을 `DOM`에 직접 접근해서 수정하기 때문에 효율적이지 못합니다.  
 
 
-#### 4) 한글 입력 버그🐛 
+#### 4) 모호한 컴포넌트의 개념과 분리의 한계 
+
+컴포넌트를 여러개로 분리할 수 있게하여 각각의 인스턴스를 독립적으로 관리하고 이를 통해 컴포넌트 단위의 개발을 지원하는 것을 목표로 기능을 추가하였다.
+
+로컬 컴포넌트와 전역 컴포넌트를 지원함으로써 컴포넌트 분리하여 관리할 수 있다는것에 어느정도 도달하긴 했다고 생각하지만,
+이 구조는 기본적으로 컴포넌트가 아닌 옵션 객체를 통해 동작한다
+
+결국, 컴포넌트라는 개념이 명확하게 존재하지 않고, 단순한 객체인 옵션이 그런 역할을 대신하는 구조가 되어버렸다.
+
+
+```JS
+const vm = new Vuelite({
+  el: "#app",
+  components: {
+    "vue-propsviewer": Options, 
+    /* 
+      여기서 전달되는게 컴포넌트가 아닌 단순히 옵션 객체이다
+      이 객체는 Vuelite에서 초기화될때 인스턴스가 생성되며 vue-propsviewer라는 이름과 매핑된다 
+    */
+  },
+})
+```
+
+
+따라서 `defineComponent`과 같은 메소드처럼 컴포넌트 자체의 의미를 갖고 재사용하는 개념이 아니라 현재는 그냥 옵션객체가 그런 유사한 개념을 하고 결국은 내부적으로 모든처리를 메인 인스턴스에서 아루어지는 구조를 갖고있다.
+
+하지만 그렇다고 분리라는 개념이 없는건 아니다
+실제로 `<template>`태그로 마크업을 나누고 잇을뿐더러, 여러개의 인스턴스가 생성되고 template과 매핑되는건 맞다 
+
+
+
+즉, 싱글파일 컴포넌트(SFC) 포맷을 지원하지 않는 지금의 환경에서 
+템플릿 태그를 사용한 마크업의 분리는 충분히 합리적이라고 생각하고 그에 따른 옵션을 분리하여 독립적인 상태를 관리하는 것에는 도달했지만 
+그게 컴포넌트 라는 개념에서의 분리가 아닌  마크업과 옵션 객체를 분리했고 결국 메인 컴포넌트에서 전부 처리하는 구조가 되었다
+
+
+이러한 문제는 이전에는 크게 불편함없이 사용하다가 composition api를 도입해서 createApp을 통해 인스턴스를 생성했을때 들어났는데
+
+
+
+메인 인스턴스를 생성해서 setup을 통해 여러가지 기능을 사용하는 것 까진 좋았지만 
+다른 하위 컴포넌트를 추가하려면 반드시 `Option API`방식으로 생성해야함
+
+
+
+
+
+#### 5) 한글 입력 버그🐛 
 <!-- [Issue 링크 추가히기]() -->
 `<input>` 또는 `<textarea>` 같은 `input` 이벤트를 발생시키는 요소에 `v-model` 디렉티브를 사용할 경우, 영어나 숫자, 특수문자에서는 문제가 없지만 한글 입력 시 양방향 바인딩이 정상적으로 동작하지 않는 버그가 있습니다. `change` 이벤트를 사용하는 `radio`, `checkbox`, `select` 등에서의 `v-model` 디렉티브는 잘 동작하는 반면, `input` 이벤트를 사용하는 경우 한글 입력 시 입력이 비정상적으로 중복되어 나타나는 현상이 발생합니다. 아마도 `IME` 입력 방식과 관련이 있는 것으로 추정되는데 해결되지 못했습니다.
 

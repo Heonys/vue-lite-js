@@ -10,18 +10,8 @@ export interface Ref<T = any> {
   __v_exp: string;
 }
 
-export type UnwrapRef<T> = T extends Ref<infer U> ? U : T;
-
-export type UnwrapNestedRefs<T extends object = {}> = {
-  [K in keyof T]: T[K] extends Ref<infer U>
-    ? U
-    : T[K] extends object
-      ? UnwrapNestedRefs<T[K]>
-      : T[K];
-};
-
 export type SetupResult = {
-  [key: string]: Ref | UnwrapNestedRefs | Function;
+  [key: string]: Ref | Function;
 };
 
 type ComputedFn<T> = (oldValue: T | undefined) => T;

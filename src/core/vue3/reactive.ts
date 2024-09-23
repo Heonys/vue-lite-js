@@ -1,12 +1,6 @@
 import { isPlainObject } from "@/utils/format";
 import { Dep } from "../reactive/dep";
-import type {
-  ComputedInput,
-  Ref,
-  SetupResult,
-  UnwrapNestedRefs,
-  UnwrapRef,
-} from "@/types/compositionApi";
+import type { ComputedInput, Ref, SetupResult } from "@/types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 import { isFunction } from "@/utils/format";
 import { isProxy, isRef } from "./util";
@@ -14,9 +8,9 @@ import { isProxy, isRef } from "./util";
 const deps = new WeakMap<object, Map<string | symbol, Dep>>();
 const computedMap = new WeakMap<Ref, ComputedInput>();
 
-export function ref<T>(value: T): Ref<UnwrapRef<T>> {
+export function ref<T>(value: T): Ref<T> {
   if (isPlainObject(value)) {
-    value = reactive(value) as T;
+    value = reactive(value);
   }
   const trackedRef = Object.defineProperties({} as Ref, {
     value: {
@@ -41,7 +35,7 @@ export function ref<T>(value: T): Ref<UnwrapRef<T>> {
   return trackedRef;
 }
 
-export function reactive<T extends object>(target: T) {
+export function reactive<T extends object>(target: T): T {
   const handler = {
     get(target: T, key: string, receiver: T) {
       const result = Reflect.get(target, key, receiver);
@@ -54,8 +48,8 @@ export function reactive<T extends object>(target: T) {
       return result;
     },
   };
-  const proxy = new Proxy(target, handler) as UnwrapNestedRefs<T>;
-  return Object.defineProperty(proxy, "__v_isProxy", {
+  const proxy = new Proxy(target, handler);
+  return Object.defineProperty(proxy, "__v_isReactive", {
     configurable: false,
     enumerable: false,
     value: true,
