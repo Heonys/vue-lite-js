@@ -1,12 +1,16 @@
 import Vuelite from "../viewmodel/vuelite";
 import type { CompositionAPIOptions, SetupResult } from "@/types/compositionApi";
 import { Options } from "../viewmodel/option";
-import { injectRef, ref, reactive } from "./reactive";
+import { injectReactivity, ref, reactive, computed } from "./reactive";
+import { createWacher, watch } from "./watch";
+import { bindHooks } from "./lifecycle";
 
 function createApp(options: CompositionAPIOptions) {
   const app = new Vuelite(options);
   const reactive = options.setup.call(app, app.$props) as SetupResult;
-  injectRef(app, reactive);
+  injectReactivity(app, reactive);
+  createWacher(app);
+  bindHooks(app);
   return {
     ...app,
     component(name: string, options: Options) {
@@ -18,5 +22,6 @@ function createApp(options: CompositionAPIOptions) {
   };
 }
 
-export { createApp, ref, reactive };
 export * from "./util";
+export * from "./lifecycle";
+export { createApp, ref, reactive, computed, watch };

@@ -11,14 +11,14 @@ export type HookNames =
 
 export class Lifecycle<Data> {
   deferredTasks: Function[] = [];
-  private hooks: { [K in HookNames]?: () => void };
+  $hooks: { [K in HookNames]?: () => void };
 
   setHooks(options: Options<Data>) {
-    this.hooks = options;
+    this.$hooks = options;
   }
 
   callHook(name: HookNames) {
-    const method = this.hooks[name];
+    const method = this.$hooks[name];
     if (typeOf(method) === "function") {
       name === "beforeCreate" ? method.call(null) : method.call(this);
     }

@@ -1,20 +1,41 @@
-import Vuelite, { createApp, ref, reactive } from "../src/index";
+import Vuelite, {
+  createApp,
+  ref,
+  reactive,
+  computed,
+  watch,
+  onBeforeUpdate,
+  onUpdated,
+} from "../src/index";
 
 const app = createApp({
   setup(props) {
     const message = ref("vue3");
     const count = ref(0);
-    const user = ref({
+    const user = reactive({
       name: "jiheon",
       email: "asdd@naver.com",
       age: 123,
     });
+    const plusOne = computed(() => count.value + 1);
 
     const increase = () => {
       count.value++;
     };
 
-    return { message, count, increase, user };
+    watch(count, (newValue, oldValue) => {
+      // console.log(`Count changed from ${oldValue} to ${newValue}`);
+    });
+
+    onBeforeUpdate(() => {
+      // console.log("before update");
+    });
+
+    onUpdated(() => {
+      // console.log("updated");
+    });
+
+    return { message, count, increase, user, plusOne };
   },
 }).mount("#app");
 

@@ -11,17 +11,17 @@
       <input type="text" v-model="message">
       <div>{{ message }}</div>
       <div>{{ count }}</div>
+      <div>{{ plusOne }}</div>
       <button @click="increase">++</button>
 
-      <div v-for="value in user">
+      <!-- <div v-for="value in user">
         {{value }}
-      </div>
+      </div> -->
 
       <!-- <div v-for="(item, index) in items" :key="item.id">
         <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>
       </div> -->
 
-      <!-- <span v-once>절대 바뀌지 않음: {{ message }}</span> -->
 
         <!-- <div class="title">Parent Component</div>
         <input type="text" v-model="message">

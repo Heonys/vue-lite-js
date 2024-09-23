@@ -1,11 +1,18 @@
 import { isPlainObject } from "@/utils/format";
 import { Dep } from "../reactive/dep";
-import type { Ref, SetupResult, UnwrapNestedRefs, UnwrapRef } from "@/types/compositionApi";
+import type {
+  ComputedInput,
+  Ref,
+  SetupResult,
+  UnwrapNestedRefs,
+  UnwrapRef,
+} from "@/types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 import { isFunction } from "@/utils/format";
-import { isReactive, isRef } from "./util";
+import { isProxy, isRef } from "./util";
 
 const deps = new WeakMap<object, Map<string | symbol, Dep>>();
+const computedMap = new WeakMap<Ref, ComputedInput>();
 
 export function ref<T>(value: T): Ref<UnwrapRef<T>> {
   if (isPlainObject(value)) {
@@ -13,7 +20,6 @@ export function ref<T>(value: T): Ref<UnwrapRef<T>> {
   }
   const trackedRef = Object.defineProperties({} as Ref, {
     value: {
-      configurable: false,
       enumerable: true,
       get: () => {
         track(trackedRef, "value");
@@ -25,9 +31,11 @@ export function ref<T>(value: T): Ref<UnwrapRef<T>> {
       },
     },
     __v_isRef: {
-      configurable: false,
-      enumerable: false,
       value: true,
+    },
+    __v_exp: {
+      writable: true,
+      value: "",
     },
   });
   return trackedRef;
@@ -47,8 +55,7 @@ export function reactive<T extends object>(target: T) {
     },
   };
   const proxy = new Proxy(target, handler) as UnwrapNestedRefs<T>;
-
-  return Object.defineProperty(proxy, "__v_isReactive", {
+  return Object.defineProperty(proxy, "__v_isProxy", {
     configurable: false,
     enumerable: false,
     value: true,
@@ -70,14 +77,28 @@ function trigger(target: object, key: string) {
   dep && dep.notify();
 }
 
-export function injectRef(vm: Vuelite, refs: SetupResult) {
+export function injectReactivity(vm: Vuelite, refs: SetupResult) {
   Object.entries(refs).forEach(([key, result]) => {
     if (isFunction(result)) {
       Object.defineProperty(vm, key, {
         configurable: false,
         value: (...args: any[]) => result.apply(vm, args),
       });
+    } else if (isRef(result) && computedMap.has(result)) {
+      result.__v_exp = key;
+      const computed = computedMap.get(result);
+      const descripter: PropertyDescriptor = {};
+      if (isFunction(computed)) {
+        descripter.get = () => computed.call(vm);
+      } else {
+        descripter.get = computed.get.bind(vm);
+        descripter.set = (...params) => {
+          computed.set.apply(vm, params);
+        };
+      }
+      Object.defineProperty(vm, key, descripter);
     } else if (isRef(result)) {
+      result.__v_exp = key;
       Object.defineProperty(vm, key, {
         configurable: false,
         get: () => result.value,
@@ -85,7 +106,7 @@ export function injectRef(vm: Vuelite, refs: SetupResult) {
           result.value = value;
         },
       });
-    } else if (isReactive(result)) {
+    } else if (isProxy(result)) {
       Object.defineProperty(vm, key, {
         configurable: false,
         get: () => result,
@@ -94,7 +115,15 @@ export function injectRef(vm: Vuelite, refs: SetupResult) {
   });
 }
 
-export function computed() {}
-export function watch() {}
-export function watchEffect() {}
-export function defineProps() {}
+export function computed<T>(input: ComputedInput<T>) {
+  if (isFunction(input)) {
+    const initRef = ref(input(undefined));
+    computedMap.set(initRef, input);
+    return initRef;
+  } else {
+    const { get } = input;
+    const initRef = ref(get(undefined));
+    computedMap.set(initRef, input);
+    return initRef;
+  }
+}

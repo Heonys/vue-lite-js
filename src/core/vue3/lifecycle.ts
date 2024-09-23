@@ -1,5 +1,24 @@
-// 생명주기 API, create 관련 훅이 없는 이유는 setup함수가 그역할을 하기떄문
-export function onBeforeMount() {}
-export function onMounted() {}
-export function onBeforeUpdate() {}
-export function onUpdated() {}
+import type { CompositionHookNames, StopHandle } from "@/types/compositionApi";
+import Vuelite from "../viewmodel/vuelite";
+
+const hooks: { [K in CompositionHookNames]?: StopHandle } = {};
+
+export function onBeforeMount(callback: StopHandle) {
+  hooks.beforeMount = callback;
+}
+export function onMounted(callback: StopHandle) {
+  hooks.mounted = callback;
+}
+export function onBeforeUpdate(callback: StopHandle) {
+  hooks.beforeUpdate = callback;
+}
+export function onUpdated(callback: StopHandle) {
+  hooks.updated = callback;
+}
+
+export function bindHooks(vm: Vuelite) {
+  for (const key in hooks) {
+    const hookKey = key as CompositionHookNames;
+    vm.$hooks[hookKey] = hooks[hookKey];
+  }
+}
