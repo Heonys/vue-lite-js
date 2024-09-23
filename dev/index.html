@@ -10,6 +10,12 @@
 
       <input type="text" v-model="message">
       <div>{{ message }}</div>
+      <div>{{ count }}</div>
+      <button @click="increase">++</button>
+
+      <div v-for="value in user">
+        {{value }}
+      </div>
 
       <!-- <div v-for="(item, index) in items" :key="item.id">
         <div>{{ `${index} 번째 메시지 ${item.message}` }}</div>

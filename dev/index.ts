@@ -1,10 +1,20 @@
-import Vuelite, { createApp, ref } from "../src/index";
+import Vuelite, { createApp, ref, reactive } from "../src/index";
 
 const app = createApp({
   setup(props) {
     const message = ref("vue3");
     const count = ref(0);
-    return { message, count };
+    const user = ref({
+      name: "jiheon",
+      email: "asdd@naver.com",
+      age: 123,
+    });
+
+    const increase = () => {
+      count.value++;
+    };
+
+    return { message, count, increase, user };
   },
 }).mount("#app");
 

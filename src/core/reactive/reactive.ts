@@ -21,7 +21,8 @@ export class Reactivity {
 
     const handler = {
       get(target: Target, key: string, receiver: Target) {
-        if (typeOf(key) === "symbol") return Reflect.get(target, key, receiver);
+        const result = Reflect.get(target, key, receiver);
+        if (typeOf(key) === "symbol") return result;
         if (!deps.has(key)) deps.set(key, new Dep());
         deps.get(key).depend();
 
@@ -30,7 +31,7 @@ export class Reactivity {
           if (!caches.has(key)) caches.set(key, me.define(child));
           return caches.get(key);
         }
-        return Reflect.get(target, key, receiver);
+        return result;
       },
       set(target: Target, key: string, value: any, receiver: Target) {
         const oldLength = target._length;
@@ -56,7 +57,6 @@ export class Reactivity {
         return result;
       },
     };
-
     return new Proxy(data, handler);
   }
 }
