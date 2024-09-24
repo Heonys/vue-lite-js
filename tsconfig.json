@@ -20,6 +20,6 @@
 			"@utils/*": ["src/utils/*"]
         }
 	},
-	"include": ["src/**/*", "src/**/*.d.ts" ],
+	"include": ["src/**/*", "src/**/*.d.ts", "dev/**/*" ],
 	"exclude": ["node_modules", "**/*.spec.ts", "example/**/*"]
 }

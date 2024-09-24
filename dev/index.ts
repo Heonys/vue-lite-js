@@ -18,7 +18,10 @@ import Vuelite, { createApp, ref, reactive, computed, watch } from "../src/index
 // };
 
 // createApp({
-//   setup(props) {
+//   components: {
+//     "vue-propsviewer": PropsViewer,
+//   },
+//   setup() {
 //     const message = ref("");
 //     const visible = ref(true);
 //     const items = reactive([
@@ -43,41 +46,43 @@ import Vuelite, { createApp, ref, reactive, computed, watch } from "../src/index
 //   },
 // }).mount("#app");
 
-// const globalComponent = {
-//   props: ["globaltitle"],
-//   el: "#global-component",
-//   data() {
-//     return {
-//       message: "global message",
-//       count: 5,
-//     };
-//   },
-//   methods: {
-//     increase() {
-//       this.count++;
-//     },
-//   },
-// };
+Vuelite.component("global-component", {
+  props: ["globaltitle"],
+  el: "#global-component",
+  data() {
+    return {
+      message: "global message",
+      count: 5,
+    };
+  },
+  methods: {
+    increase() {
+      this.count++;
+    },
+  },
+});
+
+const PropsViewer = {
+  props: ["propsdata", "handlecheck"],
+  el: "#propsviewer",
+  data() {
+    return {
+      message: "local message",
+    };
+  },
+  scopedStyles: {
+    section: {
+      border: "1px solid red",
+      margin: "1rem",
+      padding: "10px",
+    },
+  },
+};
 
 const vm = new Vuelite({
   el: "#app",
   components: {
-    "vue-propsviewer": {
-      props: ["propsdata", "handlecheck"],
-      el: "#propsviewer",
-      data() {
-        return {
-          message: "local message",
-        };
-      },
-      scopedStyles: {
-        section: {
-          border: "1px solid red",
-          margin: "1rem",
-          padding: "10px",
-        },
-      },
-    },
+    "vue-propsviewer": PropsViewer,
   },
   data() {
     return {

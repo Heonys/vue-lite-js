@@ -29,7 +29,6 @@ export default class Vuelite<Data = {}>
   componentsNames: Record<string, Options> = {};
   updateQueue: Function[] = [];
   static context?: Record<string, any>;
-  [customKey: string]: any;
 
   constructor(options: Options<Data>) {
     super();
@@ -59,7 +58,7 @@ export default class Vuelite<Data = {}>
     requestAnimationFrame(() => this.render());
   }
 
-  render() {
+  private render() {
     if (this.updateQueue.length > 0) {
       this.callHook("beforeUpdate");
       while (this.updateQueue.length > 0) {

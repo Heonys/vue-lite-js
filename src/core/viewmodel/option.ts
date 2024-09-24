@@ -1,11 +1,10 @@
 import { typeOf } from "@/utils/format";
 import { HookNames } from "./lifecycle";
 import Vuelite from "./vuelite";
-import { Ref, SetupResult } from "@/types/compositionApi";
 
 type Accessor<Data> = {
-  get?(this: Vuelite<Data>): any;
-  set?(this: Vuelite<Data>, value: any): void;
+  get?(this: Data): any;
+  set?(this: Data, value: any): void;
 };
 
 type ComputedType<Data> = {
@@ -41,7 +40,7 @@ export type Options<Data = {}> = {
   props?: string[];
   data?: () => Data;
   methods?: MethodsType & ThisType<Data & Fallback>;
-  computed?: ComputedType<Data> & ThisType<Data & Fallback>;
+  computed?: ComputedType<Data>;
   watch?: WatchType;
   styles?: { [K: string]: any };
   scopedStyles?: { [K: string]: any };

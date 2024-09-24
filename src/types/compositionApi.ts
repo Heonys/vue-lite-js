@@ -1,5 +1,13 @@
 import { HookNames } from "@/core/viewmodel/lifecycle";
 import type { Options } from "@/core/viewmodel/option";
+import Vuelite from "@/core/viewmodel/vuelite";
+
+type FilteredProps = "$watch" | "$forceUpdate" | "setHooks" | "callHook" | "clearTasks" | "$el";
+export type AppInstance = Omit<Vuelite, FilteredProps> & {
+  $fragment?: DocumentFragment;
+  component(name: string, options: Options): void;
+  mount(selector: string): void;
+};
 
 export type CompositionAPIOptions = Omit<Options, "el" | "template"> & {
   setup?: (props: any) => SetupResult | void;
@@ -11,7 +19,7 @@ export interface Ref<T = any> {
 }
 
 export type SetupResult = {
-  [key: string]: Ref | Function;
+  [key: string]: Ref | Function | object;
 };
 
 type ComputedFn<T> = (oldValue: T | undefined) => T;
