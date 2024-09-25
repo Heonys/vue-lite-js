@@ -1,8 +1,8 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vuelite = factory());
-})(this, (function () { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+    typeof define === 'function' && define.amd ? define(['exports'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Vuelite = {}));
+})(this, (function (exports) { 'use strict';
 
     function extractPath(obj, path) {
         path = path.trim();
@@ -74,6 +74,9 @@
     const isObject = (data) => {
         return typeOf(data) === "object" || typeOf(data) === "array";
     };
+    const isPlainObject = (data) => {
+        return typeOf(data) === "object";
+    };
     const isFunction = (data) => {
         return typeOf(data) === "function";
     };
@@ -87,11 +90,11 @@
     const isTextNode = (node) => {
         return node.nodeType === 3;
     };
-    const hasTextDirective = (node) => {
+    const hasDirectiveBy = (name, node) => {
         const attrs = node === null || node === void 0 ? void 0 : node.attributes;
         if (!attrs)
             return;
-        return Array.from(attrs).some((v) => v.name === "v-text");
+        return Array.from(attrs).some((v) => v.name === name);
     };
     function extractKeywords(str) {
         const regexIn = /^(.+?)\s+in\s+(.+)$/;
@@ -136,8 +139,7 @@
     }
 
     class Dep {
-        constructor(key) {
-            this.key = key;
+        constructor() {
             this.listener = new Set();
         }
         subscribe(observer) {
@@ -206,10 +208,11 @@
             Store.addStore(deps);
             const handler = {
                 get(target, key, receiver) {
+                    const result = Reflect.get(target, key, receiver);
                     if (typeOf(key) === "symbol")
-                        return Reflect.get(target, key, receiver);
+                        return result;
                     if (!deps.has(key))
-                        deps.set(key, new Dep(key));
+                        deps.set(key, new Dep());
                     deps.get(key).depend();
                     const child = target[key];
                     if (isObject(child)) {
@@ -217,7 +220,7 @@
                             caches.set(key, me.define(child));
                         return caches.get(key);
                     }
-                    return Reflect.get(target, key, receiver);
+                    return result;
                 },
                 set(target, key, value, receiver) {
                     const oldLength = target._length;
@@ -423,7 +426,7 @@
         }
         else if (isTextNode(node) &&
             hasTemplate(node.textContent) &&
-            !hasTextDirective(node.parentElement)) {
+            !hasDirectiveBy("v-text", node.parentElement)) {
             const textContent = node.textContent || "";
             if (extractTemplate(textContent).length > 0)
                 return "Template";
@@ -1065,10 +1068,10 @@
             this.deferredTasks = [];
         }
         setHooks(options) {
-            this.hooks = options;
+            this.$hooks = options;
         }
         callHook(name) {
-            const method = this.hooks[name];
+            const method = this.$hooks[name];
             if (typeOf(method) === "function") {
                 name === "beforeCreate" ? method.call(null) : method.call(this);
             }
@@ -1090,31 +1093,25 @@
             this.updateQueue = [];
             this.$options = options;
             this.setHooks(this.$options);
-            this.setupDOM(options);
             this.localComponents(options);
             this.callHook("beforeCreate");
             injectReactive(this);
-            createStyleSheet(this);
             createWatcher(this);
             this.callHook("created");
+            if (!this.setupDOM(options))
+                return this;
+            this.mount();
+        }
+        mount(selector) {
+            this.callHook("beforeMount");
+            if (selector) {
+                this.$el = document.querySelector(selector);
+            }
+            createStyleSheet(this);
             const scanner = new VueScanner(new NodeVisitor());
             scanner.scan(this);
             this.callHook("mounted");
             requestAnimationFrame(() => this.render());
-        }
-        setupDOM(options) {
-            if (options.template) {
-                this.$el = createDOMTemplate(options.template);
-            }
-            else {
-                const el = document.querySelector(options.el);
-                if (isTemplateElement(el)) {
-                    this.$el = el.content.cloneNode(true);
-                }
-                else {
-                    this.$el = el;
-                }
-            }
         }
         render() {
             if (this.updateQueue.length > 0) {
@@ -1134,6 +1131,23 @@
         }
         $forceUpdate() {
             Store.forceUpdate();
+        }
+        setupDOM(options) {
+            if (options.template) {
+                return (this.$el = createDOMTemplate(options.template));
+            }
+            else if (options.el) {
+                const el = document.querySelector(options.el);
+                if (isTemplateElement(el)) {
+                    return (this.$el = el.content.cloneNode(true));
+                }
+                else {
+                    return (this.$el = el);
+                }
+            }
+            else {
+                return null;
+            }
         }
         localComponents(options) {
             const { components } = options;
@@ -1157,6 +1171,182 @@
     Vuelite.globalComponents = new Map();
     var Vuelite$1 = Vuelite;
 
+    function isRef(value) {
+        return typeOf(value) === "object" && Object.hasOwn(value, "__v_isRef");
+    }
+    function isProxy(value) {
+        return isObject(value) && Object.hasOwn(value, "__v_isReactive");
+    }
+
+    const deps = new WeakMap();
+    const computedMap = new WeakMap();
+    function ref(value) {
+        if (isPlainObject(value)) {
+            value = reactive(value);
+        }
+        const trackedRef = Object.defineProperties({}, {
+            value: {
+                enumerable: true,
+                get: () => {
+                    track(trackedRef, "value");
+                    return value;
+                },
+                set: (newVal) => {
+                    value = newVal;
+                    trigger(trackedRef, "value");
+                },
+            },
+            __v_isRef: {
+                value: true,
+            },
+            __v_exp: {
+                writable: true,
+                value: "",
+            },
+        });
+        return trackedRef;
+    }
+    function reactive(target) {
+        const handler = {
+            get(target, key, receiver) {
+                const result = Reflect.get(target, key, receiver);
+                track(target, key);
+                return result;
+            },
+            set(target, key, value, receiver) {
+                const result = Reflect.set(target, key, value, receiver);
+                trigger(target, key);
+                return result;
+            },
+        };
+        const proxy = new Proxy(target, handler);
+        return Object.defineProperty(proxy, "__v_isReactive", {
+            configurable: false,
+            enumerable: false,
+            value: true,
+        });
+    }
+    function track(target, key) {
+        if (!deps.has(target))
+            deps.set(target, new Map());
+        const depsMap = deps.get(target);
+        if (!depsMap.has(key))
+            depsMap.set(key, new Dep());
+        const dep = depsMap.get(key);
+        dep.depend();
+    }
+    function trigger(target, key) {
+        const depsMap = deps.get(target);
+        if (!depsMap)
+            return;
+        const dep = depsMap.get(key);
+        dep && dep.notify();
+    }
+    function injectReactivity(vm, refs) {
+        Object.entries(refs).forEach(([key, result]) => {
+            if (isFunction(result)) {
+                Object.defineProperty(vm, key, {
+                    configurable: false,
+                    value: (...args) => result.apply(vm, args),
+                });
+            }
+            else if (isRef(result) && computedMap.has(result)) {
+                result.__v_exp = key;
+                const computed = computedMap.get(result);
+                const descripter = {};
+                if (isFunction(computed)) {
+                    descripter.get = () => computed.call(vm);
+                }
+                else {
+                    descripter.get = computed.get.bind(vm);
+                    descripter.set = (...params) => {
+                        computed.set.apply(vm, params);
+                    };
+                }
+                Object.defineProperty(vm, key, descripter);
+            }
+            else if (isRef(result)) {
+                result.__v_exp = key;
+                Object.defineProperty(vm, key, {
+                    configurable: false,
+                    get: () => result.value,
+                    set: (value) => {
+                        result.value = value;
+                    },
+                });
+            }
+            else if (isProxy(result)) {
+                Object.defineProperty(vm, key, {
+                    configurable: false,
+                    get: () => result,
+                });
+            }
+        });
+    }
+    function computed(input) {
+        if (isFunction(input)) {
+            const initRef = ref(input(undefined));
+            computedMap.set(initRef, input);
+            return initRef;
+        }
+        else {
+            const { get } = input;
+            const initRef = ref(get(undefined));
+            computedMap.set(initRef, input);
+            return initRef;
+        }
+    }
+
+    const watchMap = new WeakMap();
+    const wachers = new Set();
+    function watch(source, callback) {
+        wachers.add(source);
+        watchMap.set(source, callback);
+    }
+    function createWacher(vm) {
+        wachers.forEach((watcher) => {
+            new Observer(vm, watcher.__v_exp, watchMap.get(watcher));
+        });
+    }
+
+    const hooks = {};
+    function onBeforeMount(callback) {
+        hooks.beforeMount = callback;
+    }
+    function onMounted(callback) {
+        hooks.mounted = callback;
+    }
+    function onBeforeUpdate(callback) {
+        hooks.beforeUpdate = callback;
+    }
+    function onUpdated(callback) {
+        hooks.updated = callback;
+    }
+    function bindHooks(vm) {
+        for (const key in hooks) {
+            const hookKey = key;
+            vm.$hooks[hookKey] = hooks[hookKey];
+        }
+    }
+
+    function createApp(options) {
+        const app = new Vuelite$1(options);
+        const reactive = options.setup.call(app, app.$props);
+        injectReactivity(app, reactive);
+        createWacher(app);
+        bindHooks(app);
+        return {
+            ...app,
+            component(name, options) {
+                Vuelite$1.component(name, options);
+                return this;
+            },
+            mount(selector) {
+                app.mount(selector);
+            },
+        };
+    }
+
     Object.defineProperty(Object.prototype, "_length", {
         get: function () {
             if (Object.hasOwn(this, "length")) {
@@ -1172,6 +1362,20 @@
         enumerable: false,
     });
 
-    return Vuelite$1;
+    exports.bindHooks = bindHooks;
+    exports.computed = computed;
+    exports.createApp = createApp;
+    exports.default = Vuelite$1;
+    exports.isProxy = isProxy;
+    exports.isRef = isRef;
+    exports.onBeforeMount = onBeforeMount;
+    exports.onBeforeUpdate = onBeforeUpdate;
+    exports.onMounted = onMounted;
+    exports.onUpdated = onUpdated;
+    exports.reactive = reactive;
+    exports.ref = ref;
+    exports.watch = watch;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
 
 }));

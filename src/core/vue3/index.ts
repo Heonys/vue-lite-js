@@ -1,6 +1,6 @@
 import Vuelite from "../viewmodel/vuelite";
-import type { AppInstance, CompositionAPIOptions, SetupResult } from "@/types/compositionApi";
-import { Options } from "../viewmodel/option";
+import { AppInstance } from "@/types/compositionApi";
+import type { CompositionAPIOptions, Options, SetupResult } from "../viewmodel/option";
 import { injectReactivity, ref, reactive, computed } from "./reactive";
 import { createWacher, watch } from "./watch";
 import { bindHooks } from "./lifecycle";

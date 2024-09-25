@@ -13,12 +13,12 @@ export default class Vuelite<Data = {}> extends Lifecycle<Data> implements Compo
     componentsNames: Record<string, Options>;
     updateQueue: Function[];
     static context?: Record<string, any>;
-    [customKey: string]: any;
     constructor(options: Options<Data>);
-    private setupDOM;
-    render(): void;
+    mount(selector?: string): void;
+    private render;
     $watch(source: string, callback: WatchCallback, options?: WatchOption): void;
     $forceUpdate(): void;
+    private setupDOM;
     private localComponents;
     static globalComponentsNames: Record<string, Options>;
     static globalComponents: ComponentMap;

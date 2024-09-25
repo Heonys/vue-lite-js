@@ -1,8 +1,9 @@
 import { HookNames } from "./lifecycle";
 import Vuelite from "./vuelite";
+import { Ref } from "@/types/compositionApi";
 type Accessor<Data> = {
-    get?(this: Vuelite<Data>): any;
-    set?(this: Vuelite<Data>, value: any): void;
+    get?(this: Data): any;
+    set?(this: Data, value: any): void;
 };
 type ComputedType<Data> = {
     [K: string]: Accessor<Data> | (() => any);
@@ -26,13 +27,11 @@ type MethodsType = {
 type Fallback = {
     [custom: string]: any;
 };
-export type Options<Data = {}> = {
-    el?: string;
-    template?: string;
+type BaseOption<Data> = {
     props?: string[];
     data?: () => Data;
     methods?: MethodsType & ThisType<Data & Fallback>;
-    computed?: ComputedType<Data> & ThisType<Data & Fallback>;
+    computed?: ComputedType<Data>;
     watch?: WatchType;
     styles?: {
         [K: string]: any;
@@ -47,6 +46,16 @@ export type Options<Data = {}> = {
     [Hook in Exclude<HookNames, "beforeCreate">]?: (this: Data) => void;
 } & {
     beforeCreate?: (this: void) => void;
+};
+export type Options<Data = {}> = BaseOption<Data> & {
+    el?: string;
+    template?: string;
+};
+export type CompositionAPIOptions<Data = {}> = BaseOption<Data> & {
+    setup?: (props: any) => SetupResult | void;
+};
+export type SetupResult = {
+    [key: string]: Ref | Function | object;
 };
 type AccessorForm = {
     get?(): any;
