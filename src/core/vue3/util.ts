@@ -1,4 +1,4 @@
-import type { Ref } from "@/types/compositionApi";
+import type { Ref } from "../../types/compositionApi";
 import { isObject, typeOf } from "@/utils/format";
 
 export function isRef<T>(value: any): value is Ref<T> {

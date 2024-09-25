@@ -169,14 +169,14 @@ new Vuelite({
 
 - `Vue.js`의 **Option API** 스타일을 클론하고 있으며, 핵심 기능을 지원하지만 모든 기능을 지원하지 않습니다. 
 - 옵션에서 `template` 속성은 지원하지만, `Vue.js`의 `.vue` 확장자와 같은 로더를 지원하지 않기 때문에 `HTML` 파일에서 따로 마크업을 작성해야 하는 불편함이 있습니다. 따라서 템플릿을 분리해서 사용하는 방식은 전통적인 `Vue.js`보다는 `Angular`와 유사한 면이 있습니다.
-- 싱글 파일 컴포넌트 포맷을 지원하지 않기 때문에 옵션에서 `styles`과 `scopedStyles`를 지원합니다.
+- 싱글 파일 컴포넌트 포맷을 지원하지 않기 때문에 옵션에서 `styles`과 `scopedStyles` 속성을 지원합니다.
 - 데이터의 변화를 감지하기 위해 참조값 유지를 강제합니다. 새로운 참조값을 할당하는 대신 기존 객체의 속성을 수정함으로써, 프록시와의 연결을 유지하고, 데이터의 변화를 정확하게 추적할 수 있습니다.
 - `v-if` 디렉티브는 단일 엘리먼트에서만 사용가능하며 `v-else-if` 디렉티브를 지원하지 않습니다. 
 - `v-for` 디렉티브는 `key` 바인딩을 제공하지 않고 데이터 변경시 인덱스를 기준으로 항상 다시 렌더링됩니다. 
 - 하나의 엘리먼트에서 `v-if`와 `v-for`를 동시에 사용하는 것을 지원하지 않습니다.
 - `Lifecycle`를 간소화하여 `unmounted` 등을 제외한 주요 훅 6개를 지원합니다
-- `HTML` 파일 내에서 `<template>` 태그를 사용하여 컴포넌트를 정의하고 컴포넌트 단위의 개발을 지원합니다. 
-- `Composition API` 스타일을 부분적으로 지원하며 모든 `Option API`를 대체하진 않습니다
+- `HTML` 파일 내에서 `<template>` 태그를 통해 마크업을 분리하는 방식으로 컴포넌트 단위의 개발을 지원합니다. 
+- `Composition API` 스타일을 부분적으로 지원하며, 모든 `Option API`를 대체하진 않습니다
 
 > **Note**: 여러 케이스에 대한 간단한 사용법을 확인하려면 [FEATURES.md](./docs/FEATURES.md)를 참고하세요.
 
@@ -953,7 +953,7 @@ function reactive<T extends object>(target: T): T
 
 `ref`를 사용하면 원시타입이 `value`라는 속성으로 접근할 수 있는 객체로 변환되는데 자바스크립트는 단일 값의 접근이나 변경에 감지할 수 있는 방법이 없기 때문에 이걸 객체로 한번 감싸서 `getter`, `setter`를 통해 객체에 대한 접근과 수정에 대해 연산을 가로채고 이에따라 값을 추적하고 데이터의 변화에 대해 렌더링을 트리거할 수 있게 됩니다. 즉, 단일 값을 객체로 래핑하면 접근할때 `.value`로 접근해야만 하기때문에 `.value` 속성은 데이터가 변경되었을 때를 감지할 기회를 주고 내부적으로 데이터를 추적하고 업데이트를 수행할 수 있습니다. 
 
-`getter`, `setter`를 추가하기 위해 `ref`는 `Object.defineProperties`을 사용하였고 `reactive`는 `Proxy`객체의 `get`트랩, `set`트랩을 사용하였습니다. 추가적으로 이렇게 만들어진 객체를 일반객체와 구분할 수 있게 각각 `__v_isRef`, `__v_isReactive` 속성을 추가해서 식별 할 수 있게 했습니다. (이 부분은 실제 `vue.js`에서 사용 중인 `flag` 참조했습니다)
+`getter`, `setter`를 추가하기 위해 `ref`는 `Object.defineProperties`을 사용하였고 `reactive`는 `Proxy`객체의 `get`트랩, `set`트랩을 사용하였습니다. 추가적으로 이렇게 만들어진 객체를 일반객체와 구분할 수 있게 각각 `__v_isRef`, `__v_isReactive` 속성을 추가해서 식별 할 수 있게 했습니다. (실제 `vue.js`에서 사용 중인 `flag` 참조했습니다)
 
 ```ts
 // https://github.com/vuejs/core/blob/main/packages/reactivity/src/constants.ts
@@ -969,7 +969,7 @@ export enum ReactiveFlags {
 
 #### 지원하는 API
 
-현재 제공된 모든 `Option API`의 기능들을 `Composition API`에서 전부 지원되지 않습니다. 
+현재 제공된 모든 `Option API`의 기능들을 `Composition API`에서 전부 지원되지는 않습니다. 
 
 | 반응형 API    | 유틸함수      | 생명주기 훅         |
 |---------------|---------------|---------------------|

@@ -1,7 +1,7 @@
 import { typeOf } from "@/utils/format";
 import { HookNames } from "./lifecycle";
 import Vuelite from "./vuelite";
-import { Ref } from "@/types/compositionApi";
+import { Ref } from "../../types/compositionApi";
 
 type Accessor<Data> = {
   get?(this: Data): any;

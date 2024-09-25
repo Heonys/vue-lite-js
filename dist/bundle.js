@@ -1171,18 +1171,18 @@
     Vuelite.globalComponents = new Map();
     var Vuelite$1 = Vuelite;
 
-    function isRef(value) {
+    function isRef$1(value) {
         return typeOf(value) === "object" && Object.hasOwn(value, "__v_isRef");
     }
-    function isProxy(value) {
+    function isProxy$1(value) {
         return isObject(value) && Object.hasOwn(value, "__v_isReactive");
     }
 
     const deps = new WeakMap();
     const computedMap = new WeakMap();
-    function ref(value) {
+    function ref$1(value) {
         if (isPlainObject(value)) {
-            value = reactive(value);
+            value = reactive$1(value);
         }
         const trackedRef = Object.defineProperties({}, {
             value: {
@@ -1206,7 +1206,7 @@
         });
         return trackedRef;
     }
-    function reactive(target) {
+    function reactive$1(target) {
         const handler = {
             get(target, key, receiver) {
                 const result = Reflect.get(target, key, receiver);
@@ -1250,7 +1250,7 @@
                     value: (...args) => result.apply(vm, args),
                 });
             }
-            else if (isRef(result) && computedMap.has(result)) {
+            else if (isRef$1(result) && computedMap.has(result)) {
                 result.__v_exp = key;
                 const computed = computedMap.get(result);
                 const descripter = {};
@@ -1265,7 +1265,7 @@
                 }
                 Object.defineProperty(vm, key, descripter);
             }
-            else if (isRef(result)) {
+            else if (isRef$1(result)) {
                 result.__v_exp = key;
                 Object.defineProperty(vm, key, {
                     configurable: false,
@@ -1275,7 +1275,7 @@
                     },
                 });
             }
-            else if (isProxy(result)) {
+            else if (isProxy$1(result)) {
                 Object.defineProperty(vm, key, {
                     configurable: false,
                     get: () => result,
@@ -1283,15 +1283,15 @@
             }
         });
     }
-    function computed(input) {
+    function computed$1(input) {
         if (isFunction(input)) {
-            const initRef = ref(input(undefined));
+            const initRef = ref$1(input(undefined));
             computedMap.set(initRef, input);
             return initRef;
         }
         else {
             const { get } = input;
-            const initRef = ref(get(undefined));
+            const initRef = ref$1(get(undefined));
             computedMap.set(initRef, input);
             return initRef;
         }
@@ -1299,7 +1299,7 @@
 
     const watchMap = new WeakMap();
     const wachers = new Set();
-    function watch(source, callback) {
+    function watch$1(source, callback) {
         wachers.add(source);
         watchMap.set(source, callback);
     }
@@ -1310,16 +1310,16 @@
     }
 
     const hooks = {};
-    function onBeforeMount(callback) {
+    function onBeforeMount$1(callback) {
         hooks.beforeMount = callback;
     }
-    function onMounted(callback) {
+    function onMounted$1(callback) {
         hooks.mounted = callback;
     }
-    function onBeforeUpdate(callback) {
+    function onBeforeUpdate$1(callback) {
         hooks.beforeUpdate = callback;
     }
-    function onUpdated(callback) {
+    function onUpdated$1(callback) {
         hooks.updated = callback;
     }
     function bindHooks(vm) {
@@ -1329,7 +1329,7 @@
         }
     }
 
-    function createApp(options) {
+    function createApp$1(options) {
         const app = new Vuelite$1(options);
         const reactive = options.setup.call(app, app.$props);
         injectReactivity(app, reactive);
@@ -1347,6 +1347,22 @@
         };
     }
 
+    var Vue3 = /*#__PURE__*/Object.freeze({
+        __proto__: null,
+        bindHooks: bindHooks,
+        computed: computed$1,
+        createApp: createApp$1,
+        isProxy: isProxy$1,
+        isRef: isRef$1,
+        onBeforeMount: onBeforeMount$1,
+        onBeforeUpdate: onBeforeUpdate$1,
+        onMounted: onMounted$1,
+        onUpdated: onUpdated$1,
+        reactive: reactive$1,
+        ref: ref$1,
+        watch: watch$1
+    });
+
     Object.defineProperty(Object.prototype, "_length", {
         get: function () {
             if (Object.hasOwn(this, "length")) {
@@ -1361,8 +1377,8 @@
         },
         enumerable: false,
     });
+    const { createApp, ref, reactive, computed, watch, isRef, isProxy, onBeforeMount, onMounted, onBeforeUpdate, onUpdated, } = Vue3;
 
-    exports.bindHooks = bindHooks;
     exports.computed = computed;
     exports.createApp = createApp;
     exports.default = Vuelite$1;

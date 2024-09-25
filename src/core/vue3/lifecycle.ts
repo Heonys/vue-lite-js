@@ -1,4 +1,4 @@
-import type { CompositionHookNames, StopHandle } from "@/types/compositionApi";
+import type { CompositionHookNames, StopHandle } from "../../types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 
 const hooks: { [K in CompositionHookNames]?: StopHandle } = {};

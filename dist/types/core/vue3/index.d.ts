@@ -1,4 +1,4 @@
-import { AppInstance } from "@/types/compositionApi";
+import { AppInstance } from "../../types/compositionApi";
 import type { CompositionAPIOptions } from "../viewmodel/option";
 import { ref, reactive, computed } from "./reactive";
 import { watch } from "./watch";

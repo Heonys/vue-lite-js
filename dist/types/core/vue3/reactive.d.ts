@@ -1,4 +1,4 @@
-import type { ComputedInput, Ref } from "@/types/compositionApi";
+import type { ComputedInput, Ref } from "../../types/compositionApi";
 import type { SetupResult } from "../viewmodel/option";
 import Vuelite from "../viewmodel/vuelite";
 export declare function ref<T>(value: T): Ref<T>;

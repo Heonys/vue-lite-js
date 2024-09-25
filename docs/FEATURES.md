@@ -345,3 +345,40 @@ type HookNames = "beforeCreate" | "created" | "beforeMount" | "mounted" | "befor
   <vue-child :propsmessage="lastName"></vue-child>
 </div>
 ```
+
+
+#### 30. 컴포넌트 단위 개발 지원 ✅
+
+```html
+<div id="app">
+  <input type="text" v-model="message">
+  <div>{{ message }}</div>
+  <vue-child :propsmessage="message"></vue-child>
+</div>
+
+<template id="child">
+  <div>{{ message }}</div>
+  <div>{{ propsmessage }}</div>
+</template>
+```
+```js
+const ChildComponent = {
+  el: "#child",
+  props: ["propsmessage"],
+  data() {
+    return {
+      message: "local message",
+    };
+  },
+}
+
+createApp({
+  components: {
+    "vue-child": ChildComponent,
+  },
+  setup(props) {
+    const message = ref("parent message");
+    return { message }; 
+  },
+}).mount("#app");
+```

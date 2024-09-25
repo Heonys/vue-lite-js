@@ -1,6 +1,6 @@
-import { HookNames } from "@/core/viewmodel/lifecycle";
-import type { Options } from "@/core/viewmodel/option";
-import Vuelite from "@/core/viewmodel/vuelite";
+import { HookNames } from "../core/viewmodel/lifecycle";
+import type { Options } from "../core/viewmodel/option";
+import Vuelite from "../core/viewmodel/vuelite";
 
 type FilteredProps = "$watch" | "$forceUpdate" | "setHooks" | "callHook" | "clearTasks" | "$el";
 export type AppInstance = Omit<Vuelite, FilteredProps> & {

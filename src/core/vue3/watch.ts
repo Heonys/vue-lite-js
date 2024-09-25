@@ -1,11 +1,12 @@
-import { Ref, WatchCallback } from "@/types/compositionApi";
+import { Ref, WatchCallback } from "../../types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
+import { ref } from "./reactive";
 
 const watchMap = new WeakMap<Ref, WatchCallback>();
 const wachers = new Set<Ref>();
 
-export function watch<T>(source: Ref, callback: WatchCallback<T>) {
+export function watch<T>(source: Ref<T>, callback: WatchCallback<T>) {
   wachers.add(source);
   watchMap.set(source, callback);
 }

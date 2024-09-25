@@ -1,4 +1,4 @@
-import type { StopHandle } from "@/types/compositionApi";
+import type { StopHandle } from "../../types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 export declare function onBeforeMount(callback: StopHandle): void;
 export declare function onMounted(callback: StopHandle): void;

@@ -11,15 +11,18 @@ module.exports = [
       {
         file: "dist/bundle.esm.js",
         format: "esm",
+        exports: "named",
       },
       {
         file: "dist/bundle.common.js",
         format: "cjs",
+        exports: "named",
       },
       {
         file: "dist/bundle.js",
         name: "Vuelite",
         format: "umd",
+        exports: "named",
       },
     ],
   },
@@ -31,7 +34,7 @@ module.exports = [
         file: "dist/bundle.min.js",
         name: "Vuelite",
         format: "umd",
-        exports: "auto",
+        exports: "named",
       },
     ],
   },

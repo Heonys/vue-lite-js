@@ -1,5 +1,6 @@
 import Vuelite from "./core/viewmodel/vuelite";
 import { typeOf } from "./utils/format";
+import * as Vue3 from "./core/vue3/index";
 
 Object.defineProperty(Object.prototype, "_length", {
   get: function () {
@@ -15,4 +16,16 @@ Object.defineProperty(Object.prototype, "_length", {
 });
 
 export default Vuelite;
-export * from "./core/vue3/index";
+export const {
+  createApp,
+  ref,
+  reactive,
+  computed,
+  watch,
+  isRef,
+  isProxy,
+  onBeforeMount,
+  onMounted,
+  onBeforeUpdate,
+  onUpdated,
+} = Vue3;

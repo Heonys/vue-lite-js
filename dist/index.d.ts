@@ -1,5 +1,3 @@
-import { Ref, ComputedInput, WatchCallback as WatchCallback$1, StopHandle, AppInstance } from '@/types/compositionApi';
-
 type HookNames = "beforeCreate" | "created" | "beforeMount" | "mounted" | "beforeUpdate" | "updated";
 declare class Lifecycle<Data> {
     deferredTasks: Function[];
@@ -10,6 +8,25 @@ declare class Lifecycle<Data> {
     callHook(name: HookNames): void;
     clearTasks(): void;
 }
+
+type FilteredProps = "$watch" | "$forceUpdate" | "setHooks" | "callHook" | "clearTasks" | "$el";
+type AppInstance = Omit<Vuelite, FilteredProps> & {
+    $fragment?: DocumentFragment;
+    component(name: string, options: Options): void;
+    mount(selector: string): void;
+};
+interface Ref<T = any> {
+    value: T;
+    __v_exp: string;
+}
+type ComputedFn<T> = (oldValue: T | undefined) => T;
+type ComputedOption<T> = {
+    get: (oldValue: T | undefined) => T;
+    set: (value: T) => void;
+};
+type ComputedInput<T = any> = ComputedFn<T> | ComputedOption<T>;
+type WatchCallback$1<T = any> = (value: T, oldValue: T) => void;
+type StopHandle = () => void;
 
 type Accessor<Data> = {
     get?(this: Data): any;
@@ -106,21 +123,32 @@ declare class Vuelite<Data = {}> extends Lifecycle<Data> implements ComponentPub
     static component(name: string, options: Options): void;
 }
 
-declare function ref<T>(value: T): Ref<T>;
-declare function reactive<T extends object>(target: T): T;
-declare function computed<T>(input: ComputedInput<T>): Ref<T>;
+declare function ref$1<T>(value: T): Ref<T>;
+declare function reactive$1<T extends object>(target: T): T;
+declare function computed$1<T>(input: ComputedInput<T>): Ref<T>;
 
-declare function watch<T>(source: Ref, callback: WatchCallback$1<T>): void;
+declare function watch$1<T>(source: Ref<T>, callback: WatchCallback$1<T>): void;
 
-declare function isRef<T>(value: any): value is Ref<T>;
-declare function isProxy<T extends object>(value: T): boolean;
+declare function isRef$1<T>(value: any): value is Ref<T>;
+declare function isProxy$1<T extends object>(value: T): boolean;
 
-declare function onBeforeMount(callback: StopHandle): void;
-declare function onMounted(callback: StopHandle): void;
-declare function onBeforeUpdate(callback: StopHandle): void;
-declare function onUpdated(callback: StopHandle): void;
-declare function bindHooks(vm: Vuelite): void;
+declare function onBeforeMount$1(callback: StopHandle): void;
+declare function onMounted$1(callback: StopHandle): void;
+declare function onBeforeUpdate$1(callback: StopHandle): void;
+declare function onUpdated$1(callback: StopHandle): void;
 
-declare function createApp(options: CompositionAPIOptions): AppInstance;
+declare function createApp$1(options: CompositionAPIOptions): AppInstance;
 
-export { bindHooks, computed, createApp, Vuelite as default, isProxy, isRef, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, reactive, ref, watch };
+declare const createApp: typeof createApp$1;
+declare const ref: typeof ref$1;
+declare const reactive: typeof reactive$1;
+declare const computed: typeof computed$1;
+declare const watch: typeof watch$1;
+declare const isRef: typeof isRef$1;
+declare const isProxy: typeof isProxy$1;
+declare const onBeforeMount: typeof onBeforeMount$1;
+declare const onMounted: typeof onMounted$1;
+declare const onBeforeUpdate: typeof onBeforeUpdate$1;
+declare const onUpdated: typeof onUpdated$1;
+
+export { computed, createApp, Vuelite as default, isProxy, isRef, onBeforeMount, onBeforeUpdate, onMounted, onUpdated, reactive, ref, watch };

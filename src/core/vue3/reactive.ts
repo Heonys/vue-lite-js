@@ -1,6 +1,6 @@
 import { isPlainObject } from "@/utils/format";
 import { Dep } from "../reactive/dep";
-import type { ComputedInput, Ref } from "@/types/compositionApi";
+import type { ComputedInput, Ref } from "../../types/compositionApi";
 import type { SetupResult } from "../viewmodel/option";
 import Vuelite from "../viewmodel/vuelite";
 import { isFunction } from "@/utils/format";
