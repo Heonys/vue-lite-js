@@ -907,7 +907,7 @@ createApp({
 ```
 
 #### Option API와의 호환성
-실제 `Vue.js`에서는 두 가지 `API` 스타일이 서로 완전히 호환되어 상황에 따라서 적절하게 섞어서 사용할 수 있도록 만들어졌습니다. 이러한 구조를 유사하게 구현하기 위해서 기존의 `Vuelite` 인스턴스가 생성되는 단계를 조금 수정하여 `mount`단계를 메소드로 나누었고 `created` 단계까지 초기화를 하고 멈춘 후 이후에 `el`, `templaet` 속성 여부에 따라서  `mount` 메소드가 즉시 동작하는 `Option API`방식, `mount`를 따로 호출해야 하는 `Composition API` 방식으로 분리했습니다.
+실제 `Vue.js`에서는 두 가지 `API` 스타일이 서로 완전히 호환되어 상황에 따라서 적절하게 섞어서 사용할 수 있도록 만들어졌습니다. 이러한 구조를 유사하게 구현하기 위해서 기존의 `Vuelite` 인스턴스가 생성되는 단계를 조금 수정하여 `mount`단계를 메소드로 나누었고 `created` 단계까지 초기화를 하고 멈춘 후 이후에 옵션의 종류에 따라서  `mount` 메소드가 즉시 동작하는 `Option API`방식, `mount`를 따로 호출해야 하는 `Composition API` 방식으로 분리하여 결국 두 가지 `API` 스타일이 순서의 차이만 있을 뿐 동일하게 동작하도록 만들었습니다.
 
 
 ```ts
@@ -939,21 +939,23 @@ function createApp(options: CompositionAPIOptions) {
 
 #### ref와 reactive의 차이 및 구현원리 
 
-반응형 데이터를 선언하기 위한 방법은 2가지가 있습니다. 
-- **ref:** 인자를 받아서 `.value` 속성이 있는 `ref` 객체로 래핑하여 반환
+`Composition API`에서 반응형 데이터를 선언하기 위한 방법은 2가지가 있습니다. 
+- **ref:** 인자를 받아서 `value` 속성이 있는 `ref` 객체로 래핑하여 반환
 - **reactive:** 객체로 감싸는 `ref`와달리 객체 자체를 `Proxy`객체로 반환
-
-```ts
-interface Ref<T> { value: T }
-function ref<T>(value: T): Ref<T>
-function reactive<T extends object>(target: T): T
-```
 
 일반적으로 단일 값을 갖는 원시 타입의 경우 `ref`를 사용하고, 배열이나 객체 같은 참조타입의 경우 `reactive`를 사용하여 각각 반응형 데이터를 선언합니다.
 
+```ts
+interface Ref<T> { value: T }
+
+function ref<T>(value: T): Ref<T>
+function reactive<T extends object>(target: T): T 
+```
+
+
 `ref`를 사용하면 원시타입이 `value`라는 속성으로 접근할 수 있는 객체로 변환되는데 자바스크립트는 단일 값의 접근이나 변경에 감지할 수 있는 방법이 없기 때문에 이걸 객체로 한번 감싸서 `getter`, `setter`를 통해 객체에 대한 접근과 수정에 대해 연산을 가로채고 이에따라 값을 추적하고 데이터의 변화에 대해 렌더링을 트리거할 수 있게 됩니다. 즉, 단일 값을 객체로 래핑하면 접근할때 `.value`로 접근해야만 하기때문에 `.value` 속성은 데이터가 변경되었을 때를 감지할 기회를 주고 내부적으로 데이터를 추적하고 업데이트를 수행할 수 있습니다. 
 
-`getter`, `setter`를 추가하기 위해 `ref`는 `Object.defineProperties`을 사용하였고 `reactive`는 `Proxy`객체의 `get`트랩, `set`트랩을 사용하였습니다. 추가적으로 이렇게 만들어진 객체를 일반객체와 구분할 수 있게 각각 `__v_isRef`, `__v_isReactive` 속성을 추가해서 식별 할 수 있게 했습니다. (실제 `vue.js`에서 사용 중인 `flag` 참조했습니다)
+`getter`, `setter`를 추가하기 위해 `ref`는 객체로 한번 감싸서 `value` 속성으로 접근하도록 강제하며, `reactive`는 `Proxy`객체를 사용합니다. 추가적으로 이렇게 만들어진 객체를 일반객체와 구분할 수 있게 각각 `__v_isRef`, `__v_isReactive` 속성을 추가해서 식별 할 수 있게 했습니다. (실제 `vue.js`에서 사용 중인 `flag`를 참조했습니다)
 
 ```ts
 // https://github.com/vuejs/core/blob/main/packages/reactivity/src/constants.ts

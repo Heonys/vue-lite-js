@@ -23,6 +23,9 @@ module.exports = [
         name: "Vuelite",
         format: "umd",
         exports: "named",
+        globals: {
+          default: "Vuelite",
+        },
       },
     ],
   },

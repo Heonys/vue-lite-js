@@ -12,7 +12,7 @@ declare class Lifecycle<Data> {
 type FilteredProps = "$watch" | "$forceUpdate" | "setHooks" | "callHook" | "clearTasks" | "$el";
 type AppInstance = Omit<Vuelite, FilteredProps> & {
     $fragment?: DocumentFragment;
-    component(name: string, options: Options): void;
+    component(name: string, options: Options): AppInstance;
     mount(selector: string): void;
 };
 interface Ref<T = any> {

@@ -5,7 +5,7 @@ import Vuelite from "../core/viewmodel/vuelite";
 type FilteredProps = "$watch" | "$forceUpdate" | "setHooks" | "callHook" | "clearTasks" | "$el";
 export type AppInstance = Omit<Vuelite, FilteredProps> & {
   $fragment?: DocumentFragment;
-  component(name: string, options: Options): void;
+  component(name: string, options: Options): AppInstance;
   mount(selector: string): void;
 };
 
