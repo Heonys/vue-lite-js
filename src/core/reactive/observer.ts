@@ -44,6 +44,7 @@ export class Observer {
   update() {
     const oldValue = this.value;
     const newValue = this.getterTrigger();
+
     if (isPrimitive(newValue) && oldValue === newValue) return;
     this.value = newValue;
     this.isMethods

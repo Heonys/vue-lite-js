@@ -7,13 +7,19 @@
   </head>
   <body>
     <div id="app">
-        <div class="title">Parent Component</div>
+        <!-- <div class="title">Parent Component</div>
         <input type="text" v-model="message">
         <input type="checkbox" v-model="visible">
         <span>{{ visible ? "🔓" : "🔒" }}</span>
         <div>{{ message }}</div>
-        <span>{{ uppercaseMessage }}</span>
-        <div>{{ getRandom() }}</div>
+        <span>{{ uppercaseMessage }}</span> -->
+
+        <input type="checkbox" v-model="isChecked">
+
+        <input type="checkbox" :checked="isChecked"  />
+
+        <div>{{ isChecked ? "🔓" : "🔒"}}</div>
+
 
         <!-- <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>
         <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>

@@ -950,6 +950,9 @@ class Directive {
         if (mod === "text" || mod === "class" || mod === "style") {
             return updaters[mod].bind(this);
         }
+        if (this.name === "bind" && mod === "checked") {
+            return updaters.inputCheckbox;
+        }
         if (updater)
             return updater;
         else

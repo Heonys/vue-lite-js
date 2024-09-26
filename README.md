@@ -176,6 +176,7 @@ new Vuelite({
 - 하나의 엘리먼트에서 `v-if`와 `v-for`를 동시에 사용하는 것을 지원하지 않습니다.
 - `Lifecycle`를 간소화하여 `unmounted` 등을 제외한 주요 훅 6개를 지원합니다
 - `HTML` 파일 내에서 `<template>` 태그를 통해 마크업을 분리하는 방식으로 컴포넌트 단위의 개발을 지원합니다. 
+- 부모·자식 컴포넌트간 `props`를 사용하여 데이터 전달을 지원하지만 `v-slot` 디렉티브는 지원하지 않습니다. 
 - `Composition API` 스타일을 부분적으로 지원하며, 모든 `Option API`를 대체하진 않습니다
 
 > **Note**: 여러 케이스에 대한 간단한 사용법을 확인하려면 [FEATURES.md](./docs/FEATURES.md)를 참고하세요.

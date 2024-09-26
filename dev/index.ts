@@ -46,6 +46,9 @@ createApp({
       { id: 3, message: "Item 3" },
       { id: 4, message: "Item 4" },
     ]);
+
+    const isChecked = ref(false);
+
     const uppercaseMessage = computed(() => {
       return message.value.toUpperCase();
     });
@@ -63,7 +66,16 @@ createApp({
     watch(message, (newVal, oldVal) => {
       // console.log(newVal, oldVal);
     });
-    return { message, visible, items, handlecheck, addItem, uppercaseMessage, getRandom };
+    return {
+      message,
+      visible,
+      items,
+      handlecheck,
+      addItem,
+      uppercaseMessage,
+      getRandom,
+      isChecked,
+    };
   },
   styles: {
     "#app": {
