@@ -17,6 +17,22 @@ const PropsViewer = {
   },
 };
 
+Vuelite.component("global-component", {
+  props: ["globaltitle"],
+  el: "#global-component",
+  data() {
+    return {
+      message: "global message",
+      count: 5,
+    };
+  },
+  methods: {
+    increase() {
+      this.count++;
+    },
+  },
+});
+
 createApp({
   components: {
     "vue-propsviewer": PropsViewer,
@@ -39,10 +55,15 @@ createApp({
     const handlecheck = () => {
       visible.value = !visible.value;
     };
+
+    const getRandom = () => {
+      return Math.random().toFixed(3);
+    };
+
     watch(message, (newVal, oldVal) => {
       // console.log(newVal, oldVal);
     });
-    return { message, visible, items, handlecheck, addItem, uppercaseMessage };
+    return { message, visible, items, handlecheck, addItem, uppercaseMessage, getRandom };
   },
   styles: {
     "#app": {
@@ -56,22 +77,6 @@ createApp({
     },
   },
 }).mount("#app");
-
-// Vuelite.component("global-component", {
-//   props: ["globaltitle"],
-//   el: "#global-component",
-//   data() {
-//     return {
-//       message: "global message",
-//       count: 5,
-//     };
-//   },
-//   methods: {
-//     increase() {
-//       this.count++;
-//     },
-//   },
-// });
 
 // const vm = new Vuelite({
 //   el: "#app",

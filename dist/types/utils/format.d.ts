@@ -16,6 +16,7 @@ export declare function extractKeywords(str: string): {
 export declare function extractAlias(str: string): string[];
 export declare function isPrimitive(value: any): boolean;
 export declare function hasTemplate(str: string): boolean;
+export declare function isMethodsFormat(str: string): boolean;
 export declare function isPathFormat(str: string): boolean;
 export declare function isNonStandard(node: Node): node is HTMLElement;
 export declare function isComponent(node: Node): node is HTMLElement;

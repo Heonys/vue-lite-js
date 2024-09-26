@@ -1,5 +1,11 @@
 import Vuelite from "@/core/viewmodel/vuelite";
-import { hasTemplate, isFunctionFormat, isObjectFormat, isQuotedString } from "./format";
+import {
+  hasTemplate,
+  isFunctionFormat,
+  isMethodsFormat,
+  isObjectFormat,
+  isQuotedString,
+} from "./format";
 import { boolean2String, extractPath, normalizeToJson } from "./common";
 import { extractTemplate } from "./directive";
 import { Dep } from "@/core/reactive/dep";
@@ -74,8 +80,4 @@ export function evaluateValue(vm: Vuelite, exp: string) {
   } else {
     return unsafeEvaluate(vm, exp);
   }
-}
-
-function isMethodsFormat(str: string) {
-  return str.slice(-2) === "()";
 }

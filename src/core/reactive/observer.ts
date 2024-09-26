@@ -5,7 +5,6 @@ import { isObject, isPrimitive } from "@/utils/format";
 import { isWatchMethod, WatchOption } from "../viewmodel/option";
 import { Store } from "./store";
 
-//  데이터의 변화를 추적하고 이를 절히 처리하는 역할
 export class Observer {
   private value: any;
   private deps = new Set<Dep>();

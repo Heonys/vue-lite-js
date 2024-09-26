@@ -1,7 +1,6 @@
 import { Ref, WatchCallback } from "../../types/compositionApi";
 import Vuelite from "../viewmodel/vuelite";
 import { Observer } from "../reactive/observer";
-import { ref } from "./reactive";
 
 const watchMap = new WeakMap<Ref, WatchCallback>();
 const wachers = new Set<Ref>();

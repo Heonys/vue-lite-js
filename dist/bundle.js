@@ -126,6 +126,9 @@
         const pattern = /{{\s*.*?\s*}}/;
         return pattern.test(str);
     }
+    function isMethodsFormat(str) {
+        return str.slice(-2) === "()";
+    }
     function isNonStandard(node) {
         if (!(node instanceof HTMLElement))
             return;
@@ -539,9 +542,6 @@
             return unsafeEvaluate(vm, exp);
         }
     }
-    function isMethodsFormat(str) {
-        return str.slice(-2) === "()";
-    }
 
     class Observer {
         constructor(vm, exp, onUpdate, watchOption) {
@@ -611,7 +611,7 @@
             this.render();
         }
         render() {
-            new Observer(this.vm, this.exp, (newVal, oldVal) => {
+            new Observer(this.vm, this.exp, (newVal) => {
                 this.updater(newVal);
             });
         }
@@ -1118,7 +1118,7 @@
                 this.callHook("beforeUpdate");
                 while (this.updateQueue.length > 0) {
                     const fn = this.updateQueue.shift();
-                    if (typeOf(fn) === "function")
+                    if (isFunction(fn))
                         fn();
                 }
                 Store.updateMethods();
@@ -1145,9 +1145,8 @@
                     return (this.$el = el);
                 }
             }
-            else {
+            else
                 return null;
-            }
         }
         localComponents(options) {
             const { components } = options;
@@ -1155,16 +1154,10 @@
                 return;
             Object.entries(components).forEach(([name, options]) => {
                 this.componentsNames[name.toUpperCase()] = options;
-                Array.from(document.querySelectorAll(name)).forEach((node) => {
-                    this.$components.set(node, new Vuelite(options));
-                });
             });
         }
         static component(name, options) {
             this.globalComponentsNames[name.toLocaleUpperCase()] = options;
-            Array.from(document.querySelectorAll(name)).forEach((node) => {
-                this.globalComponents.set(node, new Vuelite(options));
-            });
         }
     }
     Vuelite.globalComponentsNames = {};

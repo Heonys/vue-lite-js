@@ -11,7 +11,7 @@ import { createStyleSheet } from "./style";
 import { VueScanner } from "../binder/scanner";
 import { NodeVisitor } from "../binder/visitor";
 import { Lifecycle } from "./lifecycle";
-import { isTemplateElement, typeOf } from "@/utils/format";
+import { isFunction, isTemplateElement } from "@/utils/format";
 import { createWatcher, Observer } from "../reactive/observer";
 import { Store } from "../reactive/store";
 
@@ -63,7 +63,7 @@ export default class Vuelite<Data = {}>
       this.callHook("beforeUpdate");
       while (this.updateQueue.length > 0) {
         const fn = this.updateQueue.shift();
-        if (typeOf(fn) === "function") fn();
+        if (isFunction(fn)) fn();
       }
       Store.updateMethods();
       this.callHook("updated");
@@ -89,9 +89,7 @@ export default class Vuelite<Data = {}>
       } else {
         return (this.$el = el);
       }
-    } else {
-      return null;
-    }
+    } else return null;
   }
 
   private localComponents(options: Options<Data>) {
@@ -99,9 +97,6 @@ export default class Vuelite<Data = {}>
     if (!components) return;
     Object.entries(components).forEach(([name, options]) => {
       this.componentsNames[name.toUpperCase()] = options;
-      Array.from(document.querySelectorAll(name)).forEach((node) => {
-        this.$components.set(node, new Vuelite(options));
-      });
     });
   }
 
@@ -109,8 +104,5 @@ export default class Vuelite<Data = {}>
   static globalComponents: ComponentMap = new Map();
   static component(name: string, options: Options) {
     this.globalComponentsNames[name.toLocaleUpperCase()] = options;
-    Array.from(document.querySelectorAll(name)).forEach((node) => {
-      this.globalComponents.set(node, new Vuelite(options));
-    });
   }
 }

@@ -91,6 +91,10 @@ export function hasTemplate(str: string) {
   return pattern.test(str);
 }
 
+export function isMethodsFormat(str: string) {
+  return str.slice(-2) === "()";
+}
+
 export function isPathFormat(str: string) {
   if (!str.includes(".")) return false;
   const pattern = /^[a-zA-Z_$][a-zA-Z_$0-9]*(\.[a-zA-Z_$][a-zA-Z_$0-9]+)+$/;
