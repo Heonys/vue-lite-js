@@ -286,9 +286,7 @@ const action = (node: Node) => {
   isReactiveNode(node) && new Observable(vm, node);
 };
 ```
-모든 노드를 순회하면서 해당 노드가 디렉티브를 갖거나 텍스트에 템플릿 문법을 가졌는지를 확인하고 `Observable` 생성합니다.  <br />
-
-여기서 `Observable`은 단순히 `v-`접두사를 갖는 디렉티브인지 템플릿인지의 여부만 확인하여 `Directive`를 생성하고, 템플릿 바인딩은 `v-text` 디렉티브로 변경됩니다. 이때, 이벤트를 등록하는 `v-on`을 제외하고 모든 디렉티브는 디렉티브 종류에 따라서 `updater`를 인자로 받아서 `v-bind` 에서 일괄적으로 `Observer`를 생성합니다.
+모든 노드를 순회하면서 해당 노드가 디렉티브를 갖거나 텍스트에 템플릿 문법을 가졌는지를 확인하고 `Observable` 생성합니다. 여기서 `Observable`은 단순히 `v-`접두사를 갖는 디렉티브인지 템플릿인지의 여부만 확인하여 `Directive`를 생성하고, 템플릿 바인딩은 `v-text` 디렉티브로 변경됩니다. 이때, 이벤트를 등록하는 `v-on`을 제외하고 모든 디렉티브는 디렉티브 종류에 따라서 `updater`를 인자로 받아서 `v-bind` 에서 일괄적으로 `Observer`를 생성합니다.
 
 
 ### 4. v-model 바인딩 
@@ -336,18 +334,13 @@ const action = (node: Node) => {
 
 ```ts
 bind(updater?: Updater) {
-  // ... 
-  const value = evaluateValue(this.vm, this.exp);
-  updater && updater(this.node, value);
+  updater = this.selectUpdater(updater);
   new Observer(this.vm, this.exp, (value) => {
-    updater && updater(this.node, value);
+    updater(this.node, value);
   });
 ```
 디렉티브 종류에 따라서 `updater`가 정해지고 결과적으로 `Obserber`가 생성됩니다. 
-여기서 `updater`란 `Reactive`가 주입된 속성에서 변화가 일어나 `set 트랩`에서 `notify`가 발생했을 때 해당 `dep`을 구독하고 있는 모든 `Observer`들에게 변화가 일어났음을 알리고 업데이트를 요청하는 구체적인 업데이트 함수를 의미합니다. 즉, `Observer`는 변화에 대응하여 `DOM`을 업데이트하고 따라서 `viewmodel`의 `data` 변화가 최종적으로 화면에 반영됩니다. <br /> 
-
-위의 코드에서 `Observer`를 생성하기 전에 `updater`를 미리 한번 실행하는데 이건 첫 렌더링에 `viewmodel`의 속성을 `DOM`에 반영하기 위함입니다. 
-
+여기서 `updater`란 `Reactive`가 주입된 속성에서 변화가 일어나 `set 트랩`에서 `notify`가 발생했을 때 해당 `dep`을 구독하고 있는 모든 `Observer`들에게 변화가 일어났음을 알리고 업데이트를 요청하는 구체적인 업데이트 함수를 의미합니다. 즉, `Observer`는 변화에 대응하여 `DOM`을 업데이트하고 따라서 `viewmodel`의 `data` 변화가 최종적으로 화면에 반영됩니다.
 
 #### Observer와 Dep의 관계 
 
@@ -373,7 +366,7 @@ depend() {
     Dep.activated?.addDep(this);
 }
 ```
-`Observer` 클래스에는 `getterTrigger` 메소드가 존재하는데 이 메소드의 역할은 단순히 `vm`에서 해당 속성을 가져오는 일을 하고 있어 보이지만, 이 함수는 그 이상으로 중요한 역할을 하고 있습니다. 
+`Observer` 클래스에는 `getterTrigger` 메소드가 존재하며, 단순히 `viewmodel`에서 해당 표현식의 값을 가져오고 있어 보이지만, 이 메소드는 그 이상으로 중요한 역할을 하고 있습니다. 
 
 >1. 처음에 `Reactivty` 클래스에서 모든 `data` 속성에 래핑한 프록시 객체의 `get 트랩`을 의도적으로 발생시키 위해 사용됩니다. 
 >2. `get 트랩`이 발생되기 이전에 `Dep.activated`를 현재의 `this` 즉, 현재의 `Observer`로 설정을 해놓고 `get 트랩`이 발생하면 `dep.depend()`를 호출하여 현재 활성화된 `Observer`와 `Dep`의 관계를 구축합니다. 
@@ -834,6 +827,7 @@ new Vuelite({
 
 #### 컴포넌트 종류 
 -  **로컬 컴포넌트:** 
+인스턴스 내부에서 `components` 속성을 통해 등록된 컴포넌트로, 해당 인스턴스 내에서만 유효합니다.
 ```ts
 new Vuelite({
   components: {
@@ -842,14 +836,12 @@ new Vuelite({
   }
 });
 ```
-인스턴스 내부에서 `components` 속성을 통해 등록된 컴포넌트로, 해당 인스턴스 내에서만 유효합니다.
 
 - **전역 컴포넌트:** 
+`Vuelite.component()` 메서드를 사용하여 전역적으로 등록된 컴포넌트로, 모든 컴포넌트에서 사용 가능합니다.
 ```ts
 Vuelite.component("global-component", optoins);
 ```
-`Vuelite.component()` 메서드를 사용하여 전역적으로 등록된 컴포넌트로, 모든 컴포넌트에서 사용 가능합니다.
-
 
 #### props 및 method props
 
