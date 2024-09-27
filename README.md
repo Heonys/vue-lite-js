@@ -226,12 +226,10 @@ new Proxy(target, handler);
 [Proxy](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Proxy) 객체는 원본 객체를 감싸는 객체로 타겟이 되는 원본 객체에 대한 접근을 제어하거나, 특정 동작을 가로채서 새로운 기능을 추가할 수 있게 하는 래핑 객체입니다. 
 
 
-`viewmodel`에서 데이터의 변화를 감지하여 실제 뷰(DOM)와의 양방향 바인딩하는 것이 우리의 목적이기 때문에 데이터의 변화에 어떻게 감지할 수 있을지 고민해 봐야 하는데 이를 위해 자바스크립트에서는 언어 차원에서 객체의 속성에 동적으로 `getter`와 `setter`를 등록할 수 있게 해주는 `Object.defineProperty`와 더불어 `Proxy`를 사용하여 이를 구현할 수 있습니다. <br /> 
+`viewmodel`에서 데이터의 변화를 감지하여 실제 뷰(DOM)와의 양방향 바인딩하는 것이 우리의 목적이기 때문에 데이터의 변화에 어떻게 감지할 수 있을지 고민해 봐야 하는데 이를 위해 자바스크립트에서는 언어 차원에서 객체의 속성에 동적으로 `getter`와 `setter`를 등록할 수 있게 해주는 `Object.defineProperty`와 더불어 `Proxy`를 사용하여 이를 구현할 수 있습니다. 따라서 `Proxy`객체로 `viewmodel`의 모든 `data` 속성을 래핑하여 `get 트랩`, `set 트랩`을 추가하고 모든 속성들의 변화를 감지하도록 구현할 것 입니다.
 
 >실제로 `Vue2` 에서는 `defineProperty`로 반응형 데이터를 구현하고, `Vue3` 에서는 `Proxy`를 사용하여 반응형 데이터를 구현합니다.
 
-
-따라서 `Proxy`객체로 `viewmodel`의 모든 `data` 속성을 래핑하여 `get 트랩`, `set 트랩`을 추가하고 모든 속성들의 변화를 감지하도록 구현할 것입니다. <br />
 
 ```ts
 const handler = {
@@ -277,9 +275,7 @@ injectComputed(vm);
 const scanner = new VueScanner(new NodeVisitor());
 scanner.scan(this);
 ```
-옵션에서 전달받은 `el` 속성으로부터 하위의 모든 노드를 순회하면서 `v-`접두사가 붙은 디렉티브 속성 또는 템플릿 문법 `{{ }}` 을 사용하고 있는 모든 텍스트를 검사합니다. 여기서 `DOM`을 순회하는게 아닌 `Node` 단위로 순회하는 이유는 템플릿을 파싱하기 위해 텍스트 노드까지 검사해야하기 때문입니다. <br />
-
-노드 순회를 위해 순회하는 역할 자체는 `Visitor`에게 위임하고 노드마다 처리할 구체적인 액션은 `Scanner`에서 처리하도록 `Visitor`와 `Scanner`를 분리합니다.
+옵션에서 전달받은 `el` 속성으로부터 하위의 모든 노드를 순회하면서 `v-`접두사가 붙은 디렉티브 속성 또는 템플릿 문법 `{{ }}` 을 사용하고 있는 모든 텍스트를 검사합니다. 여기서 `DOM`을 순회하는게 아닌 `Node` 단위로 순회하는 이유는 템플릿을 파싱하기 위해 텍스트 노드까지 검사해야하기 때문입니다. 또한 노드 순회를 위해 순회하는 역할 자체는 `Visitor`에게 위임하고 노드마다 처리할 구체적인 액션은 `Scanner`에서 처리하도록 `Visitor`와 `Scanner`를 분리합니다.
 
 ```ts
 const action = (node: Node) => {
@@ -826,8 +822,7 @@ new Vuelite({
 >7. 컴포넌트에 `props`가 있으면 교체 전에 옵저버를 생성하여 `props` 데이터의 변화가 하위 컴포넌트에 업데이트 될 수 있도록 처리.
 
 #### 컴포넌트 종류 
--  **로컬 컴포넌트:** 
-인스턴스 내부에서 `components` 속성을 통해 등록된 컴포넌트로, 해당 인스턴스 내에서만 유효합니다.
+- **로컬 컴포넌트:** `components` 속성을 통해 등록된 컴포넌트로 해당 인스턴스 내에서만 유효합니다.
 ```ts
 new Vuelite({
   components: {
@@ -837,8 +832,7 @@ new Vuelite({
 });
 ```
 
-- **전역 컴포넌트:** 
-`Vuelite.component()` 메서드를 사용하여 전역적으로 등록된 컴포넌트로, 모든 컴포넌트에서 사용 가능합니다.
+- **전역 컴포넌트:** 전역적으로 등록된 컴포넌트로 모든 컴포넌트에서 사용 가능합니다.
 ```ts
 Vuelite.component("global-component", optoins);
 ```
