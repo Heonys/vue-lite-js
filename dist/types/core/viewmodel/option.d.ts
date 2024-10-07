@@ -8,7 +8,7 @@ type Accessor<Data> = {
 type ComputedType<Data> = {
     [K: string]: Accessor<Data> | (() => any);
 };
-export type WatchCallback = (newVal: any, oldVal: any) => void;
+export type WatchCallback = (this: Vuelite, newVal: any, oldVal: any) => void;
 export type WatchOption = {
     immediate?: boolean;
 };

@@ -12,6 +12,7 @@ export default class Vuelite<Data = {}> extends Lifecycle<Data> implements Compo
     $components: ComponentMap;
     componentsNames: Record<string, Options>;
     updateQueue: Function[];
+    [custom: string]: any;
     static context?: Record<string, any>;
     constructor(options: Options<Data>);
     mount(selector?: string): void;

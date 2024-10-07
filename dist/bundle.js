@@ -590,11 +590,11 @@
             return;
         Object.entries(watch).forEach(([key, value]) => {
             if (isWatchMethod(value)) {
-                new Observer(vm, key, value, { immediate: false });
+                new Observer(vm, key, value.bind(vm), { immediate: false });
             }
             else {
                 const { handler, ...options } = value;
-                new Observer(vm, key, handler, options);
+                new Observer(vm, key, handler.bind(vm), options);
             }
         });
     }
@@ -1301,7 +1301,7 @@
     }
     function createWacher(vm) {
         wachers.forEach((watcher) => {
-            new Observer(vm, watcher.__v_exp, watchMap.get(watcher));
+            new Observer(vm, watcher.__v_exp, watchMap.get(watcher).bind(vm));
         });
     }
 

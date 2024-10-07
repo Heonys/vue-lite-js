@@ -13,12 +13,9 @@
         <span>{{ visible ? "🔓" : "🔒" }}</span>
         <div>{{ message }}</div>
         <span>{{ uppercaseMessage }}</span> -->
-
-        <input type="checkbox" v-model="isChecked">
-
-        <input type="checkbox" :checked="isChecked"  />
-
-        <div>{{ isChecked ? "🔓" : "🔒"}}</div>
+        <div>{{ message }}</div>
+        <div>{{ count }}</div>
+        <button @click="increment">Increment</button>
 
 
         <!-- <vue-propsviewer :propsdata="message" :handlecheck="handlecheck"></vue-propsviewer>

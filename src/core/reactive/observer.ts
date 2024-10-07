@@ -58,10 +58,10 @@ export function createWatcher(vm: Vuelite) {
   if (!watch) return;
   Object.entries(watch).forEach(([key, value]) => {
     if (isWatchMethod(value)) {
-      new Observer(vm, key, value, { immediate: false });
+      new Observer(vm, key, value.bind(vm), { immediate: false });
     } else {
       const { handler, ...options } = value;
-      new Observer(vm, key, handler, options);
+      new Observer(vm, key, handler.bind(vm), options);
     }
   });
 }

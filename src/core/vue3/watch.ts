@@ -12,6 +12,6 @@ export function watch<T>(source: Ref<T>, callback: WatchCallback<T>) {
 
 export function createWacher(vm: Vuelite) {
   wachers.forEach((watcher) => {
-    new Observer(vm, watcher.__v_exp, watchMap.get(watcher));
+    new Observer(vm, watcher.__v_exp, watchMap.get(watcher).bind(vm));
   });
 }

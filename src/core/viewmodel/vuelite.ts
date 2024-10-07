@@ -28,6 +28,7 @@ export default class Vuelite<Data = {}>
   $components: ComponentMap = new Map();
   componentsNames: Record<string, Options> = {};
   updateQueue: Function[] = [];
+  [custom: string]: any;
   static context?: Record<string, any>;
 
   constructor(options: Options<Data>) {

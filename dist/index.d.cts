@@ -35,7 +35,7 @@ type Accessor<Data> = {
 type ComputedType<Data> = {
     [K: string]: Accessor<Data> | (() => any);
 };
-type WatchCallback = (newVal: any, oldVal: any) => void;
+type WatchCallback = (this: Vuelite, newVal: any, oldVal: any) => void;
 type WatchOption = {
     immediate?: boolean;
 };
@@ -110,6 +110,7 @@ declare class Vuelite<Data = {}> extends Lifecycle<Data> implements ComponentPub
     $components: ComponentMap;
     componentsNames: Record<string, Options>;
     updateQueue: Function[];
+    [custom: string]: any;
     static context?: Record<string, any>;
     constructor(options: Options<Data>);
     mount(selector?: string): void;
