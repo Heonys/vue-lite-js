@@ -6,7 +6,7 @@
 <p align='center'>Clones Vue.js to implement a basic MVVM framework</p>
 
 <p align='center'>
-    <a href='https://vuelite-live-editor.vercel.app/feature/v-bind'>
+    <a href='https://vuelite-live-editor.vercel.app'>
         <img src="https://img.shields.io/badge/deploy-Vuelite Demo-blue" />
     </a>
     <a href=''>
@@ -62,7 +62,7 @@
 
 주된 목표는 `Vue.js`의 핵심 동작을 클론하고 문법을 지원하면서, `MVVM` 패턴과 핵심적인 옵저버 패턴을 적용해 보는 것입니다. `Proxy` 객체를 통해 데이터의 변화를 감지하고, 해당 데이터에 의존하는 디렉티브`(Observer)`들에게 알림을 보내 화면을 업데이트 하는 방식으로 반응형 시스템을 구현합니다. 프로젝트의 전반적인 구조는 [Reference](#-reference)의 코드를 기반으로 기능들을 추가하였으며, 복잡한 문제를 충분히 고려하지 않고 최적화도 부족하지만, 양방향 데이터 바인딩과 더불어 `Vue.js`의 핵심원리를 이해하는데 도움을 줄 수 있다고 생각합니다. 
 
-> **Note**: 다양한 사용 사례를 확인하고 직접 테스트 할 수 있는 [Playground](https://vuelite-live-editor.vercel.app/feature/v-bind)를 지원합니다.
+> **Note**: 다양한 사용 사례를 확인하고 직접 테스트 할 수 있는 [Playground](https://vuelite-live-editor.vercel.app)를 지원합니다.
 
 
 ## 🌟 Changelog
@@ -128,7 +128,7 @@ npm run start
   <img src="./img/Animation.gif" alt="Description of GIF" />
   <br />
   <span>Playground: </span>
-  <a href='https://vuelite-live-editor.vercel.app/feature/v-bind' target="_blank">vuelite-live-editor.vercel.app</a>
+  <a href='https://vuelite-live-editor.vercel.app' target="_blank">vuelite-live-editor.vercel.app</a>
 </p>
 
 ```html
