@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <script type="importmap">
+      {
+        "imports": {
+          "Vuelite": "./bundle.min.esm.js"
+        }
+      }
+    </script> -->
+    <script src="./bundle.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <input type="text" v-model="message" />
+      <div>{{ message }}</div>
+      <vue-child :propsmessage="message"></vue-child>
+    </div>
+
+    <template id="child">
+      <div>{{ message }}</div>
+      <div>{{ propsmessage }}</div>
+    </template>
+
+    <script type="module">
+      import { createApp, ref } from "Vuelite";
+
+      const ChildComponent = {
+        el: "#child",
+        props: ["propsmessage"],
+        data() {
+          return {
+            message: "local message",
+          };
+        },
+        scopedStyles: {
+          div: {
+            padding: "10px",
+            border: "1px solid red",
+            "font-weight": "bold",
+          },
+        },
+      };
+
+      createApp({
+        components: {
+          "vue-child": ChildComponent,
+        },
+        setup(props) {
+          const message = ref("parent message");
+          return { message };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

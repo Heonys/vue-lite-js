@@ -5,7 +5,7 @@
 <p align='center'>Clones Vue.js to implement a basic MVVM framework</p>
 
 <p align='center'>
-    <a href='https://vuelite-demo.vercel.app'>
+    <a href='https://vuelite-live-editor.vercel.app'>
         <img src="https://img.shields.io/badge/deploy-Vuelite Demo-blue" />
     </a>
     <a href=''>
@@ -64,6 +64,8 @@ This document has been translated using an **automated translation tool** and ha
 Inspired by modern frameworks that support efficient data binding and user interface management based on the `MVVM (Model-View-ViewModel)` pattern, this is a basic `MVVM` framework that clones the declarative rendering model of `Vue.js`. It abstracts complex `DOM` manipulation, allowing developers to handle `UI` in a simpler and more intuitive manner. By automatically synchronizing data and `UI` state, it enables the efficient composition of user interfaces. Additionally, with template syntax and various directives, declarative `UI` development becomes easy, and `UI` that instantly reflects data changes can be quickly implemented.
 
 The primary goal is to clone the core functionality of `Vue.js` and support its syntax while applying the `MVVM` pattern and the essential observer pattern. By using the `Proxy` object to detect data changes, this reactive system notifies directives that depend on the data `(Observer)`, triggering updates to the view. The overall structure of the project is built upon the code provided in the [Reference](#-reference) section, and while it lacks optimization and doesn’t account for complex issues, it serves as a helpful tool for understanding the core principles of `Vue.js`, including two-way data binding.
+
+> **Note**: A [Playground](https://vuelite-live-editor.vercel.app) is available to explore various use cases and test them directly.
 
 ## 🌟 Changelog
 - ***Improved type inference and autocomplete for `this` in methods and computed properties*** `<1.1.0>`
@@ -129,8 +131,8 @@ You can modify the source code in the `src` folder and write markdown and script
 <p align="center">
   <img src="./img/Animation.gif" alt="Description of GIF" />
   <br />
-  <span>CDN Demo: </span>
-  <a href='https://vuelite-demo.vercel.app' target="_blank">https://vuelite-demo.vercel.app</a>
+  <span>Playground: </span>
+  <a href='https://vuelite-live-editor.vercel.app' target="_blank">vuelite-live-editor.vercel.app</a>
 </p>
 
 ```html

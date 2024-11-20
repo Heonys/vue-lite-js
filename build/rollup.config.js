@@ -39,6 +39,12 @@ module.exports = [
         format: "umd",
         exports: "named",
       },
+      {
+        file: "dist/bundle.min.esm.js",
+        name: "Vuelite",
+        format: "esm",
+        exports: "named",
+      },
     ],
   },
   {
